@@ -1,3 +1,5 @@
+// js/storage.js
+
 const Store = (() => {
     const PREFIX = 'anitime_';
 
@@ -8,6 +10,7 @@ const Store = (() => {
             return JSON.parse(raw);
         } catch (e) { return def; }
     }
+
     function set(key, val) {
         try {
             localStorage.setItem(PREFIX + key, JSON.stringify(val));
@@ -17,9 +20,11 @@ const Store = (() => {
             return false;
         }
     }
+
     function remove(key) {
         try { localStorage.removeItem(PREFIX + key); } catch (e) {}
     }
+
     function clear() {
         try {
             Object.keys(localStorage)
@@ -34,26 +39,44 @@ const Store = (() => {
     function getList() {
         return get('watchlist', {});
     }
+
+    function getItem(animeId) {
+        return getList()[animeId] || null;
+    }
+
     function setStatus(animeId, status, animeData = null) {
         const list = getList();
         if (!status) {
             delete list[animeId];
         } else {
+            let cleanData = null;
+            if (animeData) {
+                cleanData = {
+                    id: animeData.id,
+                    title: animeData.title,
+                    coverImage: animeData.coverImage,
+                    episodes: animeData.episodes,
+                    format: animeData.format
+                };
+            }
+
             list[animeId] = {
                 status,
                 progress: list[animeId]?.progress || 0,
                 score: list[animeId]?.score || 0,
                 note: list[animeId]?.note || '',
                 updatedAt: Date.now(),
-                data: animeData || list[animeId]?.data || null
+                data: cleanData || list[animeId]?.data || null
             };
         }
         set('watchlist', list);
         return list;
     }
+
     function getStatus(animeId) {
         return getList()[animeId]?.status || null;
     }
+
     function updateProgress(animeId, delta) {
         const list = getList();
         if (!list[animeId]) return null;
@@ -62,6 +85,7 @@ const Store = (() => {
         set('watchlist', list);
         return list[animeId];
     }
+
     function setProgress(animeId, value) {
         const list = getList();
         if (!list[animeId]) return null;
@@ -70,42 +94,54 @@ const Store = (() => {
         set('watchlist', list);
         return list[animeId];
     }
+
     function setScore(animeId, score) {
         const list = getList();
         if (!list[animeId]) return null;
         list[animeId].score = score;
+        list[animeId].updatedAt = Date.now();
         set('watchlist', list);
         return list[animeId];
     }
+
     function setNote(animeId, note) {
         const list = getList();
         if (!list[animeId]) return null;
         list[animeId].note = note;
+        list[animeId].updatedAt = Date.now();
         set('watchlist', list);
         return list[animeId];
     }
 
     // ===== SETTINGS =====
     const DEFAULT_SETTINGS = {
-        tzOffset: null,           // null = TỰ ĐỘNG
-        titleLang: 'ROMAJI',      // ROMAJI | ENGLISH | NATIVE
-        theme: 'DARK',            // DARK | LIGHT | AUTO
-        region: 'VN',             // VN | US | JP | GLOBAL
-        startPage: 'schedule',    // schedule | seasonal | library
+        tzOffset: null,              // null = TỰ ĐỘNG
+        titleLang: 'ROMAJI',         // ROMAJI | ENGLISH | NATIVE
+        theme: 'DARK',               // DARK | LIGHT | AUTO
+        region: 'VN',                // VN | US | JP | GLOBAL
+        startPage: 'schedule',       // schedule | seasonal | library
         notifications: false,
         reminderMinutes: 15,
         filterMyList: false,
-        hideDropped: true
+        hideDropped: true,
+        // ===== HIỆU NĂNG =====
+        reduceEffects: false,        // GIẢM HIỆU ỨNG
+        disableAnimations: false,    // TẮT ANIMATION
+        disableBlur: false,          // TẮT GLASSMORPHISM
+        compactMode: false           // CHẾ ĐỘ GỌN
     };
+
     function getSettings() {
         return { ...DEFAULT_SETTINGS, ...get('settings', {}) };
     }
+
     function setSetting(key, val) {
         const s = getSettings();
         s[key] = val;
         set('settings', s);
         return s;
     }
+
     function resetSettings() {
         set('settings', DEFAULT_SETTINGS);
         return DEFAULT_SETTINGS;
@@ -120,6 +156,7 @@ const Store = (() => {
             settings: getSettings()
         };
     }
+
     function importAll(data) {
         if (!data || typeof data !== 'object') throw new Error('Dữ liệu không hợp lệ');
         if (data.watchlist) set('watchlist', data.watchlist);
@@ -129,9 +166,11 @@ const Store = (() => {
 
     return {
         get, set, remove, clear,
-        getList, setStatus, getStatus, updateProgress, setProgress, setScore, setNote,
+        getList, getItem, setStatus, getStatus, updateProgress, setProgress, setScore, setNote,
         getSettings, setSetting, resetSettings,
         exportAll, importAll,
         WATCH_STATUSES
     };
 })();
+
+window.Store = Store;
