@@ -1,25 +1,27 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="AniTime">
-<meta name="theme-color" content="#000000">
-<meta name="description" content="Lịch phát anime - Đếm ngược - Thư viện cá nhân">
-<link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icons/icon-192.png">
-<link rel="stylesheet" href="css/main.css">
-<link rel="stylesheet" href="css/components.css">
-<link rel="stylesheet" href="css/schedule.css">
-<link rel="stylesheet" href="css/detail.css">
-<link rel="stylesheet" href="css/themes.css">
-<title>AniTime — Lịch Anime</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="AniTime">
+    <meta name="theme-color" content="#000000">
+    <meta name="description" content="Lịch phát anime - Đếm ngược - Thư viện cá nhân">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/schedule.css">
+    <link rel="stylesheet" href="css/detail.css">
+    <link rel="stylesheet" href="css/themes.css">
+    <title>AniTime — Lịch Anime</title>
 </head>
 <body>
-    <!-- AMBIENT BACKGROUND (ÁNH SÁNG NỀN ĐỘNG) -->
+    <!-- AMBIENT BACKGROUND -->
     <div class="ambient">
         <div class="ambient-blob blob-1"></div>
         <div class="ambient-blob blob-2"></div>
@@ -60,17 +62,14 @@
     <div class="content" id="content">
         <!-- VIEW: SCHEDULE -->
         <section class="view active" id="view-schedule">
-            <!-- SEGMENTED CONTROL -->
             <div class="segmented" id="scheduleViewTabs">
                 <button class="seg-btn active" data-view="daily">Theo ngày</button>
                 <button class="seg-btn" data-view="week">Tuần</button>
                 <button class="seg-btn" data-view="grid">Lưới giờ</button>
             </div>
 
-            <!-- DAYS NAV -->
             <nav class="days-nav" id="daysNav"></nav>
 
-            <!-- INFO BAR -->
             <div class="info-bar">
                 <div class="info-tz">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -87,7 +86,6 @@
                 </button>
             </div>
 
-            <!-- SCHEDULE LIST -->
             <div class="schedule" id="schedule">
                 <div class="loading">
                     <div class="spinner"></div>
@@ -160,7 +158,7 @@
         </section>
     </div>
 
-    <!-- BOTTOM NAV - GLASS -->
+    <!-- BOTTOM NAV -->
     <nav class="bottom-nav">
         <button class="nav-btn active" data-page="schedule">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -202,12 +200,11 @@
         </button>
     </nav>
 
-    <!-- TOAST -->
+    <!-- TOAST & MODAL -->
     <div class="toast" id="toast"></div>
-
-    <!-- MODAL CONTAINER -->
     <div class="modal-overlay" id="modalOverlay"></div>
 
+    <!-- SCRIPTS -->
     <script src="js/timezone.js"></script>
     <script src="js/storage.js"></script>
     <script src="js/api.js"></script>
@@ -222,7 +219,5 @@
     <script src="js/news.js"></script>
     <script src="js/settings.js"></script>
     <script src="js/app.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
-<script>eruda.init();</script> 
 </body>
 </html>
