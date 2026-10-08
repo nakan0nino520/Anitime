@@ -1,4 +1,4 @@
-const CACHE_NAME = 'anitime-v1';
+const CACHE_NAME = 'anitime-v99-force-update';
 const ASSETS = [
     './',
     './index.html',
