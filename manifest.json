@@ -1,1 +1,21 @@
-
+{
+    "name": "AniTime - Lịch Anime",
+    "short_name": "AniTime",
+    "description": "Lịch phát anime, đếm ngược, thư viện cá nhân - Miễn phí",
+    "start_url": "./index.html",
+    "scope": "./",
+    "display": "standalone",
+    "orientation": "portrait",
+    "background_color": "#000000",
+    "theme_color": "#000000",
+    "lang": "vi",
+    "categories": ["entertainment", "utilities"],
+    "icons": [
+        {
+            "src": "icons/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ]
+}
