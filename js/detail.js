@@ -235,8 +235,8 @@ const DetailView = (() => {
             <div class="detail-header">
                 <img class="detail-cover" src="${cover}" alt="${escTitle}" loading="lazy" onerror="this.style.display='none'">
                 <div class="detail-title-block">
-                    <h1 class="detail-title">${escTitle}</h1>
-                    ${sub ? `<p class="detail-subtitle">${UI.escapeHtml(sub)}</p>` : ''}
+                    <h1 class="detail-title copyable" data-copy-type="title" data-copy-text="${UI.escapeHtml(title)}">${UI.escapeHtml(title)}</h1>
+                    ${sub ? `<p class="detail-subtitle copyable" data-copy-type="subtitle" data-copy-text="${UI.escapeHtml(sub)}">${UI.escapeHtml(sub)}</p>` : ''}
                     <div class="detail-badges">
                         <span class="badge badge-score" style="--score-clr:${scoreClr}">
                             <span class="badge-icon">★</span>
@@ -343,7 +343,8 @@ const DetailView = (() => {
             ${description ? `
                 <div class="detail-section">
                     <h3>Nội dung</h3>
-                    <p class="detail-synopsis" id="synopsis">${(typeof UI !== 'undefined' && UI.escapeHtml) ? UI.escapeHtml(description) : description}</p>
+                    <p class="detail-synopsis copyable" id="synopsis" data-original="${UI.escapeHtml(description)}" data-copy-type="synopsis">${(typeof UI !== 'undefined' && UI.escapeHtml) ? UI.escapeHtml(description) : description}</p>
+                    <span class="copy-hint">💡 Nhấn giữ để sao chép</span>
                     <button class="btn-read-more" id="btnReadMore">
                         <span>Đọc thêm</span>
                         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -453,6 +454,9 @@ const DetailView = (() => {
         const sheet = document.getElementById('detailSheet');
         if (!sheet) return;
 
+        // ===== NHẤN GIỮ ĐỂ SAO CHÉP =====
+        bindCopyableElements(sheet);
+
         const btnReadMore = sheet.querySelector('#btnReadMore');
         if (btnReadMore) {
             btnReadMore.addEventListener('click', () => {
@@ -558,6 +562,119 @@ const DetailView = (() => {
         `;
         const closeBtn = document.getElementById('detailClose');
         if (closeBtn) closeBtn.addEventListener('click', close);
+    }
+
+    // ========== NHẤN GIỮ ĐỂ SAO CHÉP ==========
+    function bindCopyableElements(container) {
+        const copyables = container.querySelectorAll('.copyable');
+        console.log('[Detail] Bind copyable:', copyables.length);
+
+        copyables.forEach(el => {
+            let holdTimer = null;
+            let isHolding = false;
+
+            const startHold = (e) => {
+                if (e.target.closest('button') || e.target.closest('a')) return;
+
+                isHolding = true;
+                el.classList.add('holding');
+
+                if (navigator.vibrate) navigator.vibrate(10);
+
+                holdTimer = setTimeout(() => {
+                    if (!isHolding) return;
+                    doCopy(el);
+                }, 500);
+            };
+
+            const endHold = () => {
+                isHolding = false;
+                el.classList.remove('holding');
+                if (holdTimer) {
+                    clearTimeout(holdTimer);
+                    holdTimer = null;
+                }
+            };
+
+            const cancelHold = () => {
+                if (!isHolding) return;
+                isHolding = false;
+                el.classList.remove('holding');
+                if (holdTimer) {
+                    clearTimeout(holdTimer);
+                    holdTimer = null;
+                }
+            };
+
+            // TOUCH (MOBILE)
+            el.addEventListener('touchstart', startHold, { passive: true });
+            el.addEventListener('touchend', endHold);
+            el.addEventListener('touchcancel', cancelHold);
+            el.addEventListener('touchmove', cancelHold, { passive: true });
+
+            // MOUSE (DESKTOP)
+            el.addEventListener('mousedown', startHold);
+            el.addEventListener('mouseup', endHold);
+            el.addEventListener('mouseleave', cancelHold);
+
+            // CLICK PHẢI CHUỘT ĐỂ COPY NHANH
+            el.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                doCopy(el);
+            });
+        });
+    }
+
+    // ========== THỰC HIỆN COPY ==========
+    async function doCopy(el) {
+        const type = el.dataset.copyType || 'text';
+        let text = '';
+
+        if (type === 'synopsis') {
+            text = el.dataset.original || el.textContent;
+        } else {
+            text = el.dataset.copyText || el.textContent;
+        }
+
+        text = text.trim();
+        if (!text) {
+            if (typeof UI !== 'undefined') UI.toast('⚠ Không có nội dung để sao chép');
+            return;
+        }
+
+        try {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                await navigator.clipboard.writeText(text);
+            } else {
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                textarea.style.position = 'fixed';
+                textarea.style.top = '-9999px';
+                textarea.style.left = '-9999px';
+                textarea.setAttribute('readonly', '');
+                document.body.appendChild(textarea);
+                textarea.select();
+                textarea.setSelectionRange(0, text.length);
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+            }
+
+            const label = {
+                title: 'tên anime',
+                subtitle: 'tên phụ',
+                synopsis: 'mô tả'
+            }[type] || 'văn bản';
+
+            if (typeof UI !== 'undefined') UI.toast('✓ Đã sao chép ' + label);
+            if (navigator.vibrate) navigator.vibrate([30, 50, 30]);
+
+            el.classList.add('copied');
+            setTimeout(() => el.classList.remove('copied'), 600);
+
+        } catch (err) {
+            console.error('[Detail] Copy lỗi:', err);
+            if (typeof UI !== 'undefined') UI.toast('⚠ Không thể sao chép');
+        }
     }
 
     return { open, close };
