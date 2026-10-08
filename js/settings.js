@@ -2,6 +2,17 @@
 
 const SettingsView = (() => {
 
+    // ========== ÁP DỤNG HIỆU ỨNG VÀO BODY ==========
+    function applyEffectsToBody() {
+        if (typeof Store === 'undefined') return;
+        const s = Store.getSettings();
+        const body = document.body;
+        body.classList.toggle('reduce-effects', !!s.reduceEffects);
+        body.classList.toggle('no-animations', !!s.disableAnimations);
+        body.classList.toggle('no-blur', !!s.disableBlur);
+        body.classList.toggle('compact-mode', !!s.compactMode);
+    }
+
     function open() {
         const overlay = document.getElementById('modalOverlay');
         if (!overlay) return;
@@ -112,7 +123,58 @@ const SettingsView = (() => {
                     </div>
                 </div>
 
-                <!-- NHÓM 3: LỌC & HIỂN THỊ -->
+                <!-- NHÓM 3: HIỆU NĂNG -->
+                <div class="settings-section">
+                    <div class="settings-section-title">⚡ Hiệu năng</div>
+
+                    <div class="settings-card">
+                        <div class="settings-row">
+                            <div class="settings-icon-wrap" style="background:rgba(255,159,10,0.15);border-color:rgba(255,159,10,0.3)">⚡</div>
+                            <div class="settings-text">
+                                <div class="settings-label">Giảm hiệu ứng</div>
+                                <div class="settings-desc">Tắt blur, shadow - Tăng tốc độ</div>
+                            </div>
+                            <div class="toggle ${s.reduceEffects ? 'on' : ''}" id="toggleReduceEffects">
+                                <div class="toggle-knob"></div>
+                            </div>
+                        </div>
+
+                        <div class="settings-row">
+                            <div class="settings-icon-wrap">🎬</div>
+                            <div class="settings-text">
+                                <div class="settings-label">Tắt animation</div>
+                                <div class="settings-desc">Không chuyển động - Load nhanh</div>
+                            </div>
+                            <div class="toggle ${s.disableAnimations ? 'on' : ''}" id="toggleDisableAnimations">
+                                <div class="toggle-knob"></div>
+                            </div>
+                        </div>
+
+                        <div class="settings-row">
+                            <div class="settings-icon-wrap">💧</div>
+                            <div class="settings-text">
+                                <div class="settings-label">Tắt kính mờ</div>
+                                <div class="settings-desc">Bỏ Glassmorphism - Tăng FPS</div>
+                            </div>
+                            <div class="toggle ${s.disableBlur ? 'on' : ''}" id="toggleDisableBlur">
+                                <div class="toggle-knob"></div>
+                            </div>
+                        </div>
+
+                        <div class="settings-row">
+                            <div class="settings-icon-wrap">📱</div>
+                            <div class="settings-text">
+                                <div class="settings-label">Chế độ gọn</div>
+                                <div class="settings-desc">Hiển thị nhiều nội dung hơn</div>
+                            </div>
+                            <div class="toggle ${s.compactMode ? 'on' : ''}" id="toggleCompactMode">
+                                <div class="toggle-knob"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- NHÓM 4: LỌC & HIỂN THỊ -->
                 <div class="settings-section">
                     <div class="settings-section-title">🎯 Lọc & Hiển thị</div>
 
@@ -168,7 +230,7 @@ const SettingsView = (() => {
                     </div>
                 </div>
 
-                <!-- NHÓM 4: DỮ LIỆU -->
+                <!-- NHÓM 5: DỮ LIỆU -->
                 <div class="settings-section">
                     <div class="settings-section-title">💾 Dữ liệu</div>
 
@@ -219,7 +281,6 @@ const SettingsView = (() => {
         const settingsClose = document.getElementById('settingsClose');
         if (settingsClose) settingsClose.addEventListener('click', close);
 
-        // CLICK NGOÀI ĐỂ ĐÓNG (Chỉ bind 1 lần)
         const overlay = document.getElementById('modalOverlay');
         if (overlay && !overlay._boundClose) {
             overlay._boundClose = true;
@@ -234,7 +295,8 @@ const SettingsView = (() => {
             setTitleLang.addEventListener('change', (e) => {
                 if (typeof Store !== 'undefined') Store.setSetting('titleLang', e.target.value);
                 if (typeof UI !== 'undefined') UI.toast('✓ Đã lưu ngôn ngữ');
-                if (window.ScheduleView) ScheduleView.render();
+                if (window.ScheduleView && typeof ScheduleView.render === 'function') ScheduleView.render();
+                if (window.LibraryView && typeof LibraryView.render === 'function') LibraryView.render();
             });
         }
 
@@ -255,7 +317,7 @@ const SettingsView = (() => {
                 const tzInfo = document.getElementById('tzInfo');
                 if (tzInfo && typeof TZ !== 'undefined') tzInfo.textContent = TZ.label();
                 if (typeof UI !== 'undefined' && typeof TZ !== 'undefined') UI.toast('✓ Múi giờ: ' + TZ.label());
-                if (window.ScheduleView) ScheduleView.render();
+                if (window.ScheduleView && typeof ScheduleView.render === 'function') ScheduleView.render();
             });
         }
 
@@ -294,6 +356,59 @@ const SettingsView = (() => {
             });
         }
 
+        // ========== HIỆU NĂNG ==========
+
+        // GIẢM HIỆU ỨNG
+        const toggleReduceEffects = document.getElementById('toggleReduceEffects');
+        if (toggleReduceEffects) {
+            toggleReduceEffects.addEventListener('click', () => {
+                toggleReduceEffects.classList.toggle('on');
+                const isOn = toggleReduceEffects.classList.contains('on');
+                if (typeof Store !== 'undefined') Store.setSetting('reduceEffects', isOn);
+                applyEffectsToBody();
+                if (typeof UI !== 'undefined') UI.toast(isOn ? '⚡ Đã giảm hiệu ứng' : '✓ Đã bật lại');
+            });
+        }
+
+        // TẮT ANIMATION
+        const toggleDisableAnimations = document.getElementById('toggleDisableAnimations');
+        if (toggleDisableAnimations) {
+            toggleDisableAnimations.addEventListener('click', () => {
+                toggleDisableAnimations.classList.toggle('on');
+                const isOn = toggleDisableAnimations.classList.contains('on');
+                if (typeof Store !== 'undefined') Store.setSetting('disableAnimations', isOn);
+                applyEffectsToBody();
+                if (typeof UI !== 'undefined') UI.toast(isOn ? '🎬 Đã tắt animation' : '✓ Đã bật lại');
+            });
+        }
+
+        // TẮT BLUR
+        const toggleDisableBlur = document.getElementById('toggleDisableBlur');
+        if (toggleDisableBlur) {
+            toggleDisableBlur.addEventListener('click', () => {
+                toggleDisableBlur.classList.toggle('on');
+                const isOn = toggleDisableBlur.classList.contains('on');
+                if (typeof Store !== 'undefined') Store.setSetting('disableBlur', isOn);
+                applyEffectsToBody();
+                if (typeof UI !== 'undefined') UI.toast(isOn ? '💧 Đã tắt kính mờ' : '✓ Đã bật lại');
+            });
+        }
+
+        // CHẾ ĐỘ GỌN
+        const toggleCompactMode = document.getElementById('toggleCompactMode');
+        if (toggleCompactMode) {
+            toggleCompactMode.addEventListener('click', () => {
+                toggleCompactMode.classList.toggle('on');
+                const isOn = toggleCompactMode.classList.contains('on');
+                if (typeof Store !== 'undefined') Store.setSetting('compactMode', isOn);
+                applyEffectsToBody();
+                if (typeof UI !== 'undefined') UI.toast(isOn ? '📱 Chế độ gọn' : '✓ Chế độ thường');
+                if (window.ScheduleView && typeof ScheduleView.render === 'function') ScheduleView.render();
+            });
+        }
+
+        // ========== LỌC & HIỂN THỊ ==========
+
         // FILTER MY LIST
         const toggleFilterMyList = document.getElementById('toggleFilterMyList');
         if (toggleFilterMyList) {
@@ -302,7 +417,7 @@ const SettingsView = (() => {
                 const isOn = toggleFilterMyList.classList.contains('on');
                 if (typeof Store !== 'undefined') Store.setSetting('filterMyList', isOn);
                 if (typeof UI !== 'undefined') UI.toast(isOn ? '✓ Chỉ hiện My List' : '✓ Hiện tất cả');
-                if (window.ScheduleView) ScheduleView.render();
+                if (window.ScheduleView && typeof ScheduleView.render === 'function') ScheduleView.render();
             });
         }
 
@@ -314,7 +429,7 @@ const SettingsView = (() => {
                 const isOn = toggleHideDropped.classList.contains('on');
                 if (typeof Store !== 'undefined') Store.setSetting('hideDropped', isOn);
                 if (typeof UI !== 'undefined') UI.toast(isOn ? '✓ Đã ẩn anime bỏ' : '✓ Hiện anime bỏ');
-                if (window.ScheduleView) ScheduleView.render();
+                if (window.ScheduleView && typeof ScheduleView.render === 'function') ScheduleView.render();
             });
         }
 
@@ -335,6 +450,8 @@ const SettingsView = (() => {
                 if (typeof UI !== 'undefined') UI.toast('✓ Đã lưu vùng');
             });
         }
+
+        // ========== DỮ LIỆU ==========
 
         // EXPORT
         const btnExport = document.getElementById('btnExport');
@@ -399,7 +516,9 @@ const SettingsView = (() => {
         }
     }
 
-    return { open, close };
+    setTimeout(applyEffectsToBody, 100);
+
+    return { open, close, applyEffectsToBody };
 })();
 
 window.SettingsView = SettingsView;
