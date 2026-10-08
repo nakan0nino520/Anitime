@@ -49,6 +49,10 @@ const LibraryView = (() => {
         }
         if (btnElement) {
             btnElement.classList.add('active');
+        } else if (tabs) {
+            // Fallback nếu không truyền btnElement trực tiếp
+            const targetBtn = tabs.querySelector(`[data-status="${status}"]`);
+            if (targetBtn) targetBtn.classList.add('active');
         }
 
         render();
@@ -304,7 +308,6 @@ const LibraryView = (() => {
             .replace(/'/g, '&#39;');
     }
 
-    // BẮT BUỘC PHẢI EXPORT switchTab RA NGOÀI ĐỂ HTML GỌI ĐƯỢC
     return { init, render, switchTab };
 })();
 
