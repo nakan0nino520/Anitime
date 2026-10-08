@@ -34,44 +34,25 @@ const LibraryView = (() => {
     // ========== KHỞI TẠO ==========
     function init() {
         console.log('[Library] init');
-        bindTabs();
         render();
     }
 
-    // ========== BIND TABS (AN TOÀN, KHÔNG BỊ TRƠ) ==========
-    function bindTabs() {
+    // ========== HÀM CHUYỂN TAB GỌI TRỰC TIẾP TỪ HTML ==========
+    function switchTab(status, btnElement) {
+        console.log('[Library] Switch tab to:', status);
+        currentStatus = status;
+
+        // Cập nhật class active cho các nút tab
         const tabs = tabsEl();
-        if (!tabs) {
-            console.warn('[Library] Không tìm thấy #libraryTabs');
-            return;
+        if (tabs) {
+            tabs.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+        }
+        if (btnElement) {
+            btnElement.classList.add('active');
         }
 
-        const btns = tabs.querySelectorAll('.seg-btn');
-        console.log('[Library] Bind tabs:', btns.length);
-
-        btns.forEach(btn => {
-            // Clone nút để xóa sạch mọi event listener cũ bị chồng lấn trước đó
-            const newBtn = btn.cloneNode(true);
-            btn.parentNode.replaceChild(newBtn, btn);
-
-            newBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-
-                const newStatus = newBtn.dataset.status;
-                if (!newStatus) return;
-
-                // Cập nhật giao diện active cho các nút tab
-                tabs.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
-                newBtn.classList.add('active');
-
-                if (newStatus === currentStatus) return;
-                currentStatus = newStatus;
-                render();
-
-                if (navigator.vibrate) navigator.vibrate(10);
-            });
-        });
+        render();
+        if (navigator.vibrate) navigator.vibrate(10);
     }
 
     // ========== RENDER ==========
@@ -274,7 +255,6 @@ const LibraryView = (() => {
                 if (typeof Store.setProgress === 'function') {
                     Store.setProgress(id, 0);
                 } else if (typeof Store.updateProgress === 'function') {
-                    // Fallback an toàn nếu Store không có setProgress
                     const current = Store.getList()[id]?.progress || 0;
                     Store.updateProgress(id, -current);
                 }
@@ -324,7 +304,8 @@ const LibraryView = (() => {
             .replace(/'/g, '&#39;');
     }
 
-    return { init, render };
+    // BẮT BUỘC PHẢI EXPORT switchTab RA NGOÀI ĐỂ HTML GỌI ĐƯỢC
+    return { init, render, switchTab };
 })();
 
 window.LibraryView = LibraryView;
