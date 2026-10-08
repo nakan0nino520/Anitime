@@ -1,45 +1,80 @@
 // js/schedule.js
-import { API } from './api.js';
 
-export async function loadSchedule() {
-    // Tìm phần tử hiển thị "Đang tải lịch phát...[span_1](start_span)"[span_1](end_span)
-    const loadingEl = document.querySelector('.loading') || document.getElementById('loading');
+const ScheduleView = {
+    async init() {
+        await this.load();
+    },
+    async refresh() {
+        await this.load();
+    },
+    async load() {
+        const loadingEl = document.querySelector('#schedule .loading') 
+                        || document.querySelector('.loading')
+                        || document.getElementById('loading');
 
-    // 1. Lấy mốc thời gian BẮT ĐẦU và KẾT THÚC của hôm nay (Đơn vị: GIÂY)
-    const now = new Date();
-    const startOfDay = Math.floor(new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0).getTime() / 1000);
-    const endOfDay = startOfDay + 86400; // Cộng thêm 24 giờ
+        // Mốc thời gian đầu ngày & cuối ngày (GIÂY)
+        const now = new Date();
+        const startOfDay = Math.floor(new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0).getTime() / 1000);
+        const endOfDay = startOfDay + 86400;
 
-    try {
-        // 2. Gọi API lấy lịch chiếu
-        const schedules = await API.getSchedule(startOfDay, endOfDay);
+        try {
+            if (typeof API === 'undefined' || typeof API.getSchedule !== 'function') {
+                throw new Error("Chưa nạp đối tượng API từ api.js!");
+            }
 
-        if (!schedules || schedules.length === 0) {
-            renderEmptyState("Không có lịch phát sóng cho hôm nay.");
-            return;
+            const schedules = await API.getSchedule(startOfDay, endOfDay);
+
+            if (!schedules || schedules.length === 0) {
+                this.renderEmpty("Không có lịch phát sóng cho hôm nay.");
+            } else {
+                this.render(schedules);
+            }
+
+        } catch (error) {
+            console.error("Lỗi khi tải lịch phát sóng:", error);
+            this.renderEmpty("Đã xảy ra lỗi khi kết nối máy chủ.");
+        } finally {
+            // Luôn ẩn spinner khi kết thúc
+            if (loadingEl) {
+                loadingEl.style.display = 'none';
+            }
         }
+    },
 
-        // 3. Render danh sách phim ra màn hình
-        renderScheduleUI(schedules);
+    render(list) {
+        const container = document.getElementById('schedule');
+        if (!container) return;
 
-    } catch (error) {
-        console.error("Lỗi khi tải lịch phát sóng:", error);
-        renderEmptyState("Đã xảy ra lỗi khi kết nối máy chủ. Vui lòng thử lại!");
-    } finally {
-        // 4. ⚠️ QUAN TRỌNG NHẤT: Bắt buộc ẩn Spinner dù thành công hay thất bại
-        if (loadingEl) {
-            loadingEl.style.display = 'none';
+        container.innerHTML = '';
+
+        list.forEach(item => {
+            const media = item.media;
+            const title = media.title.userPreferred || media.title.romaji || media.title.english || media.title.native;
+            const cover = media.coverImage.large;
+            const ep = item.episode;
+            
+            const cardHtml = `
+                <div class="anime-card" data-id="${media.id}">
+                    <img class="anime-cover" src="${cover}" alt="${title}" loading="lazy">
+                    <div class="anime-info">
+                        <div class="anime-title">${title}</div>
+                        <div class="anime-time">
+                            <span class="anime-ep">Tập ${ep}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', cardHtml);
+        });
+    },
+
+    renderEmpty(message) {
+        const container = document.getElementById('schedule');
+        if (container) {
+            container.innerHTML = `<div class="empty-state" style="text-align:center; padding: 24px; color: var(--text-2); font-weight: 600;">${message}</div>`;
         }
     }
-}
+};
 
-// Hàm bổ trợ hiển thị UI khi không có dữ liệu
-function renderEmptyState(message) {
-    const container = document.querySelector('.schedule-container') || document.body;
-    // Bạn điều chỉnh class/id hiển thị nội dung tùy theo index.html
-}
-
-// Hàm bổ trợ render danh sách phim
-function renderScheduleUI(list) {
-    // Code render thẻ Anime Card của bạn tại đây...
-}
+// Gán biến toàn cục cho app.js sử dụng
+window.ScheduleView = ScheduleView;
