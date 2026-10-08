@@ -1,4 +1,4 @@
-// js/detail.js - TRANG CHI TIẾT ANIME - PHIÊN BẢN iOS CAO CẤP
+// js/detail.js - TRANG CHI TIẾT ANIME - PHIÊN BẢN iOS CAO CẤP (ĐÃ TỐI ƯU MƯỢT MÀ)
 
 const DetailView = (() => {
     let currentAnime = null;
@@ -455,7 +455,7 @@ const DetailView = (() => {
         const sheet = document.getElementById('detailSheet');
         if (!sheet) return;
 
-        // KÍCH HOẠT NHẤN GIỮ ĐỂ SAO CHÉP
+        // KÍCH HOẠT NHẤN GIỮ ĐỂ SAO CHÉP ĐÃ TỐI ƯU
         bindCopyableElements(sheet);
 
         const btnReadMore = sheet.querySelector('#btnReadMore');
@@ -565,7 +565,7 @@ const DetailView = (() => {
         if (closeBtn) closeBtn.addEventListener('click', close);
     }
 
-    // ========== HÀM HỖ TRỢ: NHẤN GIỮ ĐỂ SAO CHÉP ==========
+    // ========== HÀM HỖ TRỢ: NHẤN GIỮ ĐỂ SAO CHÉP (TỐI ƯU KHÔNG LAG) ==========
     function bindCopyableElements(container) {
         const copyables = container.querySelectorAll('.copyable');
         copyables.forEach(el => {
@@ -581,19 +581,11 @@ const DetailView = (() => {
                 holdTimer = setTimeout(() => {
                     if (!isHolding) return;
                     doCopy(el);
+                    endHold();
                 }, 500);
             };
 
             const endHold = () => {
-                isHolding = false;
-                el.classList.remove('holding');
-                if (holdTimer) {
-                    clearTimeout(holdTimer);
-                    holdTimer = null;
-                }
-            };
-
-            const cancelHold = () => {
                 if (!isHolding) return;
                 isHolding = false;
                 el.classList.remove('holding');
@@ -603,14 +595,14 @@ const DetailView = (() => {
                 }
             };
 
+            // Sử dụng passive: true để trình duyệt không bị chặn luồng cuộn trang
             el.addEventListener('touchstart', startHold, { passive: true });
-            el.addEventListener('touchend', endHold);
-            el.addEventListener('touchcancel', cancelHold);
-            el.addEventListener('touchmove', cancelHold, { passive: true });
+            el.addEventListener('touchend', endHold, { passive: true });
+            el.addEventListener('touchcancel', endHold, { passive: true });
 
             el.addEventListener('mousedown', startHold);
             el.addEventListener('mouseup', endHold);
-            el.addEventListener('mouseleave', cancelHold);
+            el.addEventListener('mouseleave', endHold);
 
             el.addEventListener('contextmenu', (e) => {
                 e.preventDefault();
