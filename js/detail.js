@@ -223,6 +223,8 @@ const DetailView = (() => {
         const scoreClr = scoreColor(a.averageScore);
         const totalEps = a.episodes || '?';
         const escTitle = (typeof UI !== 'undefined' && UI.escapeHtml) ? UI.escapeHtml(title) : title;
+        const escSub = sub ? ((typeof UI !== 'undefined' && UI.escapeHtml) ? UI.escapeHtml(sub) : sub) : '';
+        const escDesc = description ? ((typeof UI !== 'undefined' && UI.escapeHtml) ? UI.escapeHtml(description) : description) : '';
 
         const html = `
             <!-- BANNER -->
@@ -235,8 +237,8 @@ const DetailView = (() => {
             <div class="detail-header">
                 <img class="detail-cover" src="${cover}" alt="${escTitle}" loading="lazy" onerror="this.style.display='none'">
                 <div class="detail-title-block">
-                    <h1 class="detail-title copyable" data-copy-type="title" data-copy-text="${UI.escapeHtml(title)}">${UI.escapeHtml(title)}</h1>
-                    ${sub ? `<p class="detail-subtitle copyable" data-copy-type="subtitle" data-copy-text="${UI.escapeHtml(sub)}">${UI.escapeHtml(sub)}</p>` : ''}
+                    <h1 class="detail-title copyable" data-copy-type="title" data-copy-text="${escTitle}">${escTitle}</h1>
+                    ${sub ? `<p class="detail-subtitle copyable" data-copy-type="subtitle" data-copy-text="${escSub}">${escSub}</p>` : ''}
                     <div class="detail-badges">
                         <span class="badge badge-score" style="--score-clr:${scoreClr}">
                             <span class="badge-icon">★</span>
@@ -343,8 +345,7 @@ const DetailView = (() => {
             ${description ? `
                 <div class="detail-section">
                     <h3>Nội dung</h3>
-                    <p class="detail-synopsis copyable" id="synopsis" data-original="${UI.escapeHtml(description)}" data-copy-type="synopsis">${(typeof UI !== 'undefined' && UI.escapeHtml) ? UI.escapeHtml(description) : description}</p>
-                    <span class="copy-hint">💡 Nhấn giữ để sao chép</span>
+                    <p class="detail-synopsis copyable" id="synopsis" data-original="${escDesc}" data-copy-type="synopsis">${escDesc}</p>
                     <button class="btn-read-more" id="btnReadMore">
                         <span>Đọc thêm</span>
                         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -454,7 +455,7 @@ const DetailView = (() => {
         const sheet = document.getElementById('detailSheet');
         if (!sheet) return;
 
-        // ===== NHẤN GIỮ ĐỂ SAO CHÉP =====
+        // KÍCH HOẠT NHẤN GIỮ ĐỂ SAO CHÉP
         bindCopyableElements(sheet);
 
         const btnReadMore = sheet.querySelector('#btnReadMore');
@@ -564,21 +565,17 @@ const DetailView = (() => {
         if (closeBtn) closeBtn.addEventListener('click', close);
     }
 
-    // ========== NHẤN GIỮ ĐỂ SAO CHÉP ==========
+    // ========== HÀM HỖ TRỢ: NHẤN GIỮ ĐỂ SAO CHÉP ==========
     function bindCopyableElements(container) {
         const copyables = container.querySelectorAll('.copyable');
-        console.log('[Detail] Bind copyable:', copyables.length);
-
         copyables.forEach(el => {
             let holdTimer = null;
             let isHolding = false;
 
             const startHold = (e) => {
                 if (e.target.closest('button') || e.target.closest('a')) return;
-
                 isHolding = true;
                 el.classList.add('holding');
-
                 if (navigator.vibrate) navigator.vibrate(10);
 
                 holdTimer = setTimeout(() => {
@@ -606,18 +603,15 @@ const DetailView = (() => {
                 }
             };
 
-            // TOUCH (MOBILE)
             el.addEventListener('touchstart', startHold, { passive: true });
             el.addEventListener('touchend', endHold);
             el.addEventListener('touchcancel', cancelHold);
             el.addEventListener('touchmove', cancelHold, { passive: true });
 
-            // MOUSE (DESKTOP)
             el.addEventListener('mousedown', startHold);
             el.addEventListener('mouseup', endHold);
             el.addEventListener('mouseleave', cancelHold);
 
-            // CLICK PHẢI CHUỘT ĐỂ COPY NHANH
             el.addEventListener('contextmenu', (e) => {
                 e.preventDefault();
                 doCopy(el);
@@ -625,7 +619,6 @@ const DetailView = (() => {
         });
     }
 
-    // ========== THỰC HIỆN COPY ==========
     async function doCopy(el) {
         const type = el.dataset.copyType || 'text';
         let text = '';
