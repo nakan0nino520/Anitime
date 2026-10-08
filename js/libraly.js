@@ -38,29 +38,32 @@ const LibraryView = (() => {
         render();
     }
 
-    // ========== BIND TABS (CHỈ 1 LẦN) ==========
+    // ========== BIND TABS (AN TOÀN, KHÔNG BỊ TRƠ) ==========
     function bindTabs() {
         const tabs = tabsEl();
         if (!tabs) {
             console.warn('[Library] Không tìm thấy #libraryTabs');
             return;
         }
-        if (tabs._bound) return;
-        tabs._bound = true;
 
         const btns = tabs.querySelectorAll('.seg-btn');
         console.log('[Library] Bind tabs:', btns.length);
 
         btns.forEach(btn => {
-            btn.addEventListener('click', (e) => {
+            // Clone nút để xóa sạch mọi event listener cũ bị chồng lấn trước đó
+            const newBtn = btn.cloneNode(true);
+            btn.parentNode.replaceChild(newBtn, btn);
+
+            newBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
 
-                const newStatus = btn.dataset.status;
+                const newStatus = newBtn.dataset.status;
                 if (!newStatus) return;
 
-                btns.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
+                // Cập nhật giao diện active cho các nút tab
+                tabs.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+                newBtn.classList.add('active');
 
                 if (newStatus === currentStatus) return;
                 currentStatus = newStatus;
@@ -148,7 +151,7 @@ const LibraryView = (() => {
 
                     ${progress > 0 && episodes !== '?' ? `
                         <div class="library-progress-bar">
-                            <div class="library-progress-fill" style="width:${percent}%;background:${color}"></div>
+                            <div class="library-progress-fill" style="width:${percent}\%;background:${color}"></div>
                         </div>
                         <div class="library-progress-text">
                             Đã xem ${progress}/${episodes} tập (${percent}%)
@@ -268,7 +271,13 @@ const LibraryView = (() => {
                 break;
             case 'restart':
                 Store.setStatus(id, 'WATCHING');
-                Store.setProgress(id, 0);
+                if (typeof Store.setProgress === 'function') {
+                    Store.setProgress(id, 0);
+                } else if (typeof Store.updateProgress === 'function') {
+                    // Fallback an toàn nếu Store không có setProgress
+                    const current = Store.getList()[id]?.progress || 0;
+                    Store.updateProgress(id, -current);
+                }
                 if (typeof UI !== 'undefined') UI.toast('↻ Xem lại từ đầu');
                 render();
                 break;
