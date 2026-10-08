@@ -7,7 +7,6 @@ let lastRequestTime = 0;
 
 function generateKey(query, variables) {
     try {
-        // Tối ưu tạo key không trùng lặp
         const str = JSON.stringify({ q: query.replace(/\s+/g, ' '), v: variables });
         return 'api_' + btoa(encodeURIComponent(str)).slice(-100);
     } catch (e) {
@@ -71,7 +70,7 @@ async function gql(query, variables = {}) {
     }
 }
 
-// LỊCH PHÁT (Đã chuẩn hóa tham số sang giây)
+// LỊCH PHÁT (Tham số từ/đến tính bằng GIÂY)
 async function getSchedule(fromSec, toSec) {
     const query = `
         query ($from: Int, $to: Int) {
@@ -157,5 +156,5 @@ async function search(keyword, filters = {}) {
     return data && data.Page ? data.Page.media : [];
 }
 
-// Xuất Module chuẩn ES6
-export const API = { getSchedule, getSeasonal, getDetail, search };
+// Gán biến toàn cục
+window.API = { getSchedule, getSeasonal, getDetail, search };
