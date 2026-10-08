@@ -1,1 +1,233 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="AniTime">
+<meta name="theme-color" content="#000000">
+<meta name="description" content="Lịch phát anime - Đếm ngược - Thư viện cá nhân">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/schedule.css">
+<link rel="stylesheet" href="css/detail.css">
+<link rel="stylesheet" href="css/themes.css">
+<title>AniTime — Lịch Anime</title>
+</head>
+<body>
+    <!-- AMBIENT BACKGROUND (ÁNH SÁNG NỀN ĐỘNG) -->
+    <div class="ambient">
+        <div class="ambient-blob blob-1"></div>
+        <div class="ambient-blob blob-2"></div>
+        <div class="ambient-blob blob-3"></div>
+    </div>
 
+    <!-- TOPBAR GLASS -->
+    <header class="topbar">
+        <div class="brand">
+            <div class="brand-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="7" width="20" height="14" rx="2"/>
+                    <polyline points="17 2 12 7 7 2"/>
+                </svg>
+            </div>
+            <div class="brand-text">
+                <span class="brand-name">AniTime</span>
+                <span class="brand-sub" id="brandSub">Hôm nay</span>
+            </div>
+        </div>
+        <div class="actions">
+            <button class="glass-btn" id="btnRefresh" aria-label="Làm mới">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="23 4 23 10 17 10"/>
+                    <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+                </svg>
+            </button>
+            <button class="glass-btn" id="btnSettings" aria-label="Cài đặt">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- SCROLLABLE CONTENT -->
+    <div class="content" id="content">
+        <!-- VIEW: SCHEDULE -->
+        <section class="view active" id="view-schedule">
+            <!-- SEGMENTED CONTROL -->
+            <div class="segmented" id="scheduleViewTabs">
+                <button class="seg-btn active" data-view="daily">Theo ngày</button>
+                <button class="seg-btn" data-view="week">Tuần</button>
+                <button class="seg-btn" data-view="grid">Lưới giờ</button>
+            </div>
+
+            <!-- DAYS NAV -->
+            <nav class="days-nav" id="daysNav"></nav>
+
+            <!-- INFO BAR -->
+            <div class="info-bar">
+                <div class="info-tz">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                    <span id="tzInfo">GMT+7</span>
+                </div>
+                <button class="filter-chip" id="btnFilterMyList">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                    </svg>
+                    Chỉ My List
+                </button>
+            </div>
+
+            <!-- SCHEDULE LIST -->
+            <div class="schedule" id="schedule">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Đang tải lịch phát...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW: SEASONAL -->
+        <section class="view" id="view-seasonal">
+            <div class="season-picker">
+                <select class="glass-select" id="seasonSelect">
+                    <option value="WINTER">❄️ Đông</option>
+                    <option value="SPRING">🌸 Xuân</option>
+                    <option value="SUMMER">☀️ Hè</option>
+                    <option value="FALL">🍂 Thu</option>
+                </select>
+                <select class="glass-select" id="yearSelect"></select>
+            </div>
+            <div class="segmented" id="formatTabs">
+                <button class="seg-btn active" data-format="TV">TV</button>
+                <button class="seg-btn" data-format="MOVIE">Movie</button>
+                <button class="seg-btn" data-format="OVA">OVA</button>
+                <button class="seg-btn" data-format="ONA">ONA</button>
+            </div>
+            <div class="schedule" id="seasonal">
+                <div class="loading"><div class="spinner"></div></div>
+            </div>
+        </section>
+
+        <!-- VIEW: LIBRARY -->
+        <section class="view" id="view-library">
+            <div class="segmented scroll-x" id="libraryTabs">
+                <button class="seg-btn active" data-status="WATCHING">Đang xem</button>
+                <button class="seg-btn" data-status="PLANNING">Kế hoạch</button>
+                <button class="seg-btn" data-status="COMPLETED">Hoàn thành</button>
+                <button class="seg-btn" data-status="PAUSED">Tạm dừng</button>
+                <button class="seg-btn" data-status="DROPPED">Bỏ</button>
+                <button class="seg-btn" data-status="CONSIDERING">Cân nhắc</button>
+            </div>
+            <div class="schedule" id="library">
+                <div class="loading"><p>Chưa có anime nào</p></div>
+            </div>
+        </section>
+
+        <!-- VIEW: SEARCH -->
+        <section class="view" id="view-search">
+            <div class="search-bar">
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"/>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                <input type="text" id="searchInput" placeholder="Tìm anime..." autocomplete="off">
+            </div>
+            <div class="filter-chips">
+                <button class="filter-chip" data-filter="genre">Thể loại</button>
+                <button class="filter-chip" data-filter="year">Năm</button>
+                <button class="filter-chip" data-filter="sort">Sắp xếp</button>
+            </div>
+            <div class="schedule" id="searchResults">
+                <div class="loading"><p>Nhập từ khóa để tìm</p></div>
+            </div>
+        </section>
+
+        <!-- VIEW: NEWS -->
+        <section class="view" id="view-news">
+            <div class="schedule" id="news">
+                <div class="loading"><div class="spinner"></div></div>
+            </div>
+        </section>
+    </div>
+
+    <!-- BOTTOM NAV - GLASS -->
+    <nav class="bottom-nav">
+        <button class="nav-btn active" data-page="schedule">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+            <span>Lịch</span>
+        </button>
+        <button class="nav-btn" data-page="seasonal">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2v20M2 12h20M4.93 4.93l14.14 14.14M19.07 4.93L4.93 19.07"/>
+            </svg>
+            <span>Mùa</span>
+        </button>
+        <button class="nav-btn" data-page="library">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+            </svg>
+            <span>Thư viện</span>
+        </button>
+        <button class="nav-btn" data-page="search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"/>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <span>Tìm</span>
+        </button>
+        <button class="nav-btn" data-page="news">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/>
+                <line x1="18" y1="14" x2="12" y2="14"/>
+                <line x1="18" y1="18" x2="12" y2="18"/>
+                <line x1="18" y1="10" x2="12" y2="10"/>
+            </svg>
+            <span>Tin</span>
+        </button>
+    </nav>
+
+    <!-- TOAST -->
+    <div class="toast" id="toast"></div>
+
+    <!-- MODAL CONTAINER -->
+    <div class="modal-overlay" id="modalOverlay"></div>
+
+    <script src="js/timezone.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/countdown.js"></script>
+    <script src="js/notify.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/schedule.js"></script>
+    <script src="js/seasonal.js"></script>
+    <script src="js/library.js"></script>
+    <script src="js/detail.js"></script>
+    <script src="js/search.js"></script>
+    <script src="js/news.js"></script>
+    <script src="js/settings.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').catch(() => {});
+            });
+        }
+    </script>
+</body>
+                      </html>
