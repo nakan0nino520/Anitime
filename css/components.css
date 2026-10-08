@@ -41,7 +41,7 @@
     background: var(--glass-3);
 }
 
-/* ===== SEGMENTED CONTROL ===== */
+/* ===== SEGMENTED CONTROL (Đã fix lỗi chặn click/touch) ===== */
 .segmented {
     display: flex;
     gap: 4px;
@@ -54,6 +54,8 @@
     border-radius: var(--r-md);
     box-shadow: var(--shadow-s);
     position: relative;
+    z-index: 20 !important;
+    pointer-events: auto !important;
 }
 .segmented.scroll-x {
     overflow-x: auto;
@@ -78,6 +80,8 @@
     -webkit-appearance: none;
     appearance: none;
     position: relative;
+    z-index: 21 !important;
+    pointer-events: auto !important;
 }
 .seg-btn.active {
     background: var(--grad-primary);
