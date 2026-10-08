@@ -84,10 +84,16 @@ const ScheduleView = (() => {
 
         try {
             const data = await API.getSchedule(Math.floor(from.getTime() / 1000), Math.floor(to.getTime() / 1000));
-            scheduleCache = data.sort((a, b) => a.airingAt - b.airingAt);
+            // Kiểm tra an toàn xem data có phải mảng hay không trước khi sort
+            if (Array.isArray(data)) {
+                scheduleCache = data.sort((a, b) => a.airingAt - b.airingAt);
+            } else {
+                scheduleCache = [];
+            }
             render();
         } catch (err) {
-            container.innerHTML = `<div class="loading"><p>Lỗi tải dữ liệu. <br>Kiểm tra kết nối mạng.</p></div>`;
+            console.error('Schedule Load Error:', err);
+            container.innerHTML = `<div class="loading"><p>Lỗi tải dữ liệu. <br>Kiểm tra kết nối mạng hoặc thử lại sau.</p></div>`;
         }
     }
 
