@@ -16,6 +16,7 @@ const ScheduleView = (() => {
             renderDaysNav();
             renderInfoBar();
             bindSegmented();
+            bindCardEvents(); // Gán sự kiện cho #schedule 1 lần duy nhất
             if (typeof Countdown !== 'undefined') {
                 Countdown.onTick(() => typeof UI !== 'undefined' && UI.tickCountdowns && UI.tickCountdowns());
                 Countdown.start();
@@ -94,7 +95,7 @@ const ScheduleView = (() => {
                     tabs.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
                     currentView = newView;
-                    load(); // Reload lại API để lấy đủ ngày nếu đổi sang view Week
+                    load();
                 }
             });
         });
@@ -112,7 +113,6 @@ const ScheduleView = (() => {
         from.setHours(0, 0, 0, 0);
 
         const to = new Date(from);
-        // Nếu chọn View tuần -> Lấy 7 ngày, ngược lại lấy 1 ngày
         if (currentView === 'week') {
             to.setDate(to.getDate() + 7);
         } else {
@@ -191,21 +191,27 @@ const ScheduleView = (() => {
             }
             container.innerHTML = items.map(it => UI.animeCard(it)).join('');
         }
-
-        // BIND CLICK CARD
-        bindCardEvents(container);
     }
 
-    // ========== BIND CLICK CARD ==========
-    function bindCardEvents(container) {
-        const cards = container.querySelectorAll('.anime-card');
+    // ========== BIND EVENT DELEGATION ==========
+    function bindCardEvents() {
+        const container = el();
+        if (!container || container._boundClick) return;
+        container._boundClick = true;
 
-        cards.forEach(card => {
-            card.style.cursor = 'pointer';
+        container.addEventListener('click', (e) => {
+            // Nút Yêu thích (Fav)
+            const favBtn = e.target.closest('.fav-btn');
+            if (favBtn) {
+                e.stopPropagation();
+                const id = parseInt(favBtn.dataset.id);
+                if (id) toggleFavorite(id, favBtn);
+                return;
+            }
 
-            card.addEventListener('click', (e) => {
-                if (e.target.closest('.fav-btn')) return;
-
+            // Click vào thẻ Card (Đúng đoạn code của bạn)
+            const card = e.target.closest('.anime-card');
+            if (card) {
                 const id = parseInt(card.dataset.id);
                 if (!id) return;
 
@@ -214,16 +220,7 @@ const ScheduleView = (() => {
                 } else if (typeof UI !== 'undefined') {
                     UI.toast('⚠ Không thể mở chi tiết');
                 }
-            });
-        });
-
-        // BIND FAV
-        container.querySelectorAll('.fav-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const id = parseInt(btn.dataset.id);
-                toggleFavorite(id, btn);
-            });
+            }
         });
     }
 
