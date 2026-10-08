@@ -4,8 +4,17 @@ const API = (() => {
     const MIN_INTERVAL = 2000; // 30 REQUEST/PHÚT
     let lastRequestTime = 0;
 
+    // Hàm mã hóa an toàn Unicode
+    function generateKey(query, variables) {
+        try {
+            return 'api_' + encodeURIComponent(JSON.stringify({ q: query.slice(0, 50), v: variables }));
+        } catch (e) {
+            return 'api_' + Date.now();
+        }
+    }
+
     async function gql(query, variables = {}) {
-        const cacheKey = 'api_' + btoa(JSON.stringify({ q: query.slice(0, 100), v: variables }));
+        const cacheKey = generateKey(query, variables);
         const cached = getCache(cacheKey);
         if (cached) return cached;
 
@@ -35,7 +44,7 @@ const API = (() => {
             setCache(cacheKey, json.data);
             return json.data;
         } catch (err) {
-            console.error('API:', err);
+            console.error('API Error:', err);
             const old = getCache(cacheKey, true);
             if (old) return old;
             throw err;
@@ -60,10 +69,10 @@ const API = (() => {
             }
         `;
         const data = await gql(query, { from: fromSec, to: toSec });
-        return data.Page.airingSchedules;
+        return data && data.Page ? data.Page.airingSchedules : [];
     }
 
-    // MÙA
+    // Các hàm getSeasonal, getDetail, search giữ nguyên...
     async function getSeasonal(season, year, format) {
         const query = `
             query ($season: MediaSeason, $year: Int, $format: MediaFormat) {
@@ -77,10 +86,9 @@ const API = (() => {
             }
         `;
         const data = await gql(query, { season, year, format });
-        return data.Page.media;
+        return data && data.Page ? data.Page.media : [];
     }
 
-    // CHI TIẾT
     async function getDetail(id) {
         const query = `
             query ($id: Int) {
@@ -114,10 +122,9 @@ const API = (() => {
             }
         `;
         const data = await gql(query, { id });
-        return data.Media;
+        return data ? data.Media : null;
     }
 
-    // TÌM KIẾM
     async function search(keyword, filters = {}) {
         const query = `
             query ($search: String, $genres: [String], $format: MediaFormat, $sort: [MediaSort], $seasonYear: Int) {
@@ -138,10 +145,9 @@ const API = (() => {
             sort: [filters.sort || 'POPULARITY_DESC']
         };
         const data = await gql(query, vars);
-        return data.Page.media;
+        return data && data.Page ? data.Page.media : [];
     }
 
-    // CACHE
     function getCache(key, ignoreTTL) {
         try {
             const raw = localStorage.getItem(key);
@@ -151,6 +157,7 @@ const API = (() => {
             return obj.d;
         } catch (e) { return null; }
     }
+
     function setCache(key, data) {
         try {
             localStorage.setItem(key, JSON.stringify({ t: Date.now(), d: data }));
