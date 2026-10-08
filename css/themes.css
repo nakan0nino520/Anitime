@@ -1,1 +1,23 @@
-
+[data-theme="light"] {
+    --bg: #f2f2f7;
+    --glass-1: rgba(255, 255, 255, 0.72);
+    --glass-2: rgba(255, 255, 255, 0.65);
+    --glass-3: rgba(255, 255, 255, 0.55);
+    --border: rgba(0, 0, 0, 0.08);
+    --border-strong: rgba(0, 0, 0, 0.14);
+    --text: #000000;
+    --text-2: rgba(0, 0, 0, 0.6);
+    --text-3: rgba(0, 0, 0, 0.38);
+}
+[data-theme="light"] body {
+    background:
+        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(10, 132, 255, 0.12), transparent 70%),
+        radial-gradient(ellipse 60% 40% at 80% 100%, rgba(191, 90, 242, 0.08), transparent 70%),
+        var(--bg);
+}
+[data-theme="light"] .brand-name {
+    background: linear-gradient(180deg, #000 0%, rgba(0, 0, 0, 0.72) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
