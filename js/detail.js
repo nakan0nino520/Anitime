@@ -1,194 +1,606 @@
 const DetailView = (() => {
+    let currentAnime = null;
+    let sheetEl = null;
+    let scrollY = 0;
+
+    // ========== MỞ CHI TIẾT ==========
     async function open(id) {
         const overlay = document.getElementById('modalOverlay');
         if (!overlay) return;
+
+        // LƯU VỊ TRÍ CUỘN HIỆN TẠI
+        scrollY = window.scrollY;
+        document.body.style.overflow = 'hidden';
+        document.body.style.position = 'fixed';
+        document.body.style.top = `-${scrollY}px`;
+        document.body.style.width = '100%';
+
         overlay.classList.add('show');
         overlay.innerHTML = `
-            <div class="detail-sheet">
-                <button class="detail-close" id="detailClose">✕</button>
-                <div class="loading"><div class="spinner"></div></div>
+            <div class="detail-sheet" id="detailSheet">
+                <div class="detail-grabber"></div>
+                <button class="detail-close" id="detailClose" aria-label="Đóng">✕</button>
+                <div class="detail-loading">
+                    <div class="spinner"></div>
+                    <p>Đang tải...</p>
+                </div>
             </div>
         `;
-        document.getElementById('detailClose').addEventListener('click', close);
-        overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+
+        sheetEl = document.getElementById('detailSheet');
+        bindSheetEvents();
 
         try {
-            const anime = await API.getDetail(id);
-            renderDetail(anime);
+            currentAnime = await API.getDetail(id);
+            render(currentAnime);
         } catch (err) {
-            overlay.querySelector('.detail-sheet').innerHTML = `<p style="padding:40px;text-align:center">Lỗi tải chi tiết</p>`;
+            console.error('Detail error:', err);
+            renderError(err);
         }
     }
 
+    // ========== ĐÓNG CHI TIẾT ==========
     function close() {
         const overlay = document.getElementById('modalOverlay');
         if (!overlay) return;
+
         overlay.classList.remove('show');
-        overlay.innerHTML = '';
+
+        // KHÔI PHỤC CUỘN
+        document.body.style.overflow = '';
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.width = '';
+        window.scrollTo(0, scrollY);
+
+        setTimeout(() => {
+            overlay.innerHTML = '';
+            currentAnime = null;
+            sheetEl = null;
+        }, 400);
     }
 
-    function renderDetail(a) {
+    // ========== SỰ KIỆN SHEET ==========
+    function bindSheetEvents() {
         const overlay = document.getElementById('modalOverlay');
-        const sheet = overlay.querySelector('.detail-sheet');
-        const title = UI.titleOf(a);
-        const sub = UI.subtitleOf(a);
+        const closeBtn = document.getElementById('detailClose');
+
+        closeBtn.addEventListener('click', close);
+
+        // CLICK NGOÀI ĐỂ ĐÓNG
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) close();
+        });
+
+        // SWIPE XUỐNG ĐỂ ĐÓNG
+        let startY = 0;
+        let currentY = 0;
+        let isDragging = false;
+
+        sheetEl.addEventListener('touchstart', (e) => {
+            if (sheetEl.scrollTop > 5) return;
+            startY = e.touches[0].clientY;
+            currentY = startY;
+            isDragging = true;
+        }, { passive: true });
+
+        sheetEl.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            currentY = e.touches[0].clientY;
+            const diff = currentY - startY;
+            if (diff > 0 && sheetEl.scrollTop <= 5) {
+                sheetEl.style.transition = 'none';
+                sheetEl.style.transform = `translateY(${diff * 0.6}px)`;
+            }
+        }, { passive: true });
+
+        sheetEl.addEventListener('touchend', () => {
+            if (!isDragging) return;
+            isDragging = false;
+            const diff = currentY - startY;
+            sheetEl.style.transition = '';
+            if (diff > 120) {
+                close();
+            } else {
+                sheetEl.style.transform = '';
+            }
+        });
+
+        // PHÍM ESC ĐỂ ĐÓNG
+        const escHandler = (e) => {
+            if (e.key === 'Escape') {
+                document.removeEventListener('keydown', escHandler);
+                close();
+            }
+        };
+        document.addEventListener('keydown', escHandler);
+    }
+
+    // ========== HELPER: FORMAT NGÀY ==========
+    function formatDate(d) {
+        if (!d || !d.year) return null;
+        const day = d.day ? String(d.day).padStart(2, '0') : null;
+        const month = d.month ? String(d.month).padStart(2, '0') : null;
+        if (day && month) return `${day}/${month}/${d.year}`;
+        if (month) return `${month}/${d.year}`;
+        return `${d.year}`;
+    }
+
+    // ========== HELPER: FORMAT SỐ ==========
+    function formatNumber(num) {
+        if (!num && num !== 0) return '—';
+        if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+        if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+        return num.toString();
+    }
+
+    // ========== HELPER: LÀM SẠCH HTML ==========
+    function cleanHtml(str) {
+        if (!str) return '';
+        return str
+            .replace(/<br\s*\/?>/gi, '\n')
+            .replace(/<[^>]+>/g, '')
+            .replace(/&quot;/g, '"')
+            .replace(/&amp;/g, '&')
+            .replace(/&#039;/g, "'")
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/\n{3,}/g, '\n\n')
+            .trim();
+    }
+
+    // ========== HELPER: MÀU SCORE ==========
+    function scoreColor(score) {
+        if (!score) return 'var(--text-3)';
+        const s = score / 10;
+        if (s >= 8.5) return '#30d158';
+        if (s >= 7.5) return '#0a84ff';
+        if (s >= 6.5) return '#ff9f0a';
+        if (s >= 5) return '#ffd60a';
+        return '#ff375f';
+    }
+
+    // ========== HELPER: BADGE FORMAT ==========
+    function formatIcon(format) {
+        const map = {
+            'TV': '📺',
+            'MOVIE': '🎬',
+            'OVA': '💿',
+            'ONA': '🌐',
+            'SPECIAL': '⭐',
+            'TV_SHORT': '📹',
+            'MUSIC': '🎵'
+        };
+        return map[format] || '📺';
+    }
+
+    // ========== HELPER: TRẠNG THÁI ==========
+    function statusLabel(s) {
+        const map = {
+            'FINISHED': '✓ Đã kết thúc',
+            'RELEASING': '● Đang phát',
+            'NOT_YET_RELEASED': '⏳ Sắp ra mắt',
+            'CANCELLED': '✕ Đã hủy',
+            'HIATUS': '⏸ Tạm hoãn'
+        };
+        return map[s] || s;
+    }
+
+    // ========== RENDER CHÍNH ==========
+    function render(a) {
         const status = Store.getStatus(a.id);
         const entry = Store.getList()[a.id];
         const progress = entry?.progress || 0;
         const userScore = entry?.score || 0;
 
+        const title = UI.titleOf(a);
+        const sub = UI.subtitleOf(a);
+        const nativeTitle = a.title?.native || '';
         const banner = a.bannerImage || a.coverImage?.extraLarge || a.coverImage?.large;
         const cover = a.coverImage?.extraLarge || a.coverImage?.large;
-
         const studios = (a.studios?.nodes || []).map(s => s.name).join(', ');
-        const staff = (a.staff?.edges || []).slice(0, 3).map(s => `${s.node.name.full} (${s.role})`).join('<br>');
-        const cast = (a.characters?.edges || []).slice(0, 4).map(c => `${c.node.name.full} - ${c.role}`).join('<br>');
-
-        const links = (a.externalLinks || []).filter(l => l.type === 'STREAMING').slice(0, 5);
+        const cast = (a.characters?.edges || []).slice(0, 8);
+        const staff = (a.staff?.edges || []).slice(0, 6);
+        const links = (a.externalLinks || []).filter(l => l.type === 'STREAMING').slice(0, 8);
+        const allLinks = (a.externalLinks || []).slice(0, 12);
+        const relations = (a.relations?.edges || []).slice(0, 6);
+        const recommendations = (a.recommendations?.nodes || []).slice(0, 6);
         const trailer = a.trailer && a.trailer.site === 'youtube' ? a.trailer.id : null;
+        const description = cleanHtml(a.description);
+        const startDate = formatDate(a.startDate);
+        const endDate = formatDate(a.endDate);
+        const avgScore = a.averageScore ? (a.averageScore / 10).toFixed(1) : '—';
+        const scoreClr = scoreColor(a.averageScore);
+        const totalEps = a.episodes || '?';
 
-        const description = (a.description || '').replace(/<br\s*\/?>/gi, ' ').replace(/<[^>]+>/g, '');
-
-        sheet.innerHTML = `
-            <button class="detail-close" id="detailClose">✕</button>
+        const html = `
+            <!-- BANNER -->
             <div class="detail-banner" style="background-image:url('${banner}')">
                 <div class="detail-banner-overlay"></div>
+                ${nativeTitle ? `<div class="detail-native-title">${UI.escapeHtml(nativeTitle)}</div>` : ''}
             </div>
+
+            <!-- HEADER -->
             <div class="detail-header">
-                <img class="detail-cover" src="${cover}" alt="">
+                <img class="detail-cover" src="${cover}" alt="${UI.escapeHtml(title)}" loading="lazy" onerror="this.style.display='none'">
                 <div class="detail-title-block">
-                    <h2 class="detail-title">${UI.escapeHtml(title)}</h2>
+                    <h1 class="detail-title">${UI.escapeHtml(title)}</h1>
                     ${sub ? `<p class="detail-subtitle">${UI.escapeHtml(sub)}</p>` : ''}
                     <div class="detail-badges">
-                        <span class="badge">⭐ ${a.averageScore || '?'}</span>
-                        <span class="badge">📺 ${a.episodes || '?'} tập</span>
-                        ${a.format ? `<span class="badge">${a.format}</span>` : ''}
-                        ${a.seasonYear ? `<span class="badge">${a.season} ${a.seasonYear}</span>` : ''}
+                        <span class="badge badge-score" style="--score-clr:${scoreClr}">
+                            <span class="badge-icon">★</span>
+                            <span>${avgScore}</span>
+                        </span>
+                        ${a.format ? `<span class="badge">${formatIcon(a.format)} ${a.format}</span>` : ''}
+                        ${a.episodes ? `<span class="badge">📺 ${a.episodes} tập</span>` : ''}
+                        ${a.duration ? `<span class="badge">⏱ ${a.duration}p</span>` : ''}
+                        ${a.status ? `<span class="badge">${statusLabel(a.status)}</span>` : ''}
                     </div>
                 </div>
             </div>
 
+            <!-- ACTIONS -->
             <div class="detail-actions">
                 <select class="glass-select status-select" id="statusSelect">
-                    <option value="">— Chọn trạng thái —</option>
-                    <option value="WATCHING" ${status === 'WATCHING' ? 'selected' : ''}>Đang xem</option>
-                    <option value="COMPLETED" ${status === 'COMPLETED' ? 'selected' : ''}>Đã hoàn thành</option>
-                    <option value="PLANNING" ${status === 'PLANNING' ? 'selected' : ''}>Kế hoạch xem</option>
-                    <option value="CONSIDERING" ${status === 'CONSIDERING' ? 'selected' : ''}>Cân nhắc</option>
-                    <option value="PAUSED" ${status === 'PAUSED' ? 'selected' : ''}>Tạm dừng</option>
-                    <option value="DROPPED" ${status === 'DROPPED' ? 'selected' : ''}>Đã bỏ</option>
+                    <option value="">— Thêm vào thư viện —</option>
+                    <option value="WATCHING" ${status === 'WATCHING' ? 'selected' : ''}>▶ Đang xem</option>
+                    <option value="PLANNING" ${status === 'PLANNING' ? 'selected' : ''}>🕐 Kế hoạch</option>
+                    <option value="COMPLETED" ${status === 'COMPLETED' ? 'selected' : ''}>✓ Đã hoàn thành</option>
+                    <option value="PAUSED" ${status === 'PAUSED' ? 'selected' : ''}>⏸ Tạm dừng</option>
+                    <option value="DROPPED" ${status === 'DROPPED' ? 'selected' : ''}>✕ Đã bỏ</option>
+                    <option value="CONSIDERING" ${status === 'CONSIDERING' ? 'selected' : ''}>💭 Cân nhắc</option>
                 </select>
             </div>
 
-            ${status === 'WATCHING' || status === 'PAUSED' ? `
-                <div class="detail-progress">
-                    <label>Tiến độ xem</label>
+            <!-- PROGRESS (HIỆN KHI ĐANG XEM/PAUSED) -->
+            ${(status === 'WATCHING' || status === 'PAUSED') ? `
+                <div class="detail-card detail-progress">
+                    <label class="detail-card-label">📊 Tiến độ xem</label>
                     <div class="progress-counter big" data-id="${a.id}">
-                        <button class="prog-btn minus" data-delta="-1">−</button>
-                        <span class="prog-value">${progress}</span>
-                        <button class="prog-btn plus" data-delta="1">+</button>
+                        <button class="prog-btn minus" data-delta="-1" aria-label="Giảm">−</button>
+                        <span class="prog-value">
+                            <strong>${progress}</strong>
+                            <span class="prog-total">/ ${totalEps}</span>
+                        </span>
+                        <button class="prog-btn plus" data-delta="1" aria-label="Tăng">+</button>
                     </div>
                 </div>
             ` : ''}
 
-            <div class="detail-score">
-                <label>Đánh giá của bạn</label>
+            <!-- SCORE -->
+            <div class="detail-card detail-score">
+                <label class="detail-card-label">⭐ Đánh giá của bạn</label>
+                <div class="score-display">
+                    <span class="score-current">${userScore ? userScore + '/10' : 'Chưa đánh giá'}</span>
+                </div>
                 <div class="score-stars" data-id="${a.id}">
-                    ${[1,2,3,4,5,6,7,8,9,10].map(i => `<button class="star ${i <= userScore ? 'active' : ''}" data-score="${i}">★</button>`).join('')}
+                    ${[1,2,3,4,5,6,7,8,9,10].map(i => `
+                        <button class="star ${i <= userScore ? 'active' : ''}" data-score="${i}" aria-label="Đánh giá ${i}">★</button>
+                    `).join('')}
                 </div>
             </div>
 
-            ${description ? `
-                <div class="detail-section">
-                    <h3>Nội dung</h3>
-                    <p class="detail-synopsis">${UI.escapeHtml(description)}</p>
+            <!-- THÔNG TIN NHANH -->
+            <div class="detail-section">
+                <h3>Thông tin</h3>
+                <div class="detail-info-grid">
+                    ${a.format ? `
+                        <div class="info-item">
+                            <span class="info-icon">🎬</span>
+                            <div class="info-content">
+                                <span class="info-label">Định dạng</span>
+                                <span class="info-value">${a.format}</span>
+                            </div>
+                        </div>
+                    ` : ''}
+                    ${a.episodes ? `
+                        <div class="info-item">
+                            <span class="info-icon">📺</span>
+                            <div class="info-content">
+                                <span class="info-label">Số tập</span>
+                                <span class="info-value">${a.episodes} tập</span>
+                            </div>
+                        </div>
+                    ` : ''}
+                    ${a.duration ? `
+                        <div class="info-item">
+                            <span class="info-icon">⏱</span>
+                            <div class="info-content">
+                                <span class="info-label">Thời lượng</span>
+                                <span class="info-value">${a.duration} phút/tập</span>
+                            </div>
+                        </div>
+                    ` : ''}
+                    ${a.status ? `
+                        <div class="info-item">
+                            <span class="info-icon">📡</span>
+                            <div class="info-content">
+                                <span class="info-label">Trạng thái</span>
+                                <span class="info-value">${statusLabel(a.status)}</span>
+                            </div>
+                        </div>
+                    ` : ''}
+                    ${(a.season && a.seasonYear) ? `
+                        <div class="info-item">
+                            <span class="info-icon">🗓</span>
+                            <div class="info-content">
+                                <span class="info-label">Mùa</span>
+                                <span class="info-value">${a.season} ${a.seasonYear}</span>
+                            </div>
+                        </div>
+                    ` : ''}
+                    ${a.source ? `
+                        <div class="info-item">
+                            <span class="info-icon">📖</span>
+                            <div class="info-content">
+                                <span class="info-label">Nguồn</span>
+                                <span class="info-value">${a.source}</span>
+                            </div>
+                        </div>
+                    ` : ''}
+                    ${studios ? `
+                        <div class="info-item">
+                            <span class="info-icon">🏢</span>
+                            <div class="info-content">
+                                <span class="info-label">Studio</span>
+                                <span class="info-value">${UI.escapeHtml(studios)}</span>
+                            </div>
+                        </div>
+                    ` : ''}
+                    ${startDate ? `
+                        <div class="info-item">
+                            <span class="info-icon">📅</span>
+                            <div class="info-content">
+                                <span class="info-label">Khởi chiếu</span>
+                                <span class="info-value">${startDate}</span>
+                            </div>
+                        </div>
+                    ` : ''}
+                    ${endDate ? `
+                        <div class="info-item">
+                            <span class="info-icon">🏁</span>
+                            <div class="info-content">
+                                <span class="info-label">Kết thúc</span>
+                                <span class="info-value">${endDate}</span>
+                            </div>
+                        </div>
+                    ` : ''}
                 </div>
-            ` : ''}
+            </div>
 
+            <!-- STATS -->
+            <div class="detail-section">
+                <h3>Thống kê</h3>
+                <div class="detail-stats">
+                    <div class="stat-card">
+                        <div class="stat-value" style="color:${scoreClr}">${avgScore}</div>
+                        <div class="stat-label">Điểm TB</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${formatNumber(a.popularity)}</div>
+                        <div class="stat-label">Phổ biến</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${formatNumber(a.favourites)}</div>
+                        <div class="stat-label">Yêu thích</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GENRES -->
             ${(a.genres && a.genres.length) ? `
                 <div class="detail-section">
                     <h3>Thể loại</h3>
                     <div class="detail-genres">
-                        ${a.genres.map(g => `<span class="genre-chip" style="background:${UI.genreColor(g)}22;color:${UI.genreColor(g)};border-color:${UI.genreColor(g)}44">${g}</span>`).join('')}
+                        ${a.genres.map(g => `
+                            <span class="genre-chip" style="background:${UI.genreColor(g)}22;color:${UI.genreColor(g)};border-color:${UI.genreColor(g)}44">
+                                ${UI.escapeHtml(g)}
+                            </span>
+                        `).join('')}
                     </div>
                 </div>
             ` : ''}
 
-            ${studios ? `
+            <!-- SYNOPSIS -->
+            ${description ? `
                 <div class="detail-section">
-                    <h3>Studio</h3>
-                    <p>${UI.escapeHtml(studios)}</p>
+                    <h3>Nội dung</h3>
+                    <p class="detail-synopsis" id="synopsis">${UI.escapeHtml(description)}</p>
+                    <button class="btn-read-more" id="btnReadMore">
+                        <span>Đọc thêm</span>
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="6 9 12 15 18 9"/>
+                        </svg>
+                    </button>
                 </div>
             ` : ''}
 
+            <!-- TRAILER -->
             ${trailer ? `
                 <div class="detail-section">
-                    <h3>Trailer</h3>
+                    <h3>Trailer chính thức</h3>
                     <div class="trailer-wrap">
-                        <iframe src="https://www.youtube.com/embed/${trailer}" allowfullscreen loading="lazy"></iframe>
+                        <iframe
+                            src="https://www.youtube.com/embed/${trailer}?rel=0&modestbranding=1"
+                            allowfullscreen
+                            loading="lazy"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            title="Trailer">
+                        </iframe>
                     </div>
                 </div>
             ` : ''}
 
-            ${cast ? `
+            <!-- CAST -->
+            ${cast.length ? `
                 <div class="detail-section">
                     <h3>Diễn viên lồng tiếng</h3>
-                    <p>${cast}</p>
+                    <div class="cast-list">
+                        ${cast.map(c => `
+                            <div class="cast-item">
+                                ${c.node.image?.medium
+                                    ? `<img src="${c.node.image.medium}" class="cast-avatar" loading="lazy" alt="" onerror="this.style.visibility='hidden'">`
+                                    : `<div class="cast-avatar cast-avatar-empty">👤</div>`
+                                }
+                                <div class="cast-info">
+                                    <div class="cast-name">${UI.escapeHtml(c.node.name.full)}</div>
+                                    <div class="cast-role">${UI.escapeHtml(c.role || 'Vai chính')}</div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
                 </div>
             ` : ''}
 
-            ${staff ? `
+            <!-- STAFF -->
+            ${staff.length ? `
                 <div class="detail-section">
                     <h3>Đội ngũ sản xuất</h3>
-                    <p>${staff}</p>
+                    <div class="staff-list">
+                        ${staff.map(s => `
+                            <div class="staff-item">
+                                <span class="staff-name">${UI.escapeHtml(s.node.name.full)}</span>
+                                <span class="staff-role">${UI.escapeHtml(s.role)}</span>
+                            </div>
+                        `).join('')}
+                    </div>
                 </div>
             ` : ''}
 
+            <!-- STREAMING -->
             ${links.length ? `
                 <div class="detail-section">
                     <h3>Xem bản quyền</h3>
                     <div class="streaming-links">
-                        ${links.map(l => `<a href="${l.url}" target="_blank" rel="noopener" class="stream-link">${l.site}</a>`).join('')}
+                        ${links.map(l => `
+                            <a href="${l.url}" target="_blank" rel="noopener" class="stream-link">
+                                <span class="stream-icon">▶</span>
+                                <span>${UI.escapeHtml(l.site)}</span>
+                            </a>
+                        `).join('')}
                     </div>
                 </div>
             ` : ''}
 
-            ${a.siteUrl ? `
+            <!-- RELATIONS -->
+            ${relations.length ? `
                 <div class="detail-section">
-                    <a href="${a.siteUrl}" target="_blank" rel="noopener" class="glass-btn wide">Xem trên AniList</a>
+                    <h3>Phần liên quan</h3>
+                    <div class="relation-scroll">
+                        ${relations.map(r => `
+                            <div class="relation-card" data-id="${r.node.id}">
+                                <img src="${r.node.coverImage?.large || ''}" alt="" loading="lazy" onerror="this.style.background='#2a2a2a'">
+                                <span>${UI.escapeHtml(r.node.title?.romaji || 'N/A')}</span>
+                            </div>
+                        `).join('')}
+                    </div>
                 </div>
             ` : ''}
+
+            <!-- RECOMMENDATIONS -->
+            ${recommendations.length ? `
+                <div class="detail-section">
+                    <h3>Anime tương tự</h3>
+                    <div class="relation-scroll">
+                        ${recommendations.map(r => `
+                            <div class="relation-card" data-id="${r.mediaRecommendation?.id}">
+                                <img src="${r.mediaRecommendation?.coverImage?.large || ''}" alt="" loading="lazy" onerror="this.style.background='#2a2a2a'">
+                                <span>${UI.escapeHtml(r.mediaRecommendation?.title?.romaji || 'N/A')}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            ` : ''}
+
+            <!-- ACTIONS BOTTOM -->
+            <div class="detail-section detail-bottom-actions">
+                ${a.siteUrl ? `
+                    <a href="${a.siteUrl}" target="_blank" rel="noopener" class="bottom-action-btn">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                            <polyline points="15 3 21 3 21 9"/>
+                            <line x1="10" y1="14" x2="21" y2="3"/>
+                        </svg>
+                        Xem trên AniList
+                    </a>
+                ` : ''}
+                <button class="bottom-action-btn" id="btnShare">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
+                        <polyline points="16 6 12 2 8 6"/>
+                        <line x1="12" y1="2" x2="12" y2="15"/>
+                    </svg>
+                    Chia sẻ
+                </button>
+            </div>
         `;
 
-        // BIND
-        document.getElementById('detailClose').addEventListener('click', close);
-        const statusSel = document.getElementById('statusSelect');
-        statusSel.addEventListener('change', () => {
-            Store.setStatus(a.id, statusSel.value || null, {
-                id: a.id,
-                title: a.title,
-                coverImage: a.coverImage,
-                episodes: a.episodes,
-                format: a.format,
-                averageScore: a.averageScore,
-                season: a.season,
-                seasonYear: a.seasonYear
-            });
-            UI.toast(statusSel.value ? 'Đã cập nhật trạng thái' : 'Đã xóa');
-            setTimeout(() => open(a.id), 200);
-        });
+        // CHÈN VÀO SHEET
+        const contentWrapper = document.createElement('div');
+        contentWrapper.className = 'detail-content';
+        contentWrapper.innerHTML = html;
 
+        // XÓA LOADING + CHÈN NỘI DUNG
+        const loading = sheetEl.querySelector('.detail-loading');
+        if (loading) loading.remove();
+        sheetEl.appendChild(contentWrapper);
+
+        // BIND EVENTS
+        bindDetailEvents(a);
+    }
+
+    // ========== BIND SỰ KIỆN CHI TIẾT ==========
+    function bindDetailEvents(a) {
+        const sheet = document.getElementById('detailSheet');
+
+        // ĐỌC THÊM
+        const btnReadMore = sheet.querySelector('#btnReadMore');
+        if (btnReadMore) {
+            btnReadMore.addEventListener('click', () => {
+                const syn = sheet.querySelector('#synopsis');
+                syn.classList.toggle('expanded');
+                const span = btnReadMore.querySelector('span');
+                span.textContent = syn.classList.contains('expanded') ? 'Thu gọn' : 'Đọc thêm';
+                btnReadMore.querySelector('svg').style.transform =
+                    syn.classList.contains('expanded') ? 'rotate(180deg)' : 'rotate(0deg)';
+            });
+        }
+
+        // ĐỔI TRẠNG THÁI
+        const statusSel = sheet.querySelector('#statusSelect');
+        if (statusSel) {
+            statusSel.addEventListener('change', () => {
+                const val = statusSel.value || null;
+                Store.setStatus(a.id, val, {
+                    id: a.id,
+                    title: a.title,
+                    coverImage: a.coverImage,
+                    episodes: a.episodes,
+                    format: a.format,
+                    averageScore: a.averageScore,
+                    season: a.season,
+                    seasonYear: a.seasonYear
+                });
+                UI.toast(val ? '✓ Đã thêm vào thư viện' : '✓ Đã xóa khỏi thư viện');
+                setTimeout(() => open(a.id), 200);
+            });
+        }
+
+        // TĂNG/GIẢM TẬP
         sheet.querySelectorAll('.prog-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
                 const delta = parseInt(btn.dataset.delta);
                 const updated = Store.updateProgress(a.id, delta);
                 if (updated) {
-                    sheet.querySelector('.prog-value').textContent = updated.progress;
-                    UI.toast(delta > 0 ? '+1 tập' : '-1 tập');
+                    const el = sheet.querySelector('.prog-value strong');
+                    if (el) el.textContent = updated.progress;
+                    UI.toast(delta > 0 ? `+1 tập (${updated.progress})` : `-1 tập (${updated.progress})`);
                 }
             });
         });
 
+        // CHẤM ĐIỂM
         sheet.querySelectorAll('.star').forEach(star => {
             star.addEventListener('click', () => {
                 const score = parseInt(star.dataset.score);
@@ -196,9 +608,59 @@ const DetailView = (() => {
                 sheet.querySelectorAll('.star').forEach(s => {
                     s.classList.toggle('active', parseInt(s.dataset.score) <= score);
                 });
-                UI.toast('Đã chấm ' + score + '/10');
+                const display = sheet.querySelector('.score-current');
+                if (display) display.textContent = score + '/10';
+                UI.toast(`⭐ Đã chấm ${score}/10`);
             });
         });
+
+        // CLICK RELATION/RECOMMENDATION
+        sheet.querySelectorAll('.relation-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const id = parseInt(card.dataset.id);
+                if (!id) return;
+                close();
+                setTimeout(() => open(id), 450);
+            });
+        });
+
+        // CHIA SẺ
+        const btnShare = sheet.querySelector('#btnShare');
+        if (btnShare) {
+            btnShare.addEventListener('click', async () => {
+                const shareData = {
+                    title: UI.titleOf(a),
+                    text: 'Xem ' + UI.titleOf(a) + ' trên AniTime',
+                    url: a.siteUrl || location.href
+                };
+                try {
+                    if (navigator.share) {
+                        await navigator.share(shareData);
+                    } else {
+                        await navigator.clipboard.writeText(shareData.url);
+                        UI.toast('✓ Đã copy link');
+                    }
+                } catch (err) {
+                    if (err.name !== 'AbortError') UI.toast('Không thể chia sẻ');
+                }
+            });
+        }
+    }
+
+    // ========== RENDER LỖI ==========
+    function renderError(err) {
+        if (!sheetEl) return;
+        sheetEl.innerHTML = `
+            <div class="detail-grabber"></div>
+            <button class="detail-close" id="detailClose">✕</button>
+            <div class="detail-error">
+                <div class="detail-error-icon">⚠</div>
+                <h3>Không thể tải</h3>
+                <p>${UI.escapeHtml(err.message || 'Lỗi không xác định')}</p>
+                <button class="detail-retry" onclick="location.reload()">Thử lại</button>
+            </div>
+        `;
+        document.getElementById('detailClose').addEventListener('click', close);
     }
 
     return { open, close };
