@@ -1,3 +1,5 @@
+// js/detail.js - TRANG CHI TIẾT ANIME - PHIÊN BẢN iOS CAO CẤP
+
 const DetailView = (() => {
     let currentAnime = null;
     let sheetEl = null;
@@ -31,6 +33,9 @@ const DetailView = (() => {
         bindSheetEvents();
 
         try {
+            if (typeof API === 'undefined' || typeof API.getDetail !== 'function') {
+                throw new Error("Không tìm thấy hàm API.getDetail trong api.js");
+            }
             currentAnime = await API.getDetail(id);
             render(currentAnime);
         } catch (err) {
@@ -65,46 +70,50 @@ const DetailView = (() => {
         const overlay = document.getElementById('modalOverlay');
         const closeBtn = document.getElementById('detailClose');
 
-        closeBtn.addEventListener('click', close);
+        if (closeBtn) closeBtn.addEventListener('click', close);
 
         // CLICK NGOÀI ĐỂ ĐÓNG
-        overlay.addEventListener('click', (e) => {
-            if (e.target === overlay) close();
-        });
+        if (overlay) {
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) close();
+            });
+        }
 
         // SWIPE XUỐNG ĐỂ ĐÓNG
         let startY = 0;
         let currentY = 0;
         let isDragging = false;
 
-        sheetEl.addEventListener('touchstart', (e) => {
-            if (sheetEl.scrollTop > 5) return;
-            startY = e.touches[0].clientY;
-            currentY = startY;
-            isDragging = true;
-        }, { passive: true });
+        if (sheetEl) {
+            sheetEl.addEventListener('touchstart', (e) => {
+                if (sheetEl.scrollTop > 5) return;
+                startY = e.touches[0].clientY;
+                currentY = startY;
+                isDragging = true;
+            }, { passive: true });
 
-        sheetEl.addEventListener('touchmove', (e) => {
-            if (!isDragging) return;
-            currentY = e.touches[0].clientY;
-            const diff = currentY - startY;
-            if (diff > 0 && sheetEl.scrollTop <= 5) {
-                sheetEl.style.transition = 'none';
-                sheetEl.style.transform = `translateY(${diff * 0.6}px)`;
-            }
-        }, { passive: true });
+            sheetEl.addEventListener('touchmove', (e) => {
+                if (!isDragging) return;
+                currentY = e.touches[0].clientY;
+                const diff = currentY - startY;
+                if (diff > 0 && sheetEl.scrollTop <= 5) {
+                    sheetEl.style.transition = 'none';
+                    sheetEl.style.transform = `translateY(${diff * 0.6}px)`;
+                }
+            }, { passive: true });
 
-        sheetEl.addEventListener('touchend', () => {
-            if (!isDragging) return;
-            isDragging = false;
-            const diff = currentY - startY;
-            sheetEl.style.transition = '';
-            if (diff > 120) {
-                close();
-            } else {
-                sheetEl.style.transform = '';
-            }
-        });
+            sheetEl.addEventListener('touchend', () => {
+                if (!isDragging) return;
+                isDragging = false;
+                const diff = currentY - startY;
+                sheetEl.style.transition = '';
+                if (diff > 120) {
+                    close();
+                } else {
+                    sheetEl.style.transform = '';
+                }
+            });
+        }
 
         // PHÍM ESC ĐỂ ĐÓNG
         const escHandler = (e) => {
@@ -188,13 +197,15 @@ const DetailView = (() => {
 
     // ========== RENDER CHÍNH ==========
     function render(a) {
-        const status = Store.getStatus(a.id);
-        const entry = Store.getList()[a.id];
+        if (!sheetEl) return;
+
+        const status = typeof Store !== 'undefined' ? Store.getStatus(a.id) : null;
+        const entry = typeof Store !== 'undefined' ? Store.getList()[a.id] : null;
         const progress = entry?.progress || 0;
         const userScore = entry?.score || 0;
 
-        const title = UI.titleOf(a);
-        const sub = UI.subtitleOf(a);
+        const title = (typeof UI !== 'undefined' && UI.titleOf) ? UI.titleOf(a) : (a.title?.romaji || a.title?.english || '');
+        const sub = (typeof UI !== 'undefined' && UI.subtitleOf) ? UI.subtitleOf(a) : '';
         const nativeTitle = a.title?.native || '';
         const banner = a.bannerImage || a.coverImage?.extraLarge || a.coverImage?.large;
         const cover = a.coverImage?.extraLarge || a.coverImage?.large;
@@ -202,7 +213,6 @@ const DetailView = (() => {
         const cast = (a.characters?.edges || []).slice(0, 8);
         const staff = (a.staff?.edges || []).slice(0, 6);
         const links = (a.externalLinks || []).filter(l => l.type === 'STREAMING').slice(0, 8);
-        const allLinks = (a.externalLinks || []).slice(0, 12);
         const relations = (a.relations?.edges || []).slice(0, 6);
         const recommendations = (a.recommendations?.nodes || []).slice(0, 6);
         const trailer = a.trailer && a.trailer.site === 'youtube' ? a.trailer.id : null;
@@ -212,26 +222,27 @@ const DetailView = (() => {
         const avgScore = a.averageScore ? (a.averageScore / 10).toFixed(1) : '—';
         const scoreClr = scoreColor(a.averageScore);
         const totalEps = a.episodes || '?';
+        const escTitle = (typeof UI !== 'undefined' && UI.escapeHtml) ? UI.escapeHtml(title) : title;
 
         const html = `
             <!-- BANNER -->
             <div class="detail-banner" style="background-image:url('${banner}')">
                 <div class="detail-banner-overlay"></div>
-                ${nativeTitle ? `<div class="detail-native-title">${UI.escapeHtml(nativeTitle)}</div>` : ''}
+                ${nativeTitle ? `<div class="detail-native-title">${(typeof UI !== 'undefined' && UI.escapeHtml) ? UI.escapeHtml(nativeTitle) : nativeTitle}</div>` : ''}
             </div>
 
             <!-- HEADER -->
             <div class="detail-header">
-                <img class="detail-cover" src="${cover}" alt="${UI.escapeHtml(title)}" loading="lazy" onerror="this.style.display='none'">
+                <img class="detail-cover" src="${cover}" alt="${escTitle}" loading="lazy" onerror="this.style.display='none'">
                 <div class="detail-title-block">
-                    <h1 class="detail-title">${UI.escapeHtml(title)}</h1>
+                    <h1 class="detail-title">${escTitle}</h1>
                     ${sub ? `<p class="detail-subtitle">${UI.escapeHtml(sub)}</p>` : ''}
                     <div class="detail-badges">
                         <span class="badge badge-score" style="--score-clr:${scoreClr}">
                             <span class="badge-icon">★</span>
                             <span>${avgScore}</span>
                         </span>
-                        ${a.format ? `<span class="badge">${formatIcon(a.format)} ${a.format}</span>` : ''}
+                        ${a.format ? `<span class="badge">${formatIcon(a.format)}${a.format}</span>` : ''}
                         ${a.episodes ? `<span class="badge">📺 ${a.episodes} tập</span>` : ''}
                         ${a.duration ? `<span class="badge">⏱ ${a.duration}p</span>` : ''}
                         ${a.status ? `<span class="badge">${statusLabel(a.status)}</span>` : ''}
@@ -252,7 +263,7 @@ const DetailView = (() => {
                 </select>
             </div>
 
-            <!-- PROGRESS (HIỆN KHI ĐANG XEM/PAUSED) -->
+            <!-- PROGRESS -->
             ${(status === 'WATCHING' || status === 'PAUSED') ? `
                 <div class="detail-card detail-progress">
                     <label class="detail-card-label">📊 Tiến độ xem</label>
@@ -280,91 +291,19 @@ const DetailView = (() => {
                 </div>
             </div>
 
-            <!-- THÔNG TIN NHANH -->
+            <!-- THÔNG TIN -->
             <div class="detail-section">
                 <h3>Thông tin</h3>
                 <div class="detail-info-grid">
-                    ${a.format ? `
-                        <div class="info-item">
-                            <span class="info-icon">🎬</span>
-                            <div class="info-content">
-                                <span class="info-label">Định dạng</span>
-                                <span class="info-value">${a.format}</span>
-                            </div>
-                        </div>
-                    ` : ''}
-                    ${a.episodes ? `
-                        <div class="info-item">
-                            <span class="info-icon">📺</span>
-                            <div class="info-content">
-                                <span class="info-label">Số tập</span>
-                                <span class="info-value">${a.episodes} tập</span>
-                            </div>
-                        </div>
-                    ` : ''}
-                    ${a.duration ? `
-                        <div class="info-item">
-                            <span class="info-icon">⏱</span>
-                            <div class="info-content">
-                                <span class="info-label">Thời lượng</span>
-                                <span class="info-value">${a.duration} phút/tập</span>
-                            </div>
-                        </div>
-                    ` : ''}
-                    ${a.status ? `
-                        <div class="info-item">
-                            <span class="info-icon">📡</span>
-                            <div class="info-content">
-                                <span class="info-label">Trạng thái</span>
-                                <span class="info-value">${statusLabel(a.status)}</span>
-                            </div>
-                        </div>
-                    ` : ''}
-                    ${(a.season && a.seasonYear) ? `
-                        <div class="info-item">
-                            <span class="info-icon">🗓</span>
-                            <div class="info-content">
-                                <span class="info-label">Mùa</span>
-                                <span class="info-value">${a.season} ${a.seasonYear}</span>
-                            </div>
-                        </div>
-                    ` : ''}
-                    ${a.source ? `
-                        <div class="info-item">
-                            <span class="info-icon">📖</span>
-                            <div class="info-content">
-                                <span class="info-label">Nguồn</span>
-                                <span class="info-value">${a.source}</span>
-                            </div>
-                        </div>
-                    ` : ''}
-                    ${studios ? `
-                        <div class="info-item">
-                            <span class="info-icon">🏢</span>
-                            <div class="info-content">
-                                <span class="info-label">Studio</span>
-                                <span class="info-value">${UI.escapeHtml(studios)}</span>
-                            </div>
-                        </div>
-                    ` : ''}
-                    ${startDate ? `
-                        <div class="info-item">
-                            <span class="info-icon">📅</span>
-                            <div class="info-content">
-                                <span class="info-label">Khởi chiếu</span>
-                                <span class="info-value">${startDate}</span>
-                            </div>
-                        </div>
-                    ` : ''}
-                    ${endDate ? `
-                        <div class="info-item">
-                            <span class="info-icon">🏁</span>
-                            <div class="info-content">
-                                <span class="info-label">Kết thúc</span>
-                                <span class="info-value">${endDate}</span>
-                            </div>
-                        </div>
-                    ` : ''}
+                    ${a.format ? `<div class="info-item"><span class="info-icon">🎬</span><div class="info-content"><span class="info-label">Định dạng</span><span class="info-value">${a.format}</span></div></div>` : ''}
+                    ${a.episodes ? `<div class="info-item"><span class="info-icon">📺</span><div class="info-content"><span class="info-label">Số tập</span><span class="info-value">${a.episodes} tập</span></div></div>` : ''}
+                    ${a.duration ? `<div class="info-item"><span class="info-icon">⏱</span><div class="info-content"><span class="info-label">Thời lượng</span><span class="info-value">${a.duration} phút/tập</span></div></div>` : ''}
+                    ${a.status ? `<div class="info-item"><span class="info-icon">📡</span><div class="info-content"><span class="info-label">Trạng thái</span><span class="info-value">${statusLabel(a.status)}</span></div></div>` : ''}
+                    ${(a.season && a.seasonYear) ? `<div class="info-item"><span class="info-icon">🗓</span><div class="info-content"><span class="info-label">Mùa</span><span class="info-value">${a.season}${a.seasonYear}</span></div></div>` : ''}
+                    ${a.source ? `<div class="info-item"><span class="info-icon">📖</span><div class="info-content"><span class="info-label">Nguồn</span><span class="info-value">${a.source}</span></div></div>` : ''}
+                    ${studios ? `<div class="info-item"><span class="info-icon">🏢</span><div class="info-content"><span class="info-label">Studio</span><span class="info-value">${UI.escapeHtml(studios)}</span></div></div>` : ''}
+                    ${startDate ? `<div class="info-item"><span class="info-icon">📅</span><div class="info-content"><span class="info-label">Khởi chiếu</span><span class="info-value">${startDate}</span></div></div>` : ''}
+                    ${endDate ? `<div class="info-item"><span class="info-icon">🏁</span><div class="info-content"><span class="info-label">Kết thúc</span><span class="info-value">${endDate}</span></div></div>` : ''}
                 </div>
             </div>
 
@@ -392,11 +331,10 @@ const DetailView = (() => {
                 <div class="detail-section">
                     <h3>Thể loại</h3>
                     <div class="detail-genres">
-                        ${a.genres.map(g => `
-                            <span class="genre-chip" style="background:${UI.genreColor(g)}22;color:${UI.genreColor(g)};border-color:${UI.genreColor(g)}44">
-                                ${UI.escapeHtml(g)}
-                            </span>
-                        `).join('')}
+                        ${a.genres.map(g => {
+                            const clr = (typeof UI !== 'undefined' && UI.genreColor) ? UI.genreColor(g) : '#0a84ff';
+                            return `<span class="genre-chip" style="background:${clr}22;color:${clr};border-color:${clr}44">${(typeof UI !== 'undefined' && UI.escapeHtml) ? UI.escapeHtml(g) : g}</span>`;
+                        }).join('')}
                     </div>
                 </div>
             ` : ''}
@@ -405,7 +343,7 @@ const DetailView = (() => {
             ${description ? `
                 <div class="detail-section">
                     <h3>Nội dung</h3>
-                    <p class="detail-synopsis" id="synopsis">${UI.escapeHtml(description)}</p>
+                    <p class="detail-synopsis" id="synopsis">${(typeof UI !== 'undefined' && UI.escapeHtml) ? UI.escapeHtml(description) : description}</p>
                     <button class="btn-read-more" id="btnReadMore">
                         <span>Đọc thêm</span>
                         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -420,13 +358,7 @@ const DetailView = (() => {
                 <div class="detail-section">
                     <h3>Trailer chính thức</h3>
                     <div class="trailer-wrap">
-                        <iframe
-                            src="https://www.youtube.com/embed/${trailer}?rel=0&modestbranding=1"
-                            allowfullscreen
-                            loading="lazy"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            title="Trailer">
-                        </iframe>
+                        <iframe src="https://www.youtube.com/embed/${trailer}?rel=0&modestbranding=1" allowfullscreen loading="lazy" title="Trailer"></iframe>
                     </div>
                 </div>
             ` : ''}
@@ -446,21 +378,6 @@ const DetailView = (() => {
                                     <div class="cast-name">${UI.escapeHtml(c.node.name.full)}</div>
                                     <div class="cast-role">${UI.escapeHtml(c.role || 'Vai chính')}</div>
                                 </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-            ` : ''}
-
-            <!-- STAFF -->
-            ${staff.length ? `
-                <div class="detail-section">
-                    <h3>Đội ngũ sản xuất</h3>
-                    <div class="staff-list">
-                        ${staff.map(s => `
-                            <div class="staff-item">
-                                <span class="staff-name">${UI.escapeHtml(s.node.name.full)}</span>
-                                <span class="staff-role">${UI.escapeHtml(s.role)}</span>
                             </div>
                         `).join('')}
                     </div>
@@ -497,22 +414,7 @@ const DetailView = (() => {
                 </div>
             ` : ''}
 
-            <!-- RECOMMENDATIONS -->
-            ${recommendations.length ? `
-                <div class="detail-section">
-                    <h3>Anime tương tự</h3>
-                    <div class="relation-scroll">
-                        ${recommendations.map(r => `
-                            <div class="relation-card" data-id="${r.mediaRecommendation?.id}">
-                                <img src="${r.mediaRecommendation?.coverImage?.large || ''}" alt="" loading="lazy" onerror="this.style.background='#2a2a2a'">
-                                <span>${UI.escapeHtml(r.mediaRecommendation?.title?.romaji || 'N/A')}</span>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-            ` : ''}
-
-            <!-- ACTIONS BOTTOM -->
+            <!-- BOTTOM ACTIONS -->
             <div class="detail-section detail-bottom-actions">
                 ${a.siteUrl ? `
                     <a href="${a.siteUrl}" target="_blank" rel="noopener" class="bottom-action-btn">
@@ -535,86 +437,81 @@ const DetailView = (() => {
             </div>
         `;
 
-        // CHÈN VÀO SHEET
         const contentWrapper = document.createElement('div');
         contentWrapper.className = 'detail-content';
         contentWrapper.innerHTML = html;
 
-        // XÓA LOADING + CHÈN NỘI DUNG
         const loading = sheetEl.querySelector('.detail-loading');
         if (loading) loading.remove();
         sheetEl.appendChild(contentWrapper);
 
-        // BIND EVENTS
         bindDetailEvents(a);
     }
 
     // ========== BIND SỰ KIỆN CHI TIẾT ==========
     function bindDetailEvents(a) {
         const sheet = document.getElementById('detailSheet');
+        if (!sheet) return;
 
-        // ĐỌC THÊM
         const btnReadMore = sheet.querySelector('#btnReadMore');
         if (btnReadMore) {
             btnReadMore.addEventListener('click', () => {
                 const syn = sheet.querySelector('#synopsis');
+                if (!syn) return;
                 syn.classList.toggle('expanded');
                 const span = btnReadMore.querySelector('span');
-                span.textContent = syn.classList.contains('expanded') ? 'Thu gọn' : 'Đọc thêm';
-                btnReadMore.querySelector('svg').style.transform =
-                    syn.classList.contains('expanded') ? 'rotate(180deg)' : 'rotate(0deg)';
+                if (span) span.textContent = syn.classList.contains('expanded') ? 'Thu gọn' : 'Đọc thêm';
+                const svg = btnReadMore.querySelector('svg');
+                if (svg) svg.style.transform = syn.classList.contains('expanded') ? 'rotate(180deg)' : 'rotate(0deg)';
             });
         }
 
-        // ĐỔI TRẠNG THÁI
         const statusSel = sheet.querySelector('#statusSelect');
         if (statusSel) {
             statusSel.addEventListener('change', () => {
                 const val = statusSel.value || null;
-                Store.setStatus(a.id, val, {
-                    id: a.id,
-                    title: a.title,
-                    coverImage: a.coverImage,
-                    episodes: a.episodes,
-                    format: a.format,
-                    averageScore: a.averageScore,
-                    season: a.season,
-                    seasonYear: a.seasonYear
-                });
-                UI.toast(val ? '✓ Đã thêm vào thư viện' : '✓ Đã xóa khỏi thư viện');
+                if (typeof Store !== 'undefined') {
+                    Store.setStatus(a.id, val, {
+                        id: a.id,
+                        title: a.title,
+                        coverImage: a.coverImage,
+                        episodes: a.episodes,
+                        format: a.format
+                    });
+                }
+                if (typeof UI !== 'undefined') UI.toast(val ? '✓ Đã thêm vào thư viện' : '✓ Đã xóa khỏi thư viện');
                 setTimeout(() => open(a.id), 200);
             });
         }
 
-        // TĂNG/GIẢM TẬP
         sheet.querySelectorAll('.prog-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const delta = parseInt(btn.dataset.delta);
-                const updated = Store.updateProgress(a.id, delta);
-                if (updated) {
-                    const el = sheet.querySelector('.prog-value strong');
-                    if (el) el.textContent = updated.progress;
-                    UI.toast(delta > 0 ? `+1 tập (${updated.progress})` : `-1 tập (${updated.progress})`);
+                if (typeof Store !== 'undefined') {
+                    const updated = Store.updateProgress(a.id, delta);
+                    if (updated) {
+                        const el = sheet.querySelector('.prog-value strong');
+                        if (el) el.textContent = updated.progress;
+                        if (typeof UI !== 'undefined') UI.toast(delta > 0 ? `+1 tập (${updated.progress})` : `-1 tập (${updated.progress})`);
+                    }
                 }
             });
         });
 
-        // CHẤM ĐIỂM
         sheet.querySelectorAll('.star').forEach(star => {
             star.addEventListener('click', () => {
                 const score = parseInt(star.dataset.score);
-                Store.setScore(a.id, score);
+                if (typeof Store !== 'undefined') Store.setScore(a.id, score);
                 sheet.querySelectorAll('.star').forEach(s => {
                     s.classList.toggle('active', parseInt(s.dataset.score) <= score);
                 });
                 const display = sheet.querySelector('.score-current');
                 if (display) display.textContent = score + '/10';
-                UI.toast(`⭐ Đã chấm ${score}/10`);
+                if (typeof UI !== 'undefined') UI.toast(`⭐ Đã chấm ${score}/10`);
             });
         });
 
-        // CLICK RELATION/RECOMMENDATION
         sheet.querySelectorAll('.relation-card').forEach(card => {
             card.addEventListener('click', () => {
                 const id = parseInt(card.dataset.id);
@@ -624,13 +521,12 @@ const DetailView = (() => {
             });
         });
 
-        // CHIA SẺ
         const btnShare = sheet.querySelector('#btnShare');
         if (btnShare) {
             btnShare.addEventListener('click', async () => {
                 const shareData = {
-                    title: UI.titleOf(a),
-                    text: 'Xem ' + UI.titleOf(a) + ' trên AniTime',
+                    title: a.title?.romaji || 'AniTime',
+                    text: 'Xem anime trên AniTime',
                     url: a.siteUrl || location.href
                 };
                 try {
@@ -638,10 +534,10 @@ const DetailView = (() => {
                         await navigator.share(shareData);
                     } else {
                         await navigator.clipboard.writeText(shareData.url);
-                        UI.toast('✓ Đã copy link');
+                        if (typeof UI !== 'undefined') UI.toast('✓ Đã copy link');
                     }
                 } catch (err) {
-                    if (err.name !== 'AbortError') UI.toast('Không thể chia sẻ');
+                    if (err.name !== 'AbortError' && typeof UI !== 'undefined') UI.toast('Không thể chia sẻ');
                 }
             });
         }
@@ -656,12 +552,15 @@ const DetailView = (() => {
             <div class="detail-error">
                 <div class="detail-error-icon">⚠</div>
                 <h3>Không thể tải</h3>
-                <p>${UI.escapeHtml(err.message || 'Lỗi không xác định')}</p>
+                <p>${(typeof UI !== 'undefined' && UI.escapeHtml) ? UI.escapeHtml(err.message || 'Lỗi không xác định') : 'Lỗi không xác định'}</p>
                 <button class="detail-retry" onclick="location.reload()">Thử lại</button>
             </div>
         `;
-        document.getElementById('detailClose').addEventListener('click', close);
+        const closeBtn = document.getElementById('detailClose');
+        if (closeBtn) closeBtn.addEventListener('click', close);
     }
 
     return { open, close };
 })();
+
+window.DetailView = DetailView;
