@@ -1,683 +1,785 @@
-// js/detail.js - TRANG CHI TIẾT ANIME - PHIÊN BẢN iOS CAO CẤP
+/* css/detail.css - TRANG CHI TIẾT ANIME - iOS CAO CẤP */
 
-const DetailView = (() => {
-    let currentAnime = null;
-    let sheetEl = null;
-    let scrollY = 0;
+/* ===== OVERLAY ===== */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    z-index: 150;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s var(--ease);
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+}
+.modal-overlay.show {
+    opacity: 1;
+    pointer-events: auto;
+}
 
-    // ========== MỞ CHI TIẾT ==========
-    async function open(id) {
-        const overlay = document.getElementById('modalOverlay');
-        if (!overlay) return;
+/* ===== BOTTOM SHEET ===== */
+.detail-sheet {
+    width: 100%;
+    max-width: 720px;
+    max-height: 94vh;
+    background: var(--bg);
+    border-radius: 28px 28px 0 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: relative;
+    transform: translateY(100%);
+    transition: transform 0.45s var(--ease-spring);
+    box-shadow: 0 -20px 60px rgba(0, 0, 0, 0.9);
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    padding-bottom: calc(60px + var(--safe-bottom));
+}
+.modal-overlay.show .detail-sheet {
+    transform: translateY(0);
+}
+.detail-sheet::-webkit-scrollbar { width: 0; }
 
-        // LƯU VỊ TRÍ CUỘN HIỆN TẠI
-        scrollY = window.scrollY;
-        document.body.style.overflow = 'hidden';
-        document.body.style.position = 'fixed';
-        document.body.style.top = `-${scrollY}px`;
-        document.body.style.width = '100%';
+/* ===== GRABBER ===== */
+.detail-grabber {
+    position: sticky;
+    top: 8px;
+    width: 40px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 100px;
+    margin: 8px auto 0;
+    z-index: 100;
+    pointer-events: none;
+}
 
-        overlay.classList.add('show');
-        overlay.innerHTML = `
-            <div class="detail-sheet" id="detailSheet">
-                <div class="detail-grabber"></div>
-                <button class="detail-close" id="detailClose" aria-label="Đóng">✕</button>
-                <div class="detail-loading">
-                    <div class="spinner"></div>
-                    <p>Đang tải...</p>
-                </div>
-            </div>
-        `;
+/* ===== NÚT ĐÓNG ===== */
+.detail-close {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    width: 38px;
+    height: 38px;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 50%;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 30;
+    transition: transform 0.2s var(--ease-spring), background 0.2s;
+    -webkit-appearance: none;
+    appearance: none;
+    padding: 0;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+}
+.detail-close:active {
+    transform: scale(0.88);
+    background: rgba(255, 55, 95, 0.5);
+}
 
-        sheetEl = document.getElementById('detailSheet');
-        bindSheetEvents();
+/* ===== LOADING ===== */
+.detail-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 120px 20px;
+    color: var(--text-2);
+    font-size: 13px;
+}
 
-        try {
-            if (typeof API === 'undefined' || typeof API.getDetail !== 'function') {
-                throw new Error("Không tìm thấy hàm API.getDetail trong api.js");
-            }
-            currentAnime = await API.getDetail(id);
-            render(currentAnime);
-        } catch (err) {
-            console.error('Detail error:', err);
-            renderError(err);
-        }
+/* ===== BANNER ===== */
+.detail-banner {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background-size: cover;
+    background-position: center;
+    background-color: #1a1a1a;
+    margin-top: -56px;
+    overflow: hidden;
+}
+.detail-banner-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        180deg,
+        rgba(0, 0, 0, 0.5) 0%,
+        transparent 25%,
+        transparent 40%,
+        rgba(0, 0, 0, 0.85) 85%,
+        var(--bg) 100%
+    );
+}
+.detail-native-title {
+    position: absolute;
+    bottom: 12px;
+    right: 16px;
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.5);
+    font-weight: 500;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+    max-width: 60%;
+    text-align: right;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ===== HEADER ===== */
+.detail-header {
+    position: relative;
+    display: flex;
+    gap: 14px;
+    padding: 0 20px;
+    margin-top: -80px;
+    z-index: 2;
+    align-items: flex-end;
+}
+.detail-cover {
+    width: 115px;
+    height: 160px;
+    border-radius: 14px;
+    object-fit: cover;
+    flex-shrink: 0;
+    box-shadow:
+        0 12px 32px rgba(0, 0, 0, 0.8),
+        0 0 0 3px rgba(255, 255, 255, 0.12);
+    background: #1a1a1a;
+    transition: transform 0.3s var(--ease-spring);
+}
+.detail-cover:active { transform: scale(0.96); }
+
+.detail-title-block {
+    flex: 1;
+    min-width: 0;
+    padding-bottom: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+.detail-title {
+    font-family: var(--font-rounded);
+    font-size: 20px;
+    font-weight: 800;
+    line-height: 1.2;
+    letter-spacing: -0.5px;
+    color: var(--text);
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.9);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin: 0;
+}
+.detail-subtitle {
+    font-size: 12px;
+    color: var(--text-2);
+    font-weight: 500;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin: 0;
+}
+.detail-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 4px;
+}
+.detail-badges .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    background: var(--glass-2);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border-strong);
+    border-radius: 100px;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.1px;
+    white-space: nowrap;
+}
+.badge-score {
+    background: color-mix(in srgb, var(--score-clr) 20%, var(--glass-2)) !important;
+    border-color: color-mix(in srgb, var(--score-clr) 50%, transparent) !important;
+    color: var(--score-clr) !important;
+}
+.badge-score .badge-icon { color: var(--score-clr); }
+
+/* ===== ACTIONS ===== */
+.detail-actions {
+    padding: 20px 20px 0;
+}
+.status-select {
+    width: 100%;
+    margin: 0;
+}
+
+/* ===== CARD INFO ===== */
+.detail-card {
+    margin: 16px 20px 0;
+    padding: 16px;
+    background: var(--glass-1);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    box-shadow: var(--shadow-s);
+}
+.detail-card-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-2);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-bottom: 12px;
+}
+
+/* ===== PROGRESS ===== */
+.detail-progress .progress-counter {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    padding: 4px;
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    margin: 0;
+}
+.prog-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--glass-2);
+    border: 1px solid var(--border-strong);
+    color: var(--text);
+    font-size: 22px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s var(--ease-spring);
+    -webkit-appearance: none;
+    appearance: none;
+    padding: 0;
+    line-height: 1;
+}
+.prog-btn.minus { color: var(--pink); }
+.prog-btn.plus { color: var(--green); }
+.prog-btn:active {
+    transform: scale(0.82);
+    background: var(--glass-3);
+}
+.prog-value {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    font-family: var(--font-mono);
+    min-width: 70px;
+    justify-content: center;
+}
+.prog-value strong {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text);
+}
+.prog-total {
+    font-size: 13px;
+    color: var(--text-2);
+    font-weight: 600;
+}
+
+/* ===== SCORE ===== */
+.detail-score .score-display {
+    text-align: center;
+    margin-bottom: 12px;
+}
+.score-current {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--text);
+    font-family: var(--font-mono);
+}
+.score-stars {
+    display: flex;
+    justify-content: center;
+    gap: 2px;
+    flex-wrap: wrap;
+}
+.star {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.15);
+    font-size: 22px;
+    cursor: pointer;
+    padding: 2px;
+    transition: all 0.15s var(--ease-spring);
+    -webkit-appearance: none;
+    appearance: none;
+    line-height: 1;
+}
+.star.active {
+    color: #ffd60a;
+    text-shadow: 0 0 12px rgba(255, 214, 10, 0.7);
+}
+.star:active { transform: scale(1.3); }
+
+/* ===== SECTIONS ===== */
+.detail-section {
+    padding: 24px 20px 0;
+}
+.detail-section h3 {
+    font-family: var(--font-rounded);
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 14px;
+    letter-spacing: -0.3px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 14px 0;
+}
+.detail-section h3::before {
+    content: '';
+    width: 3px;
+    height: 16px;
+    background: var(--accent);
+    border-radius: 100px;
+    box-shadow: 0 0 12px var(--accent-glow);
+    flex-shrink: 0;
+}
+
+/* ===== INFO GRID ===== */
+.detail-info-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+}
+.info-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    background: var(--glass-1);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+}
+.info-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+    width: 28px;
+    text-align: center;
+}
+.info-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+.info-label {
+    font-size: 10px;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 700;
+}
+.info-value {
+    font-size: 13px;
+    color: var(--text);
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ===== STATS ===== */
+.detail-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+.stat-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 16px 8px;
+    background: var(--glass-1);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    text-align: center;
+}
+.stat-value {
+    font-family: var(--font-rounded);
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -0.5px;
+    line-height: 1;
+}
+.stat-label {
+    font-size: 10px;
+    color: var(--text-2);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 700;
+}
+
+/* ===== GENRES ===== */
+.detail-genres {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+.detail-genres .genre-chip {
+    padding: 6px 12px;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 100px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    border: 1px solid transparent;
+}
+
+/* ===== SYNOPSIS ===== */
+.detail-synopsis {
+    color: var(--text-2);
+    font-size: 14px;
+    line-height: 1.7;
+    display: -webkit-box;
+    -webkit-line-clamp: 5;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    transition: all 0.4s var(--ease);
+    white-space: pre-line;
+}
+.detail-synopsis.expanded {
+    -webkit-line-clamp: unset;
+    display: block;
+}
+.btn-read-more {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 12px;
+    padding: 9px 18px;
+    background: var(--glass-1);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border-strong);
+    border-radius: 100px;
+    color: var(--accent);
+    font-family: var(--font);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s var(--ease-spring);
+    -webkit-appearance: none;
+    appearance: none;
+}
+.btn-read-more:active { transform: scale(0.95); }
+
+/* ===== TRAILER ===== */
+.trailer-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #000;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.7);
+    border: 1px solid var(--border);
+}
+.trailer-wrap iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+}
+
+/* ===== CAST ===== */
+.cast-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.cast-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    background: var(--glass-1);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+}
+.cast-avatar {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #2a2a2a;
+    flex-shrink: 0;
+    border: 1px solid var(--border-strong);
+}
+.cast-avatar-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+.cast-info {
+    flex: 1;
+    min-width: 0;
+}
+.cast-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.cast-role {
+    font-size: 11px;
+    color: var(--text-2);
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ===== STREAMING ===== */
+.streaming-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.stream-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 16px;
+    background: var(--glass-1);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid var(--border-strong);
+    border-radius: 100px;
+    color: var(--text);
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 700;
+    transition: all 0.2s var(--ease-spring);
+    box-shadow: var(--shadow-s);
+}
+.stream-link:active {
+    transform: scale(0.94);
+    background: var(--glass-3);
+    color: var(--accent);
+}
+.stream-icon {
+    color: var(--accent);
+    font-size: 10px;
+}
+
+/* ===== RELATIONS SCROLL ===== */
+.relation-scroll {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+}
+.relation-scroll::-webkit-scrollbar { display: none; }
+.relation-card {
+    flex-shrink: 0;
+    width: 110px;
+    cursor: pointer;
+    transition: transform 0.2s var(--ease-spring);
+    text-align: center;
+}
+.relation-card:active { transform: scale(0.95); }
+.relation-card img {
+    width: 110px;
+    height: 155px;
+    border-radius: 12px;
+    object-fit: cover;
+    background: #2a2a2a;
+    border: 1px solid var(--border);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+.relation-card span {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-2);
+    margin-top: 8px;
+    line-height: 1.3;
+    text-align: left;
+}
+
+/* ===== BOTTOM ACTIONS ===== */
+.detail-bottom-actions {
+    display: flex;
+    gap: 8px;
+    padding-bottom: 24px;
+}
+.bottom-action-btn {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 16px;
+    background: var(--glass-1);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid var(--border-strong);
+    border-radius: 14px;
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s var(--ease-spring);
+    -webkit-appearance: none;
+    appearance: none;
+}
+.bottom-action-btn:active {
+    transform: scale(0.96);
+    background: var(--glass-3);
+}
+
+/* ===== ERROR ===== */
+.detail-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 100px 20px;
+    text-align: center;
+}
+.detail-error-icon {
+    font-size: 48px;
+    color: var(--orange);
+}
+.detail-error h3 {
+    font-family: var(--font-rounded);
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text);
+    margin: 0;
+}
+.detail-error p {
+    font-size: 13px;
+    color: var(--text-2);
+    max-width: 300px;
+    line-height: 1.5;
+}
+.detail-retry {
+    margin-top: 12px;
+    padding: 12px 24px;
+    background: var(--accent);
+    border: none;
+    border-radius: 100px;
+    color: #fff;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+/* RESPONSIVE */
+@media (max-width: 420px) {
+    .detail-cover { width: 100px; height: 140px; }
+    .detail-title { font-size: 17px; }
+    .detail-header { padding: 0 16px; margin-top: -70px; gap: 12px; }
+    .detail-section { padding: 20px 16px 0; }
+    .detail-actions { padding: 16px 16px 0; }
+    .detail-card { margin: 12px 16px 0; padding: 14px; }
+    .star { font-size: 18px; }
+    .stat-value { font-size: 18px; }
+    .relation-card, .relation-card img { width: 95px; }
+    .relation-card img { height: 135px; }
+}
+
+@media (min-width: 768px) {
+    .detail-header { padding: 0 32px; }
+    .detail-section { padding: 32px 32px 0; }
+    .detail-actions { padding: 24px 32px 0; }
+    .detail-card { margin: 20px 32px 0; }
+    .detail-title { font-size: 24px; }
+    .detail-cover { width: 140px; height: 195px; }
+    .detail-info-grid { grid-template-columns: repeat(2, 1fr); }
+    .relation-card, .relation-card img { width: 130px; }
+    .relation-card img { height: 185px; }
+}
+
+/* ===== HIỆU ỨNG NHẤN GIỮ ĐỂ SAO CHÉP ===== */
+.copyable {
+    cursor: pointer;
+    position: relative;
+    user-select: none;
+    -webkit-user-select: none;
+    transition: background 0.2s ease, opacity 0.2s ease;
+    border-radius: 6px;
+    padding: 2px 4px;
+    margin: -2px -4px;
+}
+
+.copyable.holding {
+    opacity: 0.7;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.copy-hint {
+    display: block;
+    font-size: 11px;
+    color: var(--text-3, #8e8e93);
+    margin-top: 4px;
+    font-style: italic;
+}
+
+.copyable.copied {
+    animation: copyFlash 0.6s ease;
+}
+
+@keyframes copyFlash {
+    0% {
+        background: rgba(48, 209, 88, 0.3);
+        box-shadow: 0 0 0 3px rgba(48, 209, 88, 0.5) inset;
     }
-
-    // ========== ĐÓNG CHI TIẾT ==========
-    function close() {
-        const overlay = document.getElementById('modalOverlay');
-        if (!overlay) return;
-
-        overlay.classList.remove('show');
-
-        // KHÔI PHỤC CUỘN
-        document.body.style.overflow = '';
-        document.body.style.position = '';
-        document.body.style.top = '';
-        document.body.style.width = '';
-        window.scrollTo(0, scrollY);
-
-        setTimeout(() => {
-            overlay.innerHTML = '';
-            currentAnime = null;
-            sheetEl = null;
-        }, 400);
+    100% {
+        background: transparent;
+        box-shadow: none;
     }
-
-    // ========== SỰ KIỆN SHEET ==========
-    function bindSheetEvents() {
-        const overlay = document.getElementById('modalOverlay');
-        const closeBtn = document.getElementById('detailClose');
-
-        if (closeBtn) closeBtn.addEventListener('click', close);
-
-        // CLICK NGOÀI ĐỂ ĐÓNG
-        if (overlay) {
-            overlay.addEventListener('click', (e) => {
-                if (e.target === overlay) close();
-            });
-        }
-
-        // SWIPE XUỐNG ĐỂ ĐÓNG
-        let startY = 0;
-        let currentY = 0;
-        let isDragging = false;
-
-        if (sheetEl) {
-            sheetEl.addEventListener('touchstart', (e) => {
-                if (sheetEl.scrollTop > 5) return;
-                startY = e.touches[0].clientY;
-                currentY = startY;
-                isDragging = true;
-            }, { passive: true });
-
-            sheetEl.addEventListener('touchmove', (e) => {
-                if (!isDragging) return;
-                currentY = e.touches[0].clientY;
-                const diff = currentY - startY;
-                if (diff > 0 && sheetEl.scrollTop <= 5) {
-                    sheetEl.style.transition = 'none';
-                    sheetEl.style.transform = `translateY(${diff * 0.6}px)`;
-                }
-            }, { passive: true });
-
-            sheetEl.addEventListener('touchend', () => {
-                if (!isDragging) return;
-                isDragging = false;
-                const diff = currentY - startY;
-                sheetEl.style.transition = '';
-                if (diff > 120) {
-                    close();
-                } else {
-                    sheetEl.style.transform = '';
-                }
-            });
-        }
-
-        // PHÍM ESC ĐỂ ĐÓNG
-        const escHandler = (e) => {
-            if (e.key === 'Escape') {
-                document.removeEventListener('keydown', escHandler);
-                close();
-            }
-        };
-        document.addEventListener('keydown', escHandler);
-    }
-
-    // ========== HELPER: FORMAT NGÀY ==========
-    function formatDate(d) {
-        if (!d || !d.year) return null;
-        const day = d.day ? String(d.day).padStart(2, '0') : null;
-        const month = d.month ? String(d.month).padStart(2, '0') : null;
-        if (day && month) return `${day}/${month}/${d.year}`;
-        if (month) return `${month}/${d.year}`;
-        return `${d.year}`;
-    }
-
-    // ========== HELPER: FORMAT SỐ ==========
-    function formatNumber(num) {
-        if (!num && num !== 0) return '—';
-        if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
-        if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
-        return num.toString();
-    }
-
-    // ========== HELPER: LÀM SẠCH HTML ==========
-    function cleanHtml(str) {
-        if (!str) return '';
-        return str
-            .replace(/<br\s*\/?>/gi, '\n')
-            .replace(/<[^>]+>/g, '')
-            .replace(/&quot;/g, '"')
-            .replace(/&amp;/g, '&')
-            .replace(/&#039;/g, "'")
-            .replace(/&lt;/g, '<')
-            .replace(/&gt;/g, '>')
-            .replace(/\n{3,}/g, '\n\n')
-            .trim();
-    }
-
-    // ========== HELPER: MÀU SCORE ==========
-    function scoreColor(score) {
-        if (!score) return 'var(--text-3)';
-        const s = score / 10;
-        if (s >= 8.5) return '#30d158';
-        if (s >= 7.5) return '#0a84ff';
-        if (s >= 6.5) return '#ff9f0a';
-        if (s >= 5) return '#ffd60a';
-        return '#ff375f';
-    }
-
-    // ========== HELPER: BADGE FORMAT ==========
-    function formatIcon(format) {
-        const map = {
-            'TV': '📺',
-            'MOVIE': '🎬',
-            'OVA': '💿',
-            'ONA': '🌐',
-            'SPECIAL': '⭐',
-            'TV_SHORT': '📹',
-            'MUSIC': '🎵'
-        };
-        return map[format] || '📺';
-    }
-
-    // ========== HELPER: TRẠNG THÁI ==========
-    function statusLabel(s) {
-        const map = {
-            'FINISHED': '✓ Đã kết thúc',
-            'RELEASING': '● Đang phát',
-            'NOT_YET_RELEASED': '⏳ Sắp ra mắt',
-            'CANCELLED': '✕ Đã hủy',
-            'HIATUS': '⏸ Tạm hoãn'
-        };
-        return map[s] || s;
-    }
-
-    // ========== RENDER CHÍNH ==========
-    function render(a) {
-        if (!sheetEl) return;
-
-        const status = typeof Store !== 'undefined' ? Store.getStatus(a.id) : null;
-        const entry = typeof Store !== 'undefined' ? Store.getList()[a.id] : null;
-        const progress = entry?.progress || 0;
-        const userScore = entry?.score || 0;
-
-        const title = (typeof UI !== 'undefined' && UI.titleOf) ? UI.titleOf(a) : (a.title?.romaji || a.title?.english || '');
-        const sub = (typeof UI !== 'undefined' && UI.subtitleOf) ? UI.subtitleOf(a) : '';
-        const nativeTitle = a.title?.native || '';
-        const banner = a.bannerImage || a.coverImage?.extraLarge || a.coverImage?.large;
-        const cover = a.coverImage?.extraLarge || a.coverImage?.large;
-        const studios = (a.studios?.nodes || []).map(s => s.name).join(', ');
-        const cast = (a.characters?.edges || []).slice(0, 8);
-        const staff = (a.staff?.edges || []).slice(0, 6);
-        const links = (a.externalLinks || []).filter(l => l.type === 'STREAMING').slice(0, 8);
-        const relations = (a.relations?.edges || []).slice(0, 6);
-        const recommendations = (a.recommendations?.nodes || []).slice(0, 6);
-        const trailer = a.trailer && a.trailer.site === 'youtube' ? a.trailer.id : null;
-        const description = cleanHtml(a.description);
-        const startDate = formatDate(a.startDate);
-        const endDate = formatDate(a.endDate);
-        const avgScore = a.averageScore ? (a.averageScore / 10).toFixed(1) : '—';
-        const scoreClr = scoreColor(a.averageScore);
-        const totalEps = a.episodes || '?';
-        const escTitle = (typeof UI !== 'undefined' && UI.escapeHtml) ? UI.escapeHtml(title) : title;
-
-        const html = `
-            <!-- BANNER -->
-            <div class="detail-banner" style="background-image:url('${banner}')">
-                <div class="detail-banner-overlay"></div>
-                ${nativeTitle ? `<div class="detail-native-title">${(typeof UI !== 'undefined' && UI.escapeHtml) ? UI.escapeHtml(nativeTitle) : nativeTitle}</div>` : ''}
-            </div>
-
-            <!-- HEADER -->
-            <div class="detail-header">
-                <img class="detail-cover" src="${cover}" alt="${escTitle}" loading="lazy" onerror="this.style.display='none'">
-                <div class="detail-title-block">
-                    <h1 class="detail-title copyable" data-copy-type="title" data-copy-text="${UI.escapeHtml(title)}">${UI.escapeHtml(title)}</h1>
-                    ${sub ? `<p class="detail-subtitle copyable" data-copy-type="subtitle" data-copy-text="${UI.escapeHtml(sub)}">${UI.escapeHtml(sub)}</p>` : ''}
-                    <div class="detail-badges">
-                        <span class="badge badge-score" style="--score-clr:${scoreClr}">
-                            <span class="badge-icon">★</span>
-                            <span>${avgScore}</span>
-                        </span>
-                        ${a.format ? `<span class="badge">${formatIcon(a.format)}${a.format}</span>` : ''}
-                        ${a.episodes ? `<span class="badge">📺 ${a.episodes} tập</span>` : ''}
-                        ${a.duration ? `<span class="badge">⏱ ${a.duration}p</span>` : ''}
-                        ${a.status ? `<span class="badge">${statusLabel(a.status)}</span>` : ''}
-                    </div>
-                </div>
-            </div>
-
-            <!-- ACTIONS -->
-            <div class="detail-actions">
-                <select class="glass-select status-select" id="statusSelect">
-                    <option value="">— Thêm vào thư viện —</option>
-                    <option value="WATCHING" ${status === 'WATCHING' ? 'selected' : ''}>▶ Đang xem</option>
-                    <option value="PLANNING" ${status === 'PLANNING' ? 'selected' : ''}>🕐 Kế hoạch</option>
-                    <option value="COMPLETED" ${status === 'COMPLETED' ? 'selected' : ''}>✓ Đã hoàn thành</option>
-                    <option value="PAUSED" ${status === 'PAUSED' ? 'selected' : ''}>⏸ Tạm dừng</option>
-                    <option value="DROPPED" ${status === 'DROPPED' ? 'selected' : ''}>✕ Đã bỏ</option>
-                    <option value="CONSIDERING" ${status === 'CONSIDERING' ? 'selected' : ''}>💭 Cân nhắc</option>
-                </select>
-            </div>
-
-            <!-- PROGRESS -->
-            ${(status === 'WATCHING' || status === 'PAUSED') ? `
-                <div class="detail-card detail-progress">
-                    <label class="detail-card-label">📊 Tiến độ xem</label>
-                    <div class="progress-counter big" data-id="${a.id}">
-                        <button class="prog-btn minus" data-delta="-1" aria-label="Giảm">−</button>
-                        <span class="prog-value">
-                            <strong>${progress}</strong>
-                            <span class="prog-total">/ ${totalEps}</span>
-                        </span>
-                        <button class="prog-btn plus" data-delta="1" aria-label="Tăng">+</button>
-                    </div>
-                </div>
-            ` : ''}
-
-            <!-- SCORE -->
-            <div class="detail-card detail-score">
-                <label class="detail-card-label">⭐ Đánh giá của bạn</label>
-                <div class="score-display">
-                    <span class="score-current">${userScore ? userScore + '/10' : 'Chưa đánh giá'}</span>
-                </div>
-                <div class="score-stars" data-id="${a.id}">
-                    ${[1,2,3,4,5,6,7,8,9,10].map(i => `
-                        <button class="star ${i <= userScore ? 'active' : ''}" data-score="${i}" aria-label="Đánh giá ${i}">★</button>
-                    `).join('')}
-                </div>
-            </div>
-
-            <!-- THÔNG TIN -->
-            <div class="detail-section">
-                <h3>Thông tin</h3>
-                <div class="detail-info-grid">
-                    ${a.format ? `<div class="info-item"><span class="info-icon">🎬</span><div class="info-content"><span class="info-label">Định dạng</span><span class="info-value">${a.format}</span></div></div>` : ''}
-                    ${a.episodes ? `<div class="info-item"><span class="info-icon">📺</span><div class="info-content"><span class="info-label">Số tập</span><span class="info-value">${a.episodes} tập</span></div></div>` : ''}
-                    ${a.duration ? `<div class="info-item"><span class="info-icon">⏱</span><div class="info-content"><span class="info-label">Thời lượng</span><span class="info-value">${a.duration} phút/tập</span></div></div>` : ''}
-                    ${a.status ? `<div class="info-item"><span class="info-icon">📡</span><div class="info-content"><span class="info-label">Trạng thái</span><span class="info-value">${statusLabel(a.status)}</span></div></div>` : ''}
-                    ${(a.season && a.seasonYear) ? `<div class="info-item"><span class="info-icon">🗓</span><div class="info-content"><span class="info-label">Mùa</span><span class="info-value">${a.season}${a.seasonYear}</span></div></div>` : ''}
-                    ${a.source ? `<div class="info-item"><span class="info-icon">📖</span><div class="info-content"><span class="info-label">Nguồn</span><span class="info-value">${a.source}</span></div></div>` : ''}
-                    ${studios ? `<div class="info-item"><span class="info-icon">🏢</span><div class="info-content"><span class="info-label">Studio</span><span class="info-value">${UI.escapeHtml(studios)}</span></div></div>` : ''}
-                    ${startDate ? `<div class="info-item"><span class="info-icon">📅</span><div class="info-content"><span class="info-label">Khởi chiếu</span><span class="info-value">${startDate}</span></div></div>` : ''}
-                    ${endDate ? `<div class="info-item"><span class="info-icon">🏁</span><div class="info-content"><span class="info-label">Kết thúc</span><span class="info-value">${endDate}</span></div></div>` : ''}
-                </div>
-            </div>
-
-            <!-- STATS -->
-            <div class="detail-section">
-                <h3>Thống kê</h3>
-                <div class="detail-stats">
-                    <div class="stat-card">
-                        <div class="stat-value" style="color:${scoreClr}">${avgScore}</div>
-                        <div class="stat-label">Điểm TB</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value">${formatNumber(a.popularity)}</div>
-                        <div class="stat-label">Phổ biến</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value">${formatNumber(a.favourites)}</div>
-                        <div class="stat-label">Yêu thích</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- GENRES -->
-            ${(a.genres && a.genres.length) ? `
-                <div class="detail-section">
-                    <h3>Thể loại</h3>
-                    <div class="detail-genres">
-                        ${a.genres.map(g => {
-                            const clr = (typeof UI !== 'undefined' && UI.genreColor) ? UI.genreColor(g) : '#0a84ff';
-                            return `<span class="genre-chip" style="background:${clr}22;color:${clr};border-color:${clr}44">${(typeof UI !== 'undefined' && UI.escapeHtml) ? UI.escapeHtml(g) : g}</span>`;
-                        }).join('')}
-                    </div>
-                </div>
-            ` : ''}
-
-            <!-- SYNOPSIS -->
-            ${description ? `
-                <div class="detail-section">
-                    <h3>Nội dung</h3>
-                    <p class="detail-synopsis copyable" id="synopsis" data-original="${UI.escapeHtml(description)}" data-copy-type="synopsis">${(typeof UI !== 'undefined' && UI.escapeHtml) ? UI.escapeHtml(description) : description}</p>
-                    <span class="copy-hint">💡 Nhấn giữ để sao chép</span>
-                    <button class="btn-read-more" id="btnReadMore">
-                        <span>Đọc thêm</span>
-                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="6 9 12 15 18 9"/>
-                        </svg>
-                    </button>
-                </div>
-            ` : ''}
-
-            <!-- TRAILER -->
-            ${trailer ? `
-                <div class="detail-section">
-                    <h3>Trailer chính thức</h3>
-                    <div class="trailer-wrap">
-                        <iframe src="https://www.youtube.com/embed/${trailer}?rel=0&modestbranding=1" allowfullscreen loading="lazy" title="Trailer"></iframe>
-                    </div>
-                </div>
-            ` : ''}
-
-            <!-- CAST -->
-            ${cast.length ? `
-                <div class="detail-section">
-                    <h3>Diễn viên lồng tiếng</h3>
-                    <div class="cast-list">
-                        ${cast.map(c => `
-                            <div class="cast-item">
-                                ${c.node.image?.medium
-                                    ? `<img src="${c.node.image.medium}" class="cast-avatar" loading="lazy" alt="" onerror="this.style.visibility='hidden'">`
-                                    : `<div class="cast-avatar cast-avatar-empty">👤</div>`
-                                }
-                                <div class="cast-info">
-                                    <div class="cast-name">${UI.escapeHtml(c.node.name.full)}</div>
-                                    <div class="cast-role">${UI.escapeHtml(c.role || 'Vai chính')}</div>
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-            ` : ''}
-
-            <!-- STREAMING -->
-            ${links.length ? `
-                <div class="detail-section">
-                    <h3>Xem bản quyền</h3>
-                    <div class="streaming-links">
-                        ${links.map(l => `
-                            <a href="${l.url}" target="_blank" rel="noopener" class="stream-link">
-                                <span class="stream-icon">▶</span>
-                                <span>${UI.escapeHtml(l.site)}</span>
-                            </a>
-                        `).join('')}
-                    </div>
-                </div>
-            ` : ''}
-
-            <!-- RELATIONS -->
-            ${relations.length ? `
-                <div class="detail-section">
-                    <h3>Phần liên quan</h3>
-                    <div class="relation-scroll">
-                        ${relations.map(r => `
-                            <div class="relation-card" data-id="${r.node.id}">
-                                <img src="${r.node.coverImage?.large || ''}" alt="" loading="lazy" onerror="this.style.background='#2a2a2a'">
-                                <span>${UI.escapeHtml(r.node.title?.romaji || 'N/A')}</span>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-            ` : ''}
-
-            <!-- BOTTOM ACTIONS -->
-            <div class="detail-section detail-bottom-actions">
-                ${a.siteUrl ? `
-                    <a href="${a.siteUrl}" target="_blank" rel="noopener" class="bottom-action-btn">
-                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-                            <polyline points="15 3 21 3 21 9"/>
-                            <line x1="10" y1="14" x2="21" y2="3"/>
-                        </svg>
-                        Xem trên AniList
-                    </a>
-                ` : ''}
-                <button class="bottom-action-btn" id="btnShare">
-                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
-                        <polyline points="16 6 12 2 8 6"/>
-                        <line x1="12" y1="2" x2="12" y2="15"/>
-                    </svg>
-                    Chia sẻ
-                </button>
-            </div>
-        `;
-
-        const contentWrapper = document.createElement('div');
-        contentWrapper.className = 'detail-content';
-        contentWrapper.innerHTML = html;
-
-        const loading = sheetEl.querySelector('.detail-loading');
-        if (loading) loading.remove();
-        sheetEl.appendChild(contentWrapper);
-
-        bindDetailEvents(a);
-    }
-
-    // ========== BIND SỰ KIỆN CHI TIẾT ==========
-    function bindDetailEvents(a) {
-        const sheet = document.getElementById('detailSheet');
-        if (!sheet) return;
-
-        // ===== NHẤN GIỮ ĐỂ SAO CHÉP =====
-        bindCopyableElements(sheet);
-
-        const btnReadMore = sheet.querySelector('#btnReadMore');
-        if (btnReadMore) {
-            btnReadMore.addEventListener('click', () => {
-                const syn = sheet.querySelector('#synopsis');
-                if (!syn) return;
-                syn.classList.toggle('expanded');
-                const span = btnReadMore.querySelector('span');
-                if (span) span.textContent = syn.classList.contains('expanded') ? 'Thu gọn' : 'Đọc thêm';
-                const svg = btnReadMore.querySelector('svg');
-                if (svg) svg.style.transform = syn.classList.contains('expanded') ? 'rotate(180deg)' : 'rotate(0deg)';
-            });
-        }
-
-        const statusSel = sheet.querySelector('#statusSelect');
-        if (statusSel) {
-            statusSel.addEventListener('change', () => {
-                const val = statusSel.value || null;
-                if (typeof Store !== 'undefined') {
-                    Store.setStatus(a.id, val, {
-                        id: a.id,
-                        title: a.title,
-                        coverImage: a.coverImage,
-                        episodes: a.episodes,
-                        format: a.format
-                    });
-                }
-                if (typeof UI !== 'undefined') UI.toast(val ? '✓ Đã thêm vào thư viện' : '✓ Đã xóa khỏi thư viện');
-                setTimeout(() => open(a.id), 200);
-            });
-        }
-
-        sheet.querySelectorAll('.prog-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const delta = parseInt(btn.dataset.delta);
-                if (typeof Store !== 'undefined') {
-                    const updated = Store.updateProgress(a.id, delta);
-                    if (updated) {
-                        const el = sheet.querySelector('.prog-value strong');
-                        if (el) el.textContent = updated.progress;
-                        if (typeof UI !== 'undefined') UI.toast(delta > 0 ? `+1 tập (${updated.progress})` : `-1 tập (${updated.progress})`);
-                    }
-                }
-            });
-        });
-
-        sheet.querySelectorAll('.star').forEach(star => {
-            star.addEventListener('click', () => {
-                const score = parseInt(star.dataset.score);
-                if (typeof Store !== 'undefined') Store.setScore(a.id, score);
-                sheet.querySelectorAll('.star').forEach(s => {
-                    s.classList.toggle('active', parseInt(s.dataset.score) <= score);
-                });
-                const display = sheet.querySelector('.score-current');
-                if (display) display.textContent = score + '/10';
-                if (typeof UI !== 'undefined') UI.toast(`⭐ Đã chấm ${score}/10`);
-            });
-        });
-
-        sheet.querySelectorAll('.relation-card').forEach(card => {
-            card.addEventListener('click', () => {
-                const id = parseInt(card.dataset.id);
-                if (!id) return;
-                close();
-                setTimeout(() => open(id), 450);
-            });
-        });
-
-        const btnShare = sheet.querySelector('#btnShare');
-        if (btnShare) {
-            btnShare.addEventListener('click', async () => {
-                const shareData = {
-                    title: a.title?.romaji || 'AniTime',
-                    text: 'Xem anime trên AniTime',
-                    url: a.siteUrl || location.href
-                };
-                try {
-                    if (navigator.share) {
-                        await navigator.share(shareData);
-                    } else {
-                        await navigator.clipboard.writeText(shareData.url);
-                        if (typeof UI !== 'undefined') UI.toast('✓ Đã copy link');
-                    }
-                } catch (err) {
-                    if (err.name !== 'AbortError' && typeof UI !== 'undefined') UI.toast('Không thể chia sẻ');
-                }
-            });
-        }
-    }
-
-    // ========== RENDER LỖI ==========
-    function renderError(err) {
-        if (!sheetEl) return;
-        sheetEl.innerHTML = `
-            <div class="detail-grabber"></div>
-            <button class="detail-close" id="detailClose">✕</button>
-            <div class="detail-error">
-                <div class="detail-error-icon">⚠</div>
-                <h3>Không thể tải</h3>
-                <p>${(typeof UI !== 'undefined' && UI.escapeHtml) ? UI.escapeHtml(err.message || 'Lỗi không xác định') : 'Lỗi không xác định'}</p>
-                <button class="detail-retry" onclick="location.reload()">Thử lại</button>
-            </div>
-        `;
-        const closeBtn = document.getElementById('detailClose');
-        if (closeBtn) closeBtn.addEventListener('click', close);
-    }
-
-    // ========== NHẤN GIỮ ĐỂ SAO CHÉP ==========
-    function bindCopyableElements(container) {
-        const copyables = container.querySelectorAll('.copyable');
-        console.log('[Detail] Bind copyable:', copyables.length);
-
-        copyables.forEach(el => {
-            let holdTimer = null;
-            let isHolding = false;
-
-            const startHold = (e) => {
-                if (e.target.closest('button') || e.target.closest('a')) return;
-
-                isHolding = true;
-                el.classList.add('holding');
-
-                if (navigator.vibrate) navigator.vibrate(10);
-
-                holdTimer = setTimeout(() => {
-                    if (!isHolding) return;
-                    doCopy(el);
-                }, 500);
-            };
-
-            const endHold = () => {
-                isHolding = false;
-                el.classList.remove('holding');
-                if (holdTimer) {
-                    clearTimeout(holdTimer);
-                    holdTimer = null;
-                }
-            };
-
-            const cancelHold = () => {
-                if (!isHolding) return;
-                isHolding = false;
-                el.classList.remove('holding');
-                if (holdTimer) {
-                    clearTimeout(holdTimer);
-                    holdTimer = null;
-                }
-            };
-
-            // TOUCH (MOBILE)
-            el.addEventListener('touchstart', startHold, { passive: true });
-            el.addEventListener('touchend', endHold);
-            el.addEventListener('touchcancel', cancelHold);
-            el.addEventListener('touchmove', cancelHold, { passive: true });
-
-            // MOUSE (DESKTOP)
-            el.addEventListener('mousedown', startHold);
-            el.addEventListener('mouseup', endHold);
-            el.addEventListener('mouseleave', cancelHold);
-
-            // CLICK PHẢI CHUỘT ĐỂ COPY NHANH
-            el.addEventListener('contextmenu', (e) => {
-                e.preventDefault();
-                doCopy(el);
-            });
-        });
-    }
-
-    // ========== THỰC HIỆN COPY ==========
-    async function doCopy(el) {
-        const type = el.dataset.copyType || 'text';
-        let text = '';
-
-        if (type === 'synopsis') {
-            text = el.dataset.original || el.textContent;
-        } else {
-            text = el.dataset.copyText || el.textContent;
-        }
-
-        text = text.trim();
-        if (!text) {
-            if (typeof UI !== 'undefined') UI.toast('⚠ Không có nội dung để sao chép');
-            return;
-        }
-
-        try {
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                await navigator.clipboard.writeText(text);
-            } else {
-                const textarea = document.createElement('textarea');
-                textarea.value = text;
-                textarea.style.position = 'fixed';
-                textarea.style.top = '-9999px';
-                textarea.style.left = '-9999px';
-                textarea.setAttribute('readonly', '');
-                document.body.appendChild(textarea);
-                textarea.select();
-                textarea.setSelectionRange(0, text.length);
-                document.execCommand('copy');
-                document.body.removeChild(textarea);
-            }
-
-            const label = {
-                title: 'tên anime',
-                subtitle: 'tên phụ',
-                synopsis: 'mô tả'
-            }[type] || 'văn bản';
-
-            if (typeof UI !== 'undefined') UI.toast('✓ Đã sao chép ' + label);
-            if (navigator.vibrate) navigator.vibrate([30, 50, 30]);
-
-            el.classList.add('copied');
-            setTimeout(() => el.classList.remove('copied'), 600);
-
-        } catch (err) {
-            console.error('[Detail] Copy lỗi:', err);
-            if (typeof UI !== 'undefined') UI.toast('⚠ Không thể sao chép');
-        }
-    }
-
-    return { open, close };
-})();
-
-window.DetailView = DetailView;
+}
