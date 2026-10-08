@@ -1,6 +1,18 @@
 // js/app.js
+
 (function () {
     'use strict';
+
+    // ========== ÁP DỤNG HIỆU ỨNG VÀO BODY ==========
+    function applyEffectsToBody() {
+        if (typeof Store === 'undefined') return;
+        const s = Store.getSettings();
+        const body = document.body;
+        body.classList.toggle('reduce-effects', !!s.reduceEffects);
+        body.classList.toggle('no-animations', !!s.disableAnimations);
+        body.classList.toggle('no-blur', !!s.disableBlur);
+        body.classList.toggle('compact-mode', !!s.compactMode);
+    }
 
     // KHỞI TẠO MÚI GIỜ
     if (typeof TZ !== 'undefined') {
@@ -68,18 +80,25 @@
         }
     });
 
-    // CHẶN ZOOM
+    // CHẶN ZOOM CỦA TRÌNH DUYỆT
     document.addEventListener('gesturestart', (e) => e.preventDefault());
 
-    // KHỞI ĐỘNG
+    // ========== KHỞI ĐỘNG ==========
     const settings = typeof Store !== 'undefined' ? Store.getSettings() : {};
     const startPage = settings.startPage || 'schedule';
     switchView(startPage);
+
+    // ========== ÁP DỤNG HIỆU ỨNG ĐÃ LƯU ==========
+    applyEffectsToBody();
 
     // THÔNG BÁO PERMISSION
     if (settings.notifications && typeof Notify !== 'undefined' && Notify.isEnabled() === false) {
         Notify.requestPermission();
     }
+
+    // EXPORT RA NGOÀI BIẾN TOÀN CỤC
+    window.applyEffectsToBody = applyEffectsToBody;
+    window.switchView = switchView;
 
     console.log('%c AniTime v1.0 ', 'background:#0a84ff;color:#fff;padding:4px 8px;border-radius:4px;font-weight:bold');
     console.log('%c Dữ liệu: AniList API · Host: GitHub Pages ', 'color:#8e8e93;font-size:11px');
