@@ -119,12 +119,12 @@
         <!-- VIEW: LIBRARY -->
         <section class="view" id="view-library">
             <div class="segmented scroll-x" id="libraryTabs">
-                <button class="seg-btn active" data-status="WATCHING">Đang xem</button>
-                <button class="seg-btn" data-status="PLANNING">Kế hoạch</button>
-                <button class="seg-btn" data-status="COMPLETED">Hoàn thành</button>
-                <button class="seg-btn" data-status="PAUSED">Tạm dừng</button>
-                <button class="seg-btn" data-status="DROPPED">Bỏ</button>
-                <button class="seg-btn" data-status="CONSIDERING">Cân nhắc</button>
+                <button class="seg-btn active" data-status="WATCHING" onclick="LibraryView.switchTab('WATCHING', this)">Đang xem</button>
+                <button class="seg-btn" data-status="PLANNING" onclick="LibraryView.switchTab('PLANNING', this)">Kế hoạch</button>
+                <button class="seg-btn" data-status="COMPLETED" onclick="LibraryView.switchTab('COMPLETED', this)">Hoàn thành</button>
+                <button class="seg-btn" data-status="PAUSED" onclick="LibraryView.switchTab('PAUSED', this)">Tạm dừng</button>
+                <button class="seg-btn" data-status="DROPPED" onclick="LibraryView.switchTab('DROPPED', this)">Bỏ</button>
+                <button class="seg-btn" data-status="CONSIDERING" onclick="LibraryView.switchTab('CONSIDERING', this)">Cân nhắc</button>
             </div>
             <div class="schedule" id="library">
                 <div class="loading"><p>Chưa có anime nào</p></div>
