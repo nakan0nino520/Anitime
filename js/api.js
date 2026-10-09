@@ -133,11 +133,12 @@ async function getDetail(id) {
     return data ? data.Media : null;
 }
 
+// HÀM TÌM KIẾM CHÍNH (HỖ TRỢ ĐỒNG THỜI KEYWORD, GENRES, TAGS, SOURCE, FORMAT, VÀ YEAR)
 async function search(keyword, filters = {}) {
     const query = `
-        query ($search: String, $genres: [String], $format: MediaFormat, $sort: [MediaSort], $seasonYear: Int) {
+        query ($search: String, $genres: [String], $tags: [String], $source: MediaSource, $format: MediaFormat, $sort: [MediaSort], $seasonYear: Int) {
             Page(perPage: 30) {
-                media(search: $search, genre_in: $genres, format: $format, seasonYear: $seasonYear, type: ANIME, sort: $sort) {
+                media(search: $search, genre_in: $genres, tag_in: $tags, source: $source, format: $format, seasonYear: $seasonYear, type: ANIME, sort: $sort) {
                     id title { romaji native english }
                     coverImage { large }
                     genres averageScore popularity episodes format seasonYear
@@ -145,13 +146,48 @@ async function search(keyword, filters = {}) {
             }
         }
     `;
+
+    // Map Nguồn từ UI sang chuẩn Enum của AniList API
+    const sourceMap = {
+        'Manga': 'MANGA',
+        'Light Novel': 'LIGHT_NOVEL',
+        'Visual Novel': 'VISUAL_NOVEL',
+        'Video Game': 'VIDEO_GAME',
+        'Original': 'ORIGINAL',
+        'Web Manga': 'WEB_MANGA',
+        'Web Novel': 'WEB_NOVEL',
+        'Novel': 'NOVEL',
+        'Other': 'OTHER'
+    };
+
+    // Xử lý bộ lọc phần "Khác" (Format hoặc Thập kỷ / Năm)
+    const formatList = ['TV', 'MOVIE', 'OVA', 'ONA', 'SPECIAL'];
+    let selectedFormat = filters.format || null;
+    let selectedYear = filters.year || null;
+
+    if (filters.other && Array.isArray(filters.other)) {
+        for (const item of filters.other) {
+            const upper = item.toUpperCase();
+            if (formatList.includes(upper)) {
+                selectedFormat = upper;
+            }
+            // Xử lý lọc theo thập kỷ (Ví dụ: 2020s -> 2020)
+            if (/^\d{4}s$/.test(item)) {
+                selectedYear = parseInt(item);
+            }
+        }
+    }
+
     const vars = {
-        search: keyword || null,
+        search: keyword && keyword.trim() ? keyword.trim() : null,
         genres: filters.genres && filters.genres.length ? filters.genres : null,
-        format: filters.format || null,
-        seasonYear: filters.year || null,
+        tags: filters.themes && filters.themes.length ? filters.themes : null,
+        source: filters.source && filters.source.length ? (sourceMap[filters.source[0]] || null) : null,
+        format: selectedFormat,
+        seasonYear: selectedYear,
         sort: [filters.sort || 'POPULARITY_DESC']
     };
+
     const data = await gql(query, vars);
     return data && data.Page ? data.Page.media : [];
 }
