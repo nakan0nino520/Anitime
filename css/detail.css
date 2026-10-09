@@ -1682,6 +1682,144 @@
     line-height: 1.5;
     font-weight: 500;
 }
+
+   .ep-badge.has-title {
+    background: rgba(48, 209, 88, 0.15);
+    color: #30d158;
+    border: 1px solid rgba(48, 209, 88, 0.3);
+}
+.ep-badge.site {
+    background: rgba(10, 132, 255, 0.15);
+    color: var(--accent);
+    border: 1px solid rgba(10, 132, 255, 0.3);
+}
+.ep-badge.placeholder {
+    background: rgba(142, 142, 147, 0.15);
+    color: #8e8e93;
+    border: 1px solid rgba(142, 142, 147, 0.3);
+}
+
+/* ===== PLACEHOLDER TẬP ===== */
+.episode-placeholder {
+    opacity: 0.75;
+    cursor: pointer;
+}
+.episode-placeholder:active {
+    opacity: 0.9;
+    background: rgba(255, 255, 255, 0.06);
+}
+.episode-placeholder .episode-number {
+    background: rgba(142, 142, 147, 0.15);
+    border-color: rgba(142, 142, 147, 0.3);
+    color: #8e8e93;
+}
+
+/* ===== THUMBNAIL TẬP ===== */
+.episode-detail-thumb {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: 14px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    margin: 16px 0;
+}
+.episode-detail-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* ===== LINK STREAMING TẬP ===== */
+.episode-detail-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 20px;
+    background: rgba(10, 132, 255, 0.12);
+    border: 1px solid rgba(10, 132, 255, 0.3);
+    border-radius: 14px;
+    color: var(--accent);
+    text-decoration: none;
+    font-family: var(--font);
+    font-size: 14px;
+    font-weight: 700;
+    transition: all 0.2s var(--ease-spring);
+    margin-bottom: 16px;
+}
+.episode-detail-link:active {
+    transform: scale(0.97);
+    background: rgba(10, 132, 255, 0.2);
+}
+
+/* ===== KHÔNG CÓ LINK ===== */
+.episode-detail-nolink {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 14px;
+    margin-bottom: 16px;
+    text-align: center;
+}
+.episode-nolink-icon {
+    font-size: 28px;
+    opacity: 0.6;
+}
+.episode-nolink-text {
+    font-size: 12px;
+    color: var(--text-3);
+    font-weight: 600;
+}
+
+/* ===== NOTICE PLACEHOLDER ===== */
+.episode-placeholder-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+    background: rgba(10, 132, 255, 0.08);
+    border: 1px solid rgba(10, 132, 255, 0.2);
+    border-radius: 14px;
+    margin-bottom: 14px;
+}
+.episode-notice-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+    line-height: 1.2;
+}
+.episode-notice-text {
+    flex: 1;
+    font-size: 12px;
+    color: var(--text-2);
+    line-height: 1.5;
+    font-weight: 500;
+}
+
+/* ===== RETRY BUTTON NHỎ ===== */
+.retry-btn-small {
+    margin-top: 10px;
+    padding: 8px 16px;
+    background: rgba(10, 132, 255, 0.15);
+    border: 1px solid rgba(10, 132, 255, 0.3);
+    border-radius: 100px;
+    color: var(--accent);
+    font-family: var(--font);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s var(--ease-spring);
+    -webkit-appearance: none;
+    appearance: none;
+}
+.retry-btn-small:active {
+    transform: scale(0.95);
+}
     .char-detail-avatar {
         width: 90px;
         height: 90px;
