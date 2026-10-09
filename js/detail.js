@@ -1193,7 +1193,7 @@ const DetailView = (() => {
 
         const colors = ['#ffd60a', '#ff9f0a', '#ff375f', '#bf5af2'];
 
-        for (let i = 0; i < 40; i++) {
+        for (let i = 0; i < 15; i++) {
             const p = document.createElement('div');
             p.className = 'vip-detail-particle';
             p.style.left = Math.random() * 100 + '%';
