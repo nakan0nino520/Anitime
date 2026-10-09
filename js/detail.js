@@ -233,7 +233,7 @@ const DetailView = (() => {
         // ===== PHÂN TÍCH CẢNH BÁO NỘI DUNG =====
         let warningHTML = '';
         try {
-            if (window.ContentWarning) {
+            if (window.ContentWarning && typeof ContentWarning.analyze === 'function') {
                 const warnings = ContentWarning.analyze(a);
                 warningHTML = ContentWarning.renderBanner(warnings);
             }
@@ -246,13 +246,11 @@ const DetailView = (() => {
         const escDesc = description ? ((typeof UI !== 'undefined' && UI.escapeHtml) ? UI.escapeHtml(description) : description) : '';
 
         const html = `
-            <!-- BANNER -->
             <div class="detail-banner" style="background-image:url('${banner}')">
                 <div class="detail-banner-overlay"></div>
                 ${nativeTitle ? `<div class="detail-native-title">${(typeof UI !== 'undefined' && UI.escapeHtml) ? UI.escapeHtml(nativeTitle) : nativeTitle}</div>` : ''}
             </div>
 
-            <!-- HEADER -->
             <div class="detail-header">
                 <img class="detail-cover" src="${cover}" alt="${escTitle}" loading="lazy" onerror="this.style.display='none'">
                 <div class="detail-title-block">
@@ -271,7 +269,6 @@ const DetailView = (() => {
                 </div>
             </div>
 
-            <!-- ACTIONS -->
             <div class="detail-actions">
                 <select class="glass-select status-select" id="statusSelect">
                     <option value="">— Thêm vào thư viện —</option>
@@ -284,7 +281,6 @@ const DetailView = (() => {
                 </select>
             </div>
 
-            <!-- PROGRESS -->
             ${(status === 'WATCHING' || status === 'PAUSED') ? `
                 <div class="detail-card detail-progress">
                     <label class="detail-card-label">📊 Tiến độ xem</label>
@@ -299,7 +295,6 @@ const DetailView = (() => {
                 </div>
             ` : ''}
 
-            <!-- SCORE -->
             <div class="detail-card detail-score">
                 <label class="detail-card-label">⭐ Đánh giá của bạn</label>
                 <div class="score-display">
@@ -312,10 +307,8 @@ const DetailView = (() => {
                 </div>
             </div>
 
-            <!-- CẢNH BÁO NỘI DUNG (ĐÃ CHUYỂN XUỐNG ĐÂY ĐỂ GIỮ NGUYÊN BANNER GỐC) -->
             ${warningHTML}
 
-            <!-- THÔNG TIN -->
             <div class="detail-section">
                 <h3>Thông tin</h3>
                 <div class="detail-info-grid">
@@ -331,7 +324,6 @@ const DetailView = (() => {
                 </div>
             </div>
 
-            <!-- STATS -->
             <div class="detail-section">
                 <h3>Thống kê</h3>
                 <div class="detail-stats">
@@ -350,7 +342,6 @@ const DetailView = (() => {
                 </div>
             </div>
 
-            <!-- GENRES -->
             ${(a.genres && a.genres.length) ? `
                 <div class="detail-section">
                     <h3>Thể loại</h3>
@@ -363,7 +354,6 @@ const DetailView = (() => {
                 </div>
             ` : ''}
 
-            <!-- SYNOPSIS -->
             ${description ? `
                 <div class="detail-section">
                     <h3>Nội dung</h3>
@@ -377,7 +367,6 @@ const DetailView = (() => {
                 </div>
             ` : ''}
 
-            <!-- TRAILER -->
             ${trailer ? `
                 <div class="detail-section">
                     <h3>Trailer chính thức</h3>
@@ -387,7 +376,6 @@ const DetailView = (() => {
                 </div>
             ` : ''}
 
-            <!-- SECTION: NHÂN VẬT -->
             <div class="detail-section">
                 <h3>
                     Nhân vật
@@ -403,7 +391,6 @@ const DetailView = (() => {
                 </div>
             </div>
 
-            <!-- SECTION: DANH SÁCH TẬP -->
             <div class="detail-section">
                 <h3>
                     Danh sách tập
@@ -416,7 +403,6 @@ const DetailView = (() => {
                 </div>
             </div>
 
-            <!-- STREAMING -->
             ${links.length ? `
                 <div class="detail-section">
                     <h3>Xem bản quyền</h3>
@@ -431,7 +417,6 @@ const DetailView = (() => {
                 </div>
             ` : ''}
 
-            <!-- RELATIONS -->
             ${relations.length ? `
                 <div class="detail-section">
                     <h3>Phần liên quan</h3>
@@ -446,7 +431,6 @@ const DetailView = (() => {
                 </div>
             ` : ''}
 
-            <!-- BOTTOM ACTIONS -->
             <div class="detail-section detail-bottom-actions">
                 ${a.siteUrl ? `
                     <a href="${a.siteUrl}" target="_blank" rel="noopener" class="bottom-action-btn">
@@ -623,7 +607,7 @@ const DetailView = (() => {
         }
 
         // ===== BIND CẢNH BÁO NỘI DUNG =====
-        if (window.ContentWarning) {
+        if (window.ContentWarning && typeof ContentWarning.bindBannerEvents === 'function') {
             ContentWarning.bindBannerEvents(sheet);
         }
 
@@ -959,7 +943,6 @@ const DetailView = (() => {
         if (!preview) return;
 
         try {
-            // LẤY MAL ID NẾU CHƯA CÓ
             if (!malId && anilistId) {
                 malId = await API.getMalIdFromAnilist(anilistId);
             }
@@ -978,7 +961,6 @@ const DetailView = (() => {
                 return;
             }
 
-            // HIỂN THỊ 5 TẬP ĐẦU
             const previews = eps.slice(0, 5);
             preview.innerHTML = `
                 <div class="episode-list">
@@ -1107,7 +1089,6 @@ const DetailView = (() => {
             spoilerBox.style.display = 'none';
             summary.classList.remove('hidden');
 
-            // LẤY TÓM TẮT
             try {
                 const detail = await API.getEpisodeDetail(malIdCache, ep.malId);
                 loading.style.display = 'none';
