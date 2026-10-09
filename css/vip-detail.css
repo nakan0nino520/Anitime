@@ -137,18 +137,15 @@
 
 /* ===== VIP TITLE ===== */
 .detail-sheet.vip-sheet .detail-title {
-    font-family: Georgia, "Times New Roman", var(--font-rounded);
+    font-family: 'FzMontserrat-Bold';
     font-size: 24px;
     font-weight: 900;
     letter-spacing: -0.6px;
-    background: linear-gradient(135deg, #ffffff 0%, #ffd60a 50%, #ff9f0a 100%);
-    background-size: 200% 200%;
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    text-shadow: 0 2px 24px rgba(255, 214, 10, 0.3);
+    color: #ffffff; /* Đổi chữ thành màu trắng */
+    text-shadow: 0 2px 24px rgba(255, 255, 255, 0.5); /* Đổi glow thành màu trắng (độ mờ 50%) */
     animation: titleShimmer 4s ease infinite;
 }
+
 @keyframes titleShimmer {
     0%, 100% { background-position: 0% 50%; }
     50% { background-position: 100% 50%; }
@@ -349,4 +346,1706 @@
     .vip-countdown { margin: 16px 20px 0; padding: 16px; }
     .vip-back-btn { width: 38px; height: 38px; }
     .vip-back-btn svg { width: 18px; height: 18px; }
+};
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 100px;
+    color: var(--accent);
+    font-family: var(--font);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s var(--ease-spring);
+    -webkit-appearance: none;
+    appearance: none;
 }
+.btn-read-more:active { transform: scale(0.95); }
+
+/* ===== TRAILER ===== */
+.trailer-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #000;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.trailer-wrap iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+}
+
+/* ===== CAST ===== */
+.cast-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.cast-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 14px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 14px;
+}
+.cast-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #2a2a2a;
+    flex-shrink: 0;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.cast-avatar-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+.cast-info {
+    flex: 1;
+    min-width: 0;
+}
+.cast-name {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.cast-role {
+    font-size: 10.5px;
+    color: var(--text-2);
+    margin-top: 3px;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ===== STAFF ===== */
+.staff-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.staff-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+}
+.staff-name {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.1px;
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.staff-role {
+    font-size: 10.5px;
+    font-weight: 600;
+    color: var(--text-2);
+    text-align: right;
+    flex-shrink: 0;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+}
+
+/* ===== STREAMING ===== */
+.streaming-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.stream-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 18px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 100px;
+    color: var(--text);
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: -0.1px;
+    transition: all 0.2s var(--ease-spring);
+}
+.stream-link:active {
+    transform: scale(0.94);
+    background: rgba(255, 255, 255, 0.12);
+    color: var(--accent);
+}
+
+/* ===== RELATIONS ===== */
+.relation-scroll {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding-bottom: 10px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+}
+.relation-scroll::-webkit-scrollbar { display: none; }
+.relation-card {
+    flex-shrink: 0;
+    width: 110px;
+    cursor: pointer;
+    transition: transform 0.2s var(--ease-spring);
+    text-align: center;
+}
+.relation-card:active { transform: scale(0.95); }
+.relation-card img {
+    width: 110px;
+    height: 155px;
+    border-radius: 12px;
+    object-fit: cover;
+    background: #2a2a2a;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.relation-card span {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-2);
+    margin-top: 10px;
+    line-height: 1.35;
+    text-align: left;
+    letter-spacing: -0.1px;
+}
+
+/* ===== BOTTOM ACTIONS ===== */
+.detail-bottom-actions {
+    display: flex;
+    gap: 10px;
+    padding-bottom: 28px;
+}
+.bottom-action-btn {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 15px 16px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 14px;
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    letter-spacing: -0.1px;
+    transition: all 0.2s var(--ease-spring);
+    -webkit-appearance: none;
+    appearance: none;
+}
+.bottom-action-btn:active {
+    transform: scale(0.96);
+    background: rgba(255, 255, 255, 0.12);
+}
+
+/* ===== ERROR ===== */
+.detail-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 100px 20px;
+    text-align: center;
+}
+.detail-error-icon {
+    font-size: 48px;
+    color: var(--orange);
+}
+.detail-error h3 {
+    font-family: var(--font-rounded);
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text);
+    margin: 0;
+}
+.detail-error p {
+    font-size: 13px;
+    color: var(--text-2);
+    max-width: 300px;
+    line-height: 1.55;
+}
+.detail-retry {
+    margin-top: 12px;
+    padding: 12px 24px;
+    background: var(--accent);
+    border: none;
+    border-radius: 100px;
+    color: #fff;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+/* ===== COPYABLE ===== */
+.copyable {
+    cursor: pointer;
+    position: relative;
+    user-select: none;
+    -webkit-user-select: none;
+    transition: background 0.2s ease, opacity 0.2s ease;
+    border-radius: 6px;
+    padding: 2px 4px;
+    margin: -2px -4px;
+}
+.copyable.holding {
+    opacity: 0.7;
+    background: rgba(255, 255, 255, 0.08);
+}
+.copy-hint {
+    display: block;
+    font-size: 11px;
+    color: var(--text-2);
+    margin-top: 6px;
+    font-style: italic;
+    opacity: 0.8;
+}
+.copyable.copied {
+    animation: copyFlash 0.6s ease;
+}
+@keyframes copyFlash {
+    0% {
+        background: rgba(48, 209, 88, 0.25);
+        box-shadow: 0 0 0 3px rgba(48, 209, 88, 0.4) inset;
+    }
+    100% {
+        background: transparent;
+        box-shadow: none;
+    }
+}
+
+/* ===== NÚT DỊCH ===== */
+.btn-translate {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-left: auto;
+    padding: 6px 12px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 100px;
+    color: var(--accent);
+    font-family: var(--font);
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s var(--ease-spring);
+    -webkit-appearance: none;
+    appearance: none;
+}
+.btn-translate svg { stroke: currentColor; flex-shrink: 0; }
+.btn-translate:active { transform: scale(0.94); }
+.btn-translate.active {
+    background: rgba(10, 132, 255, 0.2);
+    border-color: rgba(10, 132, 255, 0.4);
+    color: var(--accent);
+}
+.btn-translate.loading { opacity: 0.7; pointer-events: none; }
+.btn-translate:disabled { cursor: wait; opacity: 0.7; }
+
+/* ============================================================
+   SETTINGS MODAL
+   ============================================================ */
+.settings-sheet {
+    padding-bottom: calc(60px + var(--safe-bottom));
+}
+.settings-hero {
+    text-align: center;
+    padding: 24px 24px 36px;
+}
+.settings-hero-icon {
+    width: 68px;
+    height: 68px;
+    margin: 0 auto 18px;
+    border-radius: 20px;
+    background: var(--grad-primary, linear-gradient(135deg, #0a84ff 0%, #bf5af2 100%));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    box-shadow: 0 12px 32px rgba(10, 132, 255, 0.35);
+}
+.settings-hero-title {
+    font-family: var(--font-rounded);
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -0.6px;
+    color: var(--text);
+    margin: 0 0 6px;
+}
+.settings-hero-sub {
+    font-size: 13px;
+    color: var(--text-2);
+    font-weight: 500;
+    margin: 0;
+}
+
+.settings-section {
+    padding: 0 24px 28px;
+}
+.settings-section-title {
+    font-family: var(--font-rounded);
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--text-2);
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    margin-bottom: 12px;
+    padding-left: 4px;
+}
+.settings-card {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 18px;
+    overflow: hidden;
+}
+
+.settings-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    min-height: 64px;
+    transition: background 0.15s;
+}
+.settings-row:last-child { border-bottom: none; }
+.settings-row:active { background: rgba(255, 255, 255, 0.06); }
+
+.settings-icon-wrap {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+    flex-shrink: 0;
+}
+.settings-icon-wrap.blue { background: rgba(10, 132, 255, 0.15); border-color: rgba(10, 132, 255, 0.3); }
+.settings-icon-wrap.green { background: rgba(48, 209, 88, 0.15); border-color: rgba(48, 209, 88, 0.3); }
+.settings-icon-wrap.red { background: rgba(255, 55, 95, 0.15); border-color: rgba(255, 55, 95, 0.3); }
+
+.settings-text {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+.settings-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.3;
+    letter-spacing: -0.1px;
+}
+.settings-desc {
+    font-size: 11px;
+    color: var(--text-2);
+    line-height: 1.35;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.settings-select {
+    padding: 8px 28px 8px 12px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+    color: var(--accent);
+    font-family: var(--font);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%230a84ff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    max-width: 130px;
+    text-align: right;
+}
+.settings-select option {
+    background: #1c1c1e;
+    color: #fff;
+}
+
+.settings-action {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 14px;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.15s;
+    -webkit-appearance: none;
+    appearance: none;
+}
+.settings-action:last-child { border-bottom: none; }
+.settings-action:active { background: rgba(255, 255, 255, 0.06); }
+
+.chevron {
+    font-size: 22px;
+    color: var(--text-2);
+    font-weight: 300;
+    line-height: 1;
+}
+
+.settings-footer {
+    text-align: center;
+    padding: 44px 24px 24px;
+}
+.settings-logo {
+    font-size: 36px;
+    margin-bottom: 10px;
+    opacity: 0.7;
+}
+.settings-app-name {
+    font-family: var(--font-rounded);
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -0.3px;
+    margin-bottom: 4px;
+}
+.settings-version {
+    font-size: 11px;
+    color: var(--text-2);
+    font-family: var(--font-mono);
+    margin-bottom: 10px;
+}
+.settings-credit {
+    font-size: 10px;
+    color: var(--text-2);
+    opacity: 0.8;
+}
+
+/* TOGGLE */
+.toggle {
+    position: relative;
+    width: 51px;
+    height: 31px;
+    background: rgba(120, 120, 128, 0.35);
+    border-radius: 100px;
+    cursor: pointer;
+    transition: background 0.3s var(--ease);
+    flex-shrink: 0;
+    -webkit-appearance: none;
+    appearance: none;
+    border: none;
+    padding: 0;
+}
+.toggle.on {
+    background: #30d158;
+}
+.toggle.locked { cursor: default; opacity: 0.9; }
+.toggle-knob {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 27px;
+    height: 27px;
+    background: #ffffff;
+    border-radius: 50%;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s var(--ease-spring);
+}
+.toggle.on .toggle-knob {
+    transform: translateX(20px);
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 420px) {
+    .detail-cover { width: 100px; height: 140px; }
+    .detail-title { font-size: 18px; }
+    .detail-header { padding: 0 20px; margin-top: -72px; gap: 12px; }
+    .detail-section { padding: 28px 20px 0; }
+    .detail-actions { padding: 20px 20px 0; }
+    .detail-card { margin: 18px 20px 0; padding: 16px; }
+    .star { font-size: 19px; }
+    .stat-value { font-size: 19px; }
+    .relation-card, .relation-card img { width: 95px; }
+    .relation-card img { height: 135px; }
+    .settings-section { padding: 0 20px 24px; }
+    .settings-row { padding: 14px; }
+    .settings-label { font-size: 13px; }
+    .settings-select { font-size: 11px; max-width: 110px; padding: 7px 24px 7px 10px; }
+    .toggle { width: 46px; height: 28px; }
+    .toggle-knob { width: 24px; height: 24px; }
+    .toggle.on .toggle-knob { transform: translateX(18px); }
+}
+
+@media (min-width: 768px) {
+    .detail-header { padding: 0 32px; }
+    .detail-section { padding: 40px 32px 0; }
+    .detail-actions { padding: 28px 32px 0; }
+    .detail-card { margin: 24px 32px 0; }
+    .detail-title { font-size: 24px; }
+    .detail-cover { width: 140px; height: 195px; }
+    .detail-info-grid { grid-template-columns: repeat(2, 1fr); }
+    .relation-card, .relation-card img { width: 130px; }
+    .relation-card img { height: 185px; }
+}
+
+.btn-view-characters {
+    margin-left: auto;
+    padding: 6px 12px;
+    background: rgba(10, 132, 255, 0.12);
+    border: 1px solid rgba(10, 132, 255, 0.25);
+    border-radius: 100px;
+    color: var(--accent);
+    font-family: var(--font);
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s var(--ease-spring);
+    -webkit-appearance: none;
+    appearance: none;
+    white-space: nowrap;
+}
+.btn-view-characters:active {
+    transform: scale(0.94);
+    background: rgba(10, 132, 255, 0.2);
+}
+
+/* ===== ĐẾM NHÂN VẬT ===== */
+.characters-count {
+    margin-bottom: 14px;
+}
+.char-count-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+.char-count-badge {
+    padding: 5px 10px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 700;
+    border: 1px solid transparent;
+}
+.char-count-badge.main {
+    background: rgba(255, 214, 10, 0.12);
+    border-color: rgba(255, 214, 10, 0.3);
+    color: #ffd60a;
+}
+.char-count-badge.support {
+    background: rgba(10, 132, 255, 0.12);
+    border-color: rgba(10, 132, 255, 0.3);
+    color: var(--accent);
+}
+.char-count-badge.background {
+    background: rgba(142, 142, 147, 0.15);
+    border-color: rgba(142, 142, 147, 0.3);
+    color: #8e8e93;
+}
+.char-count-total {
+    padding: 5px 10px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-3);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* ===== PREVIEW NHÂN VẬT ===== */
+.characters-preview {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+.char-preview-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: transform 0.2s var(--ease-spring);
+}
+.char-preview-item:active {
+    transform: scale(0.95);
+}
+.char-preview-item img {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    border-radius: 12px;
+    object-fit: cover;
+    background: #2a2a2a;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+.char-preview-name {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text);
+    text-align: center;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.char-preview-role {
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    padding: 2px 6px;
+    border-radius: 100px;
+}
+.char-preview-role.role-main {
+    background: rgba(255, 214, 10, 0.12);
+    color: #ffd60a;
+}
+.char-preview-role.role-supporting {
+    background: rgba(10, 132, 255, 0.12);
+    color: var(--accent);
+}
+.char-preview-role.role-background {
+    background: rgba(142, 142, 147, 0.15);
+    color: #8e8e93;
+}
+
+/* ===== EPISODE LIST ===== */
+.episode-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.episode-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 14px;
+    cursor: pointer;
+    transition: all 0.2s var(--ease-spring);
+}
+.episode-item:active {
+    transform: scale(0.98);
+    background: rgba(255, 255, 255, 0.06);
+}
+.episode-number {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: rgba(10, 132, 255, 0.12);
+    border: 1px solid rgba(10, 132, 255, 0.25);
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 800;
+    flex-shrink: 0;
+}
+.episode-info {
+    flex: 1;
+    min-width: 0;
+}
+.episode-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.episode-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 4px;
+    font-size: 10.5px;
+    color: var(--text-3);
+    font-weight: 600;
+}
+.ep-badge {
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 9px;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+.ep-badge.filler {
+    background: rgba(255, 159, 10, 0.15);
+    color: #ff9f0a;
+}
+.ep-badge.recap {
+    background: rgba(191, 90, 242, 0.15);
+    color: #bf5af2;
+}
+.episode-chevron {
+    font-size: 20px;
+    color: var(--text-3);
+    font-weight: 300;
+}
+.episode-more {
+    text-align: center;
+    padding: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent);
+}
+
+/* ===== SPOILER BOX ===== */
+.episode-spoiler-box {
+    margin-top: 16px;
+}
+.spoiler-warning {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 32px 20px;
+    background: rgba(255, 55, 95, 0.06);
+    border: 1px solid rgba(255, 55, 95, 0.15);
+    border-radius: 16px;
+    text-align: center;
+}
+.spoiler-icon {
+    font-size: 40px;
+    margin-bottom: 4px;
+}
+.spoiler-title {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--pink);
+    letter-spacing: -0.2px;
+}
+.spoiler-desc {
+    font-size: 12px;
+    color: var(--text-3);
+    max-width: 260px;
+    line-height: 1.5;
+    margin-bottom: 4px;
+}
+.spoiler-btn {
+    margin-top: 8px;
+    padding: 12px 24px;
+    background: var(--pink);
+    border: none;
+    border-radius: 100px;
+    color: #fff;
+    font-family: var(--font);
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s var(--ease-spring);
+    -webkit-appearance: none;
+    appearance: none;
+    box-shadow: 0 4px 16px rgba(255, 55, 95, 0.4);
+}
+.spoiler-btn:active {
+    transform: scale(0.95);
+}
+
+.episode-summary {
+    margin-top: 16px;
+}
+.episode-summary.hidden {
+    display: none;
+}
+.episode-summary-label {
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 10px;
+}
+.episode-summary-loading {
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+}
+.spinner-small {
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+.episode-summary-text {
+    font-size: 14px;
+    line-height: 1.65;
+    color: var(--text-2);
+    white-space: pre-line;
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 14px;
+}
+
+/* ===== EPISODE DETAIL ===== */
+.episode-detail {
+    padding-top: 8px;
+}
+.episode-detail-title {
+    font-family: var(--font-rounded);
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text);
+    margin: 0;
+    letter-spacing: -0.5px;
+}
+.episode-detail-sub {
+    font-size: 14px;
+    color: var(--text-2);
+    margin-top: 6px;
+    line-height: 1.4;
+}
+.episode-detail-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+    font-size: 11px;
+    color: var(--text-3);
+    font-weight: 600;
+}
+
+/* ===== SUB MODAL ===== */
+.sub-modal {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s var(--ease);
+}
+.sub-modal.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+.sub-modal-header {
+    display: grid;
+    grid-template-columns: 44px 1fr 44px;
+    align-items: center;
+    padding: calc(12px + var(--safe-top)) 16px 12px;
+    border-bottom: 1px solid var(--border);
+    background: #0a0a0a;
+}
+.sub-modal-title {
+    text-align: center;
+    font-family: var(--font-rounded);
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -0.4px;
+}
+.sub-modal-close {
+    width: 36px;
+    height: 36px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    color: var(--text);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-appearance: none;
+    appearance: none;
+    padding: 0;
+}
+.sub-modal-close:active { transform: scale(0.88); }
+.sub-modal-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* ===== CHARACTER GROUP ===== */
+.char-group {
+    margin-bottom: 28px;
+}
+.char-group-title {
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 12px;
+    padding-left: 4px;
+}
+.char-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+.char-card {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    cursor: pointer;
+    transition: transform 0.2s var(--ease-spring);
+}
+.char-card:active { transform: scale(0.95); }
+.char-card img {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    border-radius: 12px;
+    object-fit: cover;
+    background: #2a2a2a;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+.char-card-name {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text);
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.char-card-va {
+    font-size: 9.5px;
+    color: var(--text-3);
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ===== CHARACTER DETAIL ===== */
+.char-detail {
+    padding-top: 8px;
+}
+.char-detail-header {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+.char-detail-avatar {
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #2a2a2a;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    flex-shrink: 0;
+}
+.char-detail-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.char-detail-info h3 {
+    font-family: var(--font-rounded);
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--text);
+    margin: 0;
+    letter-spacing: -0.4px;
+}
+.char-detail-native {
+    font-size: 12px;
+    color: var(--text-3);
+    margin: 0;
+}
+.char-detail-role {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 100px;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    align-self: flex-start;
+}
+.char-detail-role.role-main {
+    background: rgba(255, 214, 10, 0.15);
+    color: #ffd60a;
+}
+.char-detail-role.role-supporting {
+    background: rgba(10, 132, 255, 0.15);
+    color: var(--accent);
+}
+.char-detail-role.role-background {
+    background: rgba(142, 142, 147, 0.15);
+    color: #8e8e93;
+}
+.char-detail-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-size: 12px;
+    color: var(--text-2);
+    font-weight: 600;
+    margin-top: 4px;
+}
+.char-detail-va {
+    padding: 14px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 14px;
+    margin-bottom: 16px;
+}
+.char-detail-va-label {
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-bottom: 10px;
+}
+.char-detail-va-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.char-detail-va-info img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #2a2a2a;
+}
+.char-detail-va-info span {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+}
+.char-detail-desc {
+    margin-top: 16px;
+}
+.char-detail-desc-label {
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-bottom: 10px;
+}
+.char-detail-desc p {
+    font-size: 14px;
+    line-height: 1.65;
+    color: var(--text-2);
+    white-space: pre-line;
+    margin: 0;
+}
+
+/* ===== BACK BUTTON ===== */
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 14px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 100px;
+    color: var(--accent);
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-bottom: 16px;
+    -webkit-appearance: none;
+    appearance: none;
+}
+.back-btn:active { transform: scale(0.95); }
+
+/* ===== EMPTY SMALL ===== */
+.empty-small {
+    text-align: center;
+    padding: 24px;
+    font-size: 12px;
+    color: var(--text-3);
+}
+.loading-small {
+    display: flex;
+    justify-content: center;
+    padding: 24px;
+}
+.loading-count {
+    font-size: 12px;
+    color: var(--text-3);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 420px) {
+    .characters-preview,
+    .char-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+    }
+
+   .episode-placeholder-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+    background: rgba(10, 132, 255, 0.08);
+    border: 1px solid rgba(10, 132, 255, 0.2);
+    border-radius: 14px;
+    margin-bottom: 14px;
+}
+.episode-notice-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+    line-height: 1.2;
+}
+.episode-notice-text {
+    flex: 1;
+    font-size: 12px;
+    color: var(--text-2);
+    line-height: 1.5;
+    font-weight: 500;
+}
+
+   .ep-badge.has-title {
+    background: rgba(48, 209, 88, 0.15);
+    color: #30d158;
+    border: 1px solid rgba(48, 209, 88, 0.3);
+}
+.ep-badge.site {
+    background: rgba(10, 132, 255, 0.15);
+    color: var(--accent);
+    border: 1px solid rgba(10, 132, 255, 0.3);
+}
+.ep-badge.placeholder {
+    background: rgba(142, 142, 147, 0.15);
+    color: #8e8e93;
+    border: 1px solid rgba(142, 142, 147, 0.3);
+}
+
+/* ===== PLACEHOLDER TẬP ===== */
+.episode-placeholder {
+    opacity: 0.75;
+    cursor: pointer;
+}
+.episode-placeholder:active {
+    opacity: 0.9;
+    background: rgba(255, 255, 255, 0.06);
+}
+.episode-placeholder .episode-number {
+    background: rgba(142, 142, 147, 0.15);
+    border-color: rgba(142, 142, 147, 0.3);
+    color: #8e8e93;
+}
+
+/* ===== THUMBNAIL TẬP ===== */
+.episode-detail-thumb {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: 14px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    margin: 16px 0;
+}
+.episode-detail-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* ===== LINK STREAMING TẬP ===== */
+.episode-detail-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 20px;
+    background: rgba(10, 132, 255, 0.12);
+    border: 1px solid rgba(10, 132, 255, 0.3);
+    border-radius: 14px;
+    color: var(--accent);
+    text-decoration: none;
+    font-family: var(--font);
+    font-size: 14px;
+    font-weight: 700;
+    transition: all 0.2s var(--ease-spring);
+    margin-bottom: 16px;
+}
+.episode-detail-link:active {
+    transform: scale(0.97);
+    background: rgba(10, 132, 255, 0.2);
+}
+
+/* ===== KHÔNG CÓ LINK ===== */
+.episode-detail-nolink {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 14px;
+    margin-bottom: 16px;
+    text-align: center;
+}
+.episode-nolink-icon {
+    font-size: 28px;
+    opacity: 0.6;
+}
+.episode-nolink-text {
+    font-size: 12px;
+    color: var(--text-3);
+    font-weight: 600;
+}
+
+/* ===== NOTICE PLACEHOLDER ===== */
+.episode-placeholder-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+    background: rgba(10, 132, 255, 0.08);
+    border: 1px solid rgba(10, 132, 255, 0.2);
+    border-radius: 14px;
+    margin-bottom: 14px;
+}
+.episode-notice-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+    line-height: 1.2;
+}
+.episode-notice-text {
+    flex: 1;
+    font-size: 12px;
+    color: var(--text-2);
+    line-height: 1.5;
+    font-weight: 500;
+}
+
+/* ===== RETRY BUTTON NHỎ ===== */
+.retry-btn-small {
+    margin-top: 10px;
+    padding: 8px 16px;
+    background: rgba(10, 132, 255, 0.15);
+    border: 1px solid rgba(10, 132, 255, 0.3);
+    border-radius: 100px;
+    color: var(--accent);
+    font-family: var(--font);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s var(--ease-spring);
+    -webkit-appearance: none;
+    appearance: none;
+}
+.retry-btn-small:active {
+    transform: scale(0.95);
+}
+    .char-detail-avatar {
+        width: 90px;
+        height: 90px;
+    }
+    .char-detail-info h3 {
+        font-size: 17px;
+    }
+   }
+        // XỬ LÝ TÊN TẬP
+        let displayTitle = '';
+        if (ep.title) {
+            displayTitle = ep.title
+                .replace(/^Episode\s*\d+\s*[-–:]\s*/i, '')
+                .replace(/^Tập\s*\d+\s*[-–:]\s*/i, '')
+                .replace(/^E\d+\s*[-–:]\s*/i, '')
+                .trim();
+        }
+
+        // SỐ TẬP - DÙNG ep.number HOẶC ep.malId (TƯƠNG THÍCH CẢ 2)
+        const episodeNumber = ep.number || ep.malId || '?';
+        const hasRealTitle = !!displayTitle;
+        const finalTitle = displayTitle || ('Tập ' + episodeNumber);
+
+        return `
+            <div class="episode-item ${!hasRealTitle ? 'episode-placeholder' : ''}" data-ep="${episodeNumber}">
+                <div class="episode-number">${episodeNumber}</div>
+                <div class="episode-info">
+                    <div class="episode-title">${UI.escapeHtml(finalTitle)}</div>
+                    <div class="episode-meta">
+                        ${hasRealTitle ? '<span class="ep-badge has-title">✓ Có tên</span>' : '<span class="ep-badge placeholder">Chưa có tên</span>'}
+                        ${ep.site ? `<span class="ep-badge site">${UI.escapeHtml(ep.site)}</span>` : ''}
+                    </div>
+                </div>
+                <div class="episode-chevron">›</div>
+            </div>
+        `;
+    }
+
+    function bindEpisodeItems(container) {
+        container.querySelectorAll('.episode-item').forEach(el => {
+            el.addEventListener('click', () => {
+                const epNum = parseInt(el.dataset.ep);
+                const ep = allEpisodes.find(e => e.number === epNum || e.malId === epNum);
+                if (ep) showEpisodeDetail(ep);
+            });
+        });
+    }
+
+    function openEpisodesModal() {
+        const modal = document.getElementById('episodesModal');
+        const body = document.getElementById('episodesModalBody');
+        if (!modal || !body) return;
+
+        // ===== KHÔNG CÓ TẬP =====
+        if (!allEpisodes.length) {
+            const totalEps = currentAnime?.episodes || 0;
+
+            if (totalEps > 0) {
+                body.innerHTML = `
+                    <div class="episode-placeholder-notice">
+                        <div class="episode-notice-icon">ℹ️</div>
+                        <div class="episode-notice-text">
+                            Chưa có tên tập từ AniList. Hiển thị ${totalEps} tập dựa trên thông tin anime.
+                        </div>
+                    </div>
+                    <div class="episode-list">
+                        ${Array.from({ length: totalEps }, (_, i) => `
+                            <div class="episode-item episode-placeholder" data-ep="${i + 1}">
+                                <div class="episode-number">${i + 1}</div>
+                                <div class="episode-info">
+                                    <div class="episode-title">Tập ${i + 1}</div>
+                                    <div class="episode-meta">
+                                        <span class="ep-badge placeholder">Chưa có tên</span>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            } else {
+                body.innerHTML = `
+                    <div class="empty-small">
+                        <div style="font-size:32px;margin-bottom:12px">📭</div>
+                        <div style="font-weight:700;color:var(--text);margin-bottom:6px">Chưa có dữ liệu tập</div>
+                        <div style="font-size:12px;color:var(--text-3)">Anime này chưa có thông tin tập</div>
+                    </div>
+                `;
+            }
+
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+            setTimeout(() => { body.scrollTop = 0; }, 20);
+            return;
+        }
+
+        // ===== CÓ TẬP =====
+        body.innerHTML = `
+            <div class="episode-list">
+                ${allEpisodes.map(ep => renderEpisodeItem(ep)).join('')}
+            </div>
+        `;
+        bindEpisodeItems(body);
+        modal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+        setTimeout(() => { body.scrollTop = 0; }, 20);
+    }
+
+    async function showEpisodeDetail(ep) {
+        const body = document.getElementById('episodesModalBody');
+        if (!body) return;
+
+        // XỬ LÝ TÊN TẬP
+        let displayTitle = '';
+        if (ep.title) {
+            displayTitle = ep.title
+                .replace(/^Episode\s*\d+\s*[-–:]\s*/i, '')
+                .replace(/^Tập\s*\d+\s*[-–:]\s*/i, '')
+                .replace(/^E\d+\s*[-–:]\s*/i, '')
+                .trim();
+        }
+
+        const episodeNumber = ep.number || ep.malId || '?';
+
+        body.innerHTML = `
+            <button class="back-btn" id="backToEps">‹ Quay lại</button>
+            <div class="episode-detail">
+                <h3 class="episode-detail-title">Tập ${episodeNumber}</h3>
+                ${displayTitle ? `<div class="episode-detail-sub">${UI.escapeHtml(displayTitle)}</div>` : ''}
+
+                <div class="episode-detail-meta">
+                    ${ep.site ? `<span class="ep-badge site">${UI.escapeHtml(ep.site)}</span>` : ''}
+                    ${ep.url ? `<span class="ep-badge">🎬 Có link</span>` : ''}
+                </div>
+
+                ${ep.thumbnail ? `
+                    <div class="episode-detail-thumb">
+                        <img src="${ep.thumbnail}" alt="" loading="lazy" onerror="this.parentElement.style.display='none'">
+                    </div>
+                ` : ''}
+
+                ${ep.url ? `
+                    <a href="${ep.url}" target="_blank" rel="noopener" class="episode-detail-link">
+                        ▶ Xem trên ${UI.escapeHtml(ep.site || 'Streaming')}
+                    </a>
+                ` : `
+                    <div class="episode-detail-nolink">
+                        <div class="episode-nolink-icon">📺</div>
+                        <div class="episode-nolink-text">Chưa có link xem cho tập này</div>
+                    </div>
+                `}
+
+                <div class="episode-spoiler-box" id="spoilerBox">
+                    <div class="spoiler-warning">
+                        <div class="spoiler-icon">⚠️</div>
+                        <div class="spoiler-title">Cảnh báo tiết lộ nội dung</div>
+                        <div class="spoiler-desc">Phần tóm tắt có thể tiết lộ tình tiết quan trọng</div>
+                        <button class="spoiler-btn" id="spoilerConfirm">👁 Xác nhận xem tóm tắt</button>
+                    </div>
+                </div>
+                <div class="episode-summary hidden" id="episodeSummary">
+                    <div class="episode-summary-label">📖 Tóm tắt</div>
+                    <div class="episode-summary-loading" id="summaryLoading"><div class="spinner-small"></div></div>
+                    <p class="episode-summary-text" id="summaryText" style="display:none"></p>
+                </div>
+            </div>
+        `;
+
+        setTimeout(() => { body.scrollTop = 0; }, 10);
+
+        document.getElementById('backToEps').addEventListener('click', openEpisodesModal);
+
+        document.getElementById('spoilerConfirm').addEventListener('click', async () => {
+            const spoilerBox = document.getElementById('spoilerBox');
+            const summary = document.getElementById('episodeSummary');
+            const loading = document.getElementById('summaryLoading');
+            const text = document.getElementById('summaryText');
+
+            spoilerBox.style.display = 'none';
+            summary.classList.remove('hidden');
+            loading.style.display = 'flex';
+            text.style.display = 'none';
+
+            try {
+                // LẤY TÓM TẮT CHUNG TỪ ANILIST
+                const synopsis = currentAnime?.description
+                    ? cleanHtml(currentAnime.description).slice(0, 800)
+                    : null;
+
+                setTimeout(() => {
+                    loading.style.display = 'none';
+                    text.style.display = 'block';
+
+                    if (synopsis) {
+                        text.textContent = '📌 Đây là tóm tắt chung của anime (AniList không có tóm tắt riêng từng tập):\n\n' + synopsis + (synopsis.length >= 800 ? '...' : '');
+                        text.style.color = 'var(--text-2)';
+                        text.style.fontStyle = 'normal';
+                    } else {
+                        text.textContent = 'Không có tóm tắt cho tập này.';
+                        text.style.color = 'var(--text-3)';
+                        text.style.fontStyle = 'italic';
+                    }
+                }, 400);
+
+            } catch (err) {
+                console.error('[Detail] Lỗi tải tóm tắt:', err);
+                loading.style.display = 'none';
+                text.style.display = 'block';
+                text.textContent = 'Không thể tải tóm tắt.';
+                text.style.color = 'var(--text-3)';
+                text.style.fontStyle = 'italic';
+            }
+        });
+    }
+
+    function closeSubModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) modal.classList.remove('show');
+    }
+
+    // ========== KIỂM TRA VIP ==========
+    function isVipAnime(anime) {
+        if (!anime) return false;
+        const pop = anime.popularity || 0;
+        const score = anime.averageScore || 0;
+        // VIP: popularity >= 100K HOẶC score >= 85
+        return pop >= 100000 || score >= 85;
+    }
+
+    // ========== XÂY DỰNG HTML VIP ==========
+    function buildVipHTML(a) {
+        const status = a.status;
+        const isLive = status === 'RELEASING';
+        const nextEp = a.nextAiringEpisode;
+
+
+
+ // VIP HEADER - CHỈ CÒN PARTICLES
+        let headerBar = `
+            <div class="vip-detail-particles" id="vipParticles"></div>
+        `;
+        // VIP COUNTDOWN (NẾU LIVE)
+        let countdown = '';
+        if (isLive && nextEp && nextEp.airingAt) {
+            const now = Date.now() / 1000;
+            const diff = nextEp.airingAt - now;
+
+            if (diff > 0) {
+                const days = Math.floor(diff / 86400);
+                const hours = Math.floor((diff % 86400) / 3600);
+                const minutes = Math.floor((diff % 3600) / 60);
+                const seconds = Math.floor(diff % 60);
+
+                countdown = `
+                    <div class="vip-countdown" data-airing="${nextEp.airingAt}">
+                        <div class="vip-countdown-header">
+                            <span class="vip-countdown-crown">👑</span>
+                            <span class="vip-countdown-label">TẬP ${nextEp.episode} SẮP CHIẾU</span>
+                        </div>
+                        <div class="vip-countdown-timer">
+                            <div class="vip-time-block">
+                                <div class="vip-time-value" data-unit="days">${days}</div>
+                                <div class="vip-time-label">NGÀY</div>
+                            </div>
+                            <div class="vip-time-block">
+                                <div class="vip-time-value" data-unit="hours">${String(hours).padStart(2,'0')}</div>
+                                <div class="vip-time-label">GIỜ</div>
+                            </div>
+                            <div class="vip-time-block">
+                                <div class="vip-time-value" data-unit="minutes">${String(minutes).padStart(2,'0')}</div>
+                                <div class="vip-time-label">PHÚT</div>
+                            </div>
+                            <div class="vip-time-block">
+                                <div class="vip-time-value" data-unit="seconds">${String(seconds).padStart(2,'0')}</div>
+                                <div class="vip-time-label">GIÂY</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        return headerBar + countdown;
+    }
+
+    // ========== TẠO PARTICLES ==========
+    function createVipParticles() {
+        const container = document.getElementById('vipParticles');
+        if (!container) return;
+
+        const colors = ['#ffd60a', '#ff9f0a', '#ff375f', '#bf5af2'];
+
+        for (let i = 0; i < 15; i++) {
+            const p = document.createElement('div');
+            p.className = 'vip-detail-particle';
+            p.style.left = Math.random() * 100 + '%';
+            p.style.top = Math.random() * 100 + '%';
+            p.style.background = colors[Math.floor(Math.random() * colors.length)];
+            p.style.color = colors[Math.floor(Math.random() * colors.length)];
+            p.style.animationDelay = Math.random() * 6 + 's';
+            p.style.animationDuration = (4 + Math.random() * 4) + 's';
+            p.style.width = p.style.height = (3 + Math.random() * 5) + 'px';
+            container.appendChild(p);
+        }
+    }
+
+    // ========== TICKER COUNTDOWN VIP ==========
+    function startVipCountdownTicker() {
+        if (window._vipCountdownTicker) return;
+        window._vipCountdownTicker = setInterval(() => {
+            document.querySelectorAll('.vip-countdown').forEach(el => {
+                const airingAt = parseInt(el.dataset.airing);
+                if (!airingAt) return;
+
+                const now = Date.now() / 1000;
+                const diff = airingAt - now;
+
+                if (diff <= 0) {
+                    el.innerHTML = '<div style="text-align:center;padding:20px;color:#ff375f;font-weight:800;font-size:16px">🔴 ĐANG CHIẾU!</div>';
+                    return;
+                }
+
+                const days = Math.floor(diff / 86400);
+                const hours = Math.floor((diff % 86400) / 3600);
+                const minutes = Math.floor((diff % 3600) / 60);
+                const seconds = Math.floor(diff % 60);
+
+                const d = el.querySelector('[data-unit="days"]');
+                const h = el.querySelector('[data-unit="hours"]');
+                const m = el.querySelector('[data-unit="minutes"]');
+                const s = el.querySelector('[data-unit="seconds"]');
+
+                if (d) d.textContent = days;
+                if (h) h.textContent = String(hours).padStart(2, '0');
+                if (m) m.textContent = String(minutes).padStart(2, '0');
+                if (s) s.textContent = String(seconds).padStart(2, '0');
+            });
+        }, 1000);
+    }
+
+    return { open, close };
+})();
+
+window.DetailView = DetailView;t="seconds"]');
+
+                if (d) d.textContent = days;
+                if (h) h.textContent = String(hours).padStart(2, '0');
+                if (m) m.textContent = String(minutes).padStart(2, '0');
+                if (s) s.textContent = String(seconds).padStart(2, '0');
+            });
+        }, 1000);
+    }
+
+    return { open, close };
+})();
+
+window.DetailView = DetailView;     });
+        }, 1000);
+    }
+
+    return { open, close };
+})();
+
+window.DetailView = DetailView;dow.DetailView = DetailView;
