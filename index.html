@@ -141,7 +141,12 @@
                 <input type="text" id="searchInput" placeholder="Tìm anime..." autocomplete="off">
             </div>
             <div class="filter-chips">
-                <button class="filter-chip" data-filter="genre">Thể loại</button>
+                <button class="filter-chip" id="btnOpenGenreFilter">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+                    </svg>
+                    Thể loại
+                </button>
                 <button class="filter-chip" data-filter="year">Năm</button>
                 <button class="filter-chip" data-filter="sort">Sắp xếp</button>
             </div>
@@ -204,6 +209,41 @@
     <div class="toast" id="toast"></div>
     <div class="modal-overlay" id="modalOverlay"></div>
 
+    <!-- MODAL BỘ LỌC TAG THỂ LOẠI -->
+    <div class="genre-modal" id="genreModal">
+        <div class="genre-modal-header">
+            <button class="genre-modal-close" id="genreModalClose">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            </button>
+            <div class="genre-modal-title">Bộ lọc thể loại</div>
+            <button class="genre-modal-menu" id="genreModalMenu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="3" y1="6" x2="21" y2="6"/>
+                    <line x1="3" y1="12" x2="21" y2="12"/>
+                    <line x1="3" y1="18" x2="21" y2="18"/>
+                </svg>
+            </button>
+        </div>
+
+        <div class="genre-tabs" id="genreTabs">
+            <button class="genre-tab active" data-tab="genres">Thể loại</button>
+            <button class="genre-tab" data-tab="themes">Chủ đề</button>
+            <button class="genre-tab" data-tab="demographics">Đối tượng</button>
+            <button class="genre-tab" data-tab="source">Nguồn</button>
+            <button class="genre-tab" data-tab="other">Khác</button>
+        </div>
+
+        <div class="genre-content" id="genreContent"></div>
+
+        <div class="genre-modal-footer">
+            <button class="genre-btn-secondary" id="genreReset">Đặt lại</button>
+            <button class="genre-btn-primary" id="genreApply">Áp dụng</button>
+        </div>
+    </div>
+
     <!-- SCRIPTS -->
     <script src="js/timezone.js"></script>
     <script src="js/storage.js"></script>
@@ -218,6 +258,7 @@
     <script src="js/search.js"></script>
     <script src="js/news.js"></script>
     <script src="js/settings.js"></script>
+    <script src="js/genre-filter.js"></script>
     
     <!-- TÍCH HỢP RATE LIMITER -->
     <script src="js/rateLimiter.js"></script>
