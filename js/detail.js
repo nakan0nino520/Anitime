@@ -1,4 +1,4 @@
-// js/detail.js - TRANG CHI TIẾT ANIME (ĐÃ TÍCH HỢP CẢNH BÁO NỘI DUNG & TỐI ƯU MƯỢT MÀ)
+// js/detail.js - TRANG CHI TIẾT ANIME (ANILIST EPISODES)
 
 const DetailView = (() => {
     let currentAnime = null;
@@ -216,7 +216,6 @@ const DetailView = (() => {
         const escSub = sub ? ((typeof UI !== 'undefined' && UI.escapeHtml) ? UI.escapeHtml(sub) : sub) : '';
         const escDesc = description ? ((typeof UI !== 'undefined' && UI.escapeHtml) ? UI.escapeHtml(description) : description) : '';
 
-        // ===== PHÂN TÍCH CẢNH BÁO NỘI DUNG =====
         let warningHTML = '';
         try {
             if (window.ContentWarning && typeof ContentWarning.analyze === 'function') {
@@ -549,7 +548,10 @@ const DetailView = (() => {
             });
         });
 
+        // ===== LOAD NHÂN VẬT =====
         loadCharacters(a.id);
+
+        // ===== LOAD TẬP PHIM TỪ ANILIST =====
         loadEpisodes(null, a.id);
 
         const btnViewCharacters = sheet.querySelector('#btnViewCharacters');
@@ -572,7 +574,6 @@ const DetailView = (() => {
             epModalClose.addEventListener('click', () => closeSubModal('episodesModal'));
         }
 
-        // ===== BIND CẢNH BÁO NỘI DUNG =====
         if (window.ContentWarning && typeof ContentWarning.bindBannerEvents === 'function') {
             ContentWarning.bindBannerEvents(sheet);
         }
@@ -822,25 +823,19 @@ const DetailView = (() => {
         return map[role] || role;
     }
 
-    // ========== TẬP PHIM ==========
+    // ========== TẬP PHIM (CHỈ DÙNG ANILIST) ==========
     async function loadEpisodes(malId, anilistId) {
         const preview = sheetEl?.querySelector('#episodesPreview');
         if (!preview) return;
 
+        console.log('[Detail] loadEpisodes - anilistId:', anilistId);
+
         try {
-            let realMalId = malId;
-            if (!realMalId || realMalId === anilistId) {
-                realMalId = await API.getMalIdFromAnilist(anilistId);
-            }
-
-            if (!realMalId) {
-                showEpisodeFallback(preview);
-                return;
-            }
-
-            malIdCache = realMalId;
-            const eps = await API.getEpisodes(realMalId);
+            // LẤY TẬP TỪ ANILIST
+            const eps = await API.getAnilistEpisodes(anilistId);
             allEpisodes = eps || [];
+
+            console.log('[Detail] Nhận', allEpisodes.length, 'tập từ AniList');
 
             if (!allEpisodes.length) {
                 showEpisodeFallback(preview);
@@ -874,7 +869,7 @@ const DetailView = (() => {
                             <div class="episode-info">
                                 <div class="episode-title">Tập ${i + 1}</div>
                                 <div class="episode-meta">
-                                    <span class="ep-badge placeholder">Chưa có thông tin</span>
+                                    <span class="ep-badge placeholder">Chưa có tên</span>
                                 </div>
                             </div>
                         </div>
@@ -888,15 +883,27 @@ const DetailView = (() => {
     }
 
     function renderEpisodeItem(ep) {
+        // XỬ LÝ TÊN TẬP
+        let displayTitle = '';
+        if (ep.title) {
+            displayTitle = ep.title
+                .replace(/^Episode\s*\d+\s*[-–:]\s*/i, '')
+                .replace(/^Tập\s*\d+\s*[-–:]\s*/i, '')
+                .replace(/^E\d+\s*[-–:]\s*/i, '')
+                .trim();
+        }
+
+        const hasRealTitle = !!displayTitle;
+        const finalTitle = displayTitle || ('Tập ' + ep.number);
+
         return `
-            <div class="episode-item" data-ep="${ep.malId}">
-                <div class="episode-number">${ep.malId}</div>
+            <div class="episode-item ${!hasRealTitle ? 'episode-placeholder' : ''}" data-ep="${ep.number}">
+                <div class="episode-number">${ep.number}</div>
                 <div class="episode-info">
-                    <div class="episode-title">${UI.escapeHtml(ep.title || `Tập ${ep.malId}`)}</div>
+                    <div class="episode-title">${UI.escapeHtml(finalTitle)}</div>
                     <div class="episode-meta">
-                        ${ep.aired ? `📅 ${formatAiredDate(ep.aired)}` : ''}
-                        ${ep.filler ? '<span class="ep-badge filler">Filler</span>' : ''}
-                        ${ep.recap ? '<span class="ep-badge recap">Recap</span>' : ''}
+                        ${hasRealTitle ? '<span class="ep-badge has-title">✓ Có tên</span>' : '<span class="ep-badge placeholder">Chưa có tên</span>'}
+                        ${ep.site ? `<span class="ep-badge site">${UI.escapeHtml(ep.site)}</span>` : ''}
                     </div>
                 </div>
                 <div class="episode-chevron">›</div>
@@ -905,18 +912,11 @@ const DetailView = (() => {
     }
 
     function bindEpisodeItems(container) {
-        container.querySelectorAll('.episode-item:not(.episode-placeholder)').forEach(el => {
+        container.querySelectorAll('.episode-item').forEach(el => {
             el.addEventListener('click', () => {
                 const epNum = parseInt(el.dataset.ep);
-                const ep = allEpisodes.find(e => e.malId === epNum);
+                const ep = allEpisodes.find(e => e.number === epNum);
                 if (ep) showEpisodeDetail(ep);
-            });
-        });
-
-        container.querySelectorAll('.episode-placeholder').forEach(el => {
-            el.addEventListener('click', () => {
-                const epNum = parseInt(el.dataset.ep);
-                if (typeof UI !== 'undefined') UI.toast('Tập ' + epNum + ' chưa có thông tin từ MAL');
             });
         });
     }
@@ -926,6 +926,7 @@ const DetailView = (() => {
         const body = document.getElementById('episodesModalBody');
         if (!modal || !body) return;
 
+        // ===== KHÔNG CÓ TẬP =====
         if (!allEpisodes.length) {
             const totalEps = currentAnime?.episodes || 0;
 
@@ -934,8 +935,7 @@ const DetailView = (() => {
                     <div class="episode-placeholder-notice">
                         <div class="episode-notice-icon">ℹ️</div>
                         <div class="episode-notice-text">
-                            Chưa có thông tin chi tiết từ MyAnimeList.
-                            Hiển thị ${totalEps} tập dựa trên AniList.
+                            Chưa có tên tập từ AniList. Hiển thị ${totalEps} tập dựa trên thông tin anime.
                         </div>
                     </div>
                     <div class="episode-list">
@@ -945,26 +945,19 @@ const DetailView = (() => {
                                 <div class="episode-info">
                                     <div class="episode-title">Tập ${i + 1}</div>
                                     <div class="episode-meta">
-                                        <span class="ep-badge placeholder">Chưa có thông tin</span>
+                                        <span class="ep-badge placeholder">Chưa có tên</span>
                                     </div>
                                 </div>
                             </div>
                         `).join('')}
                     </div>
                 `;
-
-                body.querySelectorAll('.episode-placeholder').forEach(el => {
-                    el.addEventListener('click', () => {
-                        const epNum = parseInt(el.dataset.ep);
-                        if (typeof UI !== 'undefined') UI.toast('Tập ' + epNum + ' chưa có thông tin từ MAL');
-                    });
-                });
             } else {
                 body.innerHTML = `
                     <div class="empty-small">
                         <div style="font-size:32px;margin-bottom:12px">📭</div>
                         <div style="font-weight:700;color:var(--text);margin-bottom:6px">Chưa có dữ liệu tập</div>
-                        <div style="font-size:12px;color:var(--text-3)">Anime này chưa có thông tin tập từ MyAnimeList</div>
+                        <div style="font-size:12px;color:var(--text-3)">Anime này chưa có thông tin tập</div>
                     </div>
                 `;
             }
@@ -975,6 +968,7 @@ const DetailView = (() => {
             return;
         }
 
+        // ===== CÓ TẬP =====
         body.innerHTML = `
             <div class="episode-list">
                 ${allEpisodes.map(ep => renderEpisodeItem(ep)).join('')}
@@ -990,16 +984,44 @@ const DetailView = (() => {
         const body = document.getElementById('episodesModalBody');
         if (!body) return;
 
+        // XỬ LÝ TÊN TẬP
+        let displayTitle = '';
+        if (ep.title) {
+            displayTitle = ep.title
+                .replace(/^Episode\s*\d+\s*[-–:]\s*/i, '')
+                .replace(/^Tập\s*\d+\s*[-–:]\s*/i, '')
+                .replace(/^E\d+\s*[-–:]\s*/i, '')
+                .trim();
+        }
+
         body.innerHTML = `
             <button class="back-btn" id="backToEps">‹ Quay lại</button>
             <div class="episode-detail">
-                <h3 class="episode-detail-title">Tập ${ep.malId}</h3>
-                <div class="episode-detail-sub">${UI.escapeHtml(ep.title || 'Không có tiêu đề')}</div>
+                <h3 class="episode-detail-title">Tập ${ep.number}</h3>
+                ${displayTitle ? `<div class="episode-detail-sub">${UI.escapeHtml(displayTitle)}</div>` : ''}
+
                 <div class="episode-detail-meta">
-                    ${ep.aired ? `<span>📅 ${formatAiredDate(ep.aired)}</span>` : ''}
-                    ${ep.filler ? '<span class="ep-badge filler">Filler</span>' : ''}
-                    ${ep.recap ? '<span class="ep-badge recap">Recap</span>' : ''}
+                    ${ep.site ? `<span class="ep-badge site">${UI.escapeHtml(ep.site)}</span>` : ''}
+                    ${ep.url ? `<span class="ep-badge">🎬 Có link</span>` : ''}
                 </div>
+
+                ${ep.thumbnail ? `
+                    <div class="episode-detail-thumb">
+                        <img src="${ep.thumbnail}" alt="" loading="lazy" onerror="this.parentElement.style.display='none'">
+                    </div>
+                ` : ''}
+
+                ${ep.url ? `
+                    <a href="${ep.url}" target="_blank" rel="noopener" class="episode-detail-link">
+                        ▶ Xem trên ${UI.escapeHtml(ep.site || 'Streaming')}
+                    </a>
+                ` : `
+                    <div class="episode-detail-nolink">
+                        <div class="episode-nolink-icon">📺</div>
+                        <div class="episode-nolink-text">Chưa có link xem cho tập này</div>
+                    </div>
+                `}
+
                 <div class="episode-spoiler-box" id="spoilerBox">
                     <div class="spoiler-warning">
                         <div class="spoiler-icon">⚠️</div>
@@ -1028,23 +1050,37 @@ const DetailView = (() => {
 
             spoilerBox.style.display = 'none';
             summary.classList.remove('hidden');
+            loading.style.display = 'flex';
+            text.style.display = 'none';
 
             try {
-                const detail = await API.getEpisodeDetail(malIdCache, ep.malId);
-                loading.style.display = 'none';
-                text.style.display = 'block';
-                if (detail && detail.synopsis) {
-                    text.textContent = detail.synopsis;
-                } else {
-                    text.textContent = 'Không có tóm tắt cho tập này.';
-                    text.style.color = 'var(--text-3)';
-                    text.style.fontStyle = 'italic';
-                }
+                // LẤY TÓM TẮT CHUNG TỪ ANILIST
+                const synopsis = currentAnime?.description
+                    ? cleanHtml(currentAnime.description).slice(0, 800)
+                    : null;
+
+                setTimeout(() => {
+                    loading.style.display = 'none';
+                    text.style.display = 'block';
+
+                    if (synopsis) {
+                        text.textContent = '📌 Đây là tóm tắt chung của anime (AniList không có tóm tắt riêng từng tập):\n\n' + synopsis + (synopsis.length >= 800 ? '...' : '');
+                        text.style.color = 'var(--text-2)';
+                        text.style.fontStyle = 'normal';
+                    } else {
+                        text.textContent = 'Không có tóm tắt cho tập này.';
+                        text.style.color = 'var(--text-3)';
+                        text.style.fontStyle = 'italic';
+                    }
+                }, 400);
+
             } catch (err) {
+                console.error('[Detail] Lỗi tải tóm tắt:', err);
                 loading.style.display = 'none';
                 text.style.display = 'block';
                 text.textContent = 'Không thể tải tóm tắt.';
                 text.style.color = 'var(--text-3)';
+                text.style.fontStyle = 'italic';
             }
         });
     }
