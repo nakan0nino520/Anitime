@@ -133,12 +133,12 @@ async function getDetail(id) {
     return data ? data.Media : null;
 }
 
-// HÀM TÌM KIẾM CHÍNH (ĐÃ GỘP TẤT CẢ TAGS/THEMES/DEMOGRAPHICS)
+// HÀM TÌM KIẾM CHÍNH (PHÂN TÁCH ĐÚNG GENRES VÀ TAGS CHO ANILIST)
 async function search(keyword, filters = {}) {
     const query = `
-        query ($search: String, $genres: [String], $source: MediaSource, $format: MediaFormat, $sort: [MediaSort], $seasonYear: Int) {
+        query ($search: String, $genres: [String], $tags: [String], $source: MediaSource, $format: MediaFormat, $sort: [MediaSort], $seasonYear: Int) {
             Page(perPage: 30) {
-                media(search: $search, genre_in: $genres, source: $source, format: $format, seasonYear: $seasonYear, type: ANIME, sort: $sort) {
+                media(search: $search, genre_in: $genres, tag_in: $tags, source: $source, format: $format, seasonYear: $seasonYear, type: ANIME, sort: $sort) {
                     id title { romaji native english }
                     coverImage { large }
                     genres averageScore popularity episodes format seasonYear
@@ -177,16 +177,28 @@ async function search(keyword, filters = {}) {
         }
     }
 
-    // Gộp toàn bộ các thể loại từ nhiều tab lại thành 1 mảng duy nhất
-    const combinedGenres = [
-        ...(filters.genres || []),
+    // Danh sách các thể loại chính thức của AniList
+    const officialGenres = [
+        'Action', 'Adventure', 'Comedy', 'Drama', 'Ecchi',
+        'Fantasy', 'Horror', 'Mahou Shoujo', 'Mecha', 'Music',
+        'Mystery', 'Psychological', 'Romance', 'Sci-Fi',
+        'Slice of Life', 'Sports', 'Supernatural', 'Thriller'
+    ];
+
+    const rawGenres = filters.genres || [];
+    const genresList = rawGenres.filter(g => officialGenres.includes(g));
+
+    // Đẩy các tag từ themes, demographics và thể loại phụ vào tag_in
+    const tagsList = [
         ...(filters.themes || []),
-        ...(filters.demographics || [])
+        ...(filters.demographics || []),
+        ...rawGenres.filter(g => !officialGenres.includes(g))
     ];
 
     const vars = {
         search: keyword && keyword.trim() ? keyword.trim() : null,
-        genres: combinedGenres.length ? combinedGenres : null,
+        genres: genresList.length ? genresList : null,
+        tags: tagsList.length ? tagsList : null,
         source: filters.source && filters.source.length ? (sourceMap[filters.source[0]] || null) : null,
         format: selectedFormat,
         seasonYear: selectedYear,
