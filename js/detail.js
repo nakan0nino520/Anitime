@@ -1,4 +1,4 @@
-// js/detail.js - TRANG CHI TIẾT ANIME - PHIÊN BẢN iOS CAO CẤP (ĐÃ TỐI ƯU MƯỢT MÀ)
+// js/detail.js - TRANG CHI TIẾT ANIME - PHIÊN BẢN iOS CAO CẤP (ĐÃ TỐI ƯU MƯỢT MÀ & TÍCH HỢP CẢNH BÁO NỘI DUNG)
 
 const DetailView = (() => {
     let currentAnime = null;
@@ -229,11 +229,25 @@ const DetailView = (() => {
         const avgScore = a.averageScore ? (a.averageScore / 10).toFixed(1) : '—';
         const scoreClr = scoreColor(a.averageScore);
         const totalEps = a.episodes || '?';
+
+        // ===== PHÂN TÍCH CẢNH BÁO NỘI DUNG =====
+        let warningHTML = '';
+        try {
+            if (window.ContentWarning) {
+                const warnings = ContentWarning.analyze(a);
+                warningHTML = ContentWarning.renderBanner(warnings);
+            }
+        } catch (err) {
+            console.warn('[Detail] ContentWarning lỗi:', err);
+        }
+
         const escTitle = (typeof UI !== 'undefined' && UI.escapeHtml) ? UI.escapeHtml(title) : title;
         const escSub = sub ? ((typeof UI !== 'undefined' && UI.escapeHtml) ? UI.escapeHtml(sub) : sub) : '';
         const escDesc = description ? ((typeof UI !== 'undefined' && UI.escapeHtml) ? UI.escapeHtml(description) : description) : '';
 
         const html = `
+            ${warningHTML}
+
             <!-- BANNER -->
             <div class="detail-banner" style="background-image:url('${banner}')">
                 <div class="detail-banner-overlay"></div>
@@ -607,6 +621,11 @@ const DetailView = (() => {
             });
         }
 
+        // ===== BIND CẢNH BÁO NỘI DUNG =====
+        if (window.ContentWarning) {
+            ContentWarning.bindBannerEvents(sheet);
+        }
+
         const btnShare = sheet.querySelector('#btnShare');
         if (btnShare) {
             btnShare.addEventListener('click', async () => {
@@ -859,7 +878,6 @@ const DetailView = (() => {
         modal.classList.add('show');
         document.body.style.overflow = 'hidden';
 
-        // 🔥 DÙNG TIMEOUT ĐỂ ÉP CUỘN LÊN ĐẦU SAU KHI RENDER VÀ HIỆN MODAL HOÀN TẤT
         setTimeout(() => {
             body.scrollTop = 0;
         }, 20);
@@ -1030,7 +1048,6 @@ const DetailView = (() => {
         modal.classList.add('show');
         document.body.style.overflow = 'hidden';
 
-        // 🔥 DÙNG TIMEOUT ĐỂ ÉP CUỘN LÊN ĐẦU SAU KHI RENDER VÀ HIỆN MODAL HOÀN TẤT
         setTimeout(() => {
             body.scrollTop = 0;
         }, 20);
