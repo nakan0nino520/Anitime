@@ -893,12 +893,14 @@ const DetailView = (() => {
                 .trim();
         }
 
+        // SỐ TẬP - DÙNG ep.number HOẶC ep.malId (TƯƠNG THÍCH CẢ 2)
+        const episodeNumber = ep.number || ep.malId || '?';
         const hasRealTitle = !!displayTitle;
-        const finalTitle = displayTitle || ('Tập ' + ep.number);
+        const finalTitle = displayTitle || ('Tập ' + episodeNumber);
 
         return `
-            <div class="episode-item ${!hasRealTitle ? 'episode-placeholder' : ''}" data-ep="${ep.number}">
-                <div class="episode-number">${ep.number}</div>
+            <div class="episode-item ${!hasRealTitle ? 'episode-placeholder' : ''}" data-ep="${episodeNumber}">
+                <div class="episode-number">${episodeNumber}</div>
                 <div class="episode-info">
                     <div class="episode-title">${UI.escapeHtml(finalTitle)}</div>
                     <div class="episode-meta">
@@ -915,7 +917,7 @@ const DetailView = (() => {
         container.querySelectorAll('.episode-item').forEach(el => {
             el.addEventListener('click', () => {
                 const epNum = parseInt(el.dataset.ep);
-                const ep = allEpisodes.find(e => e.number === epNum);
+                const ep = allEpisodes.find(e => e.number === epNum || e.malId === epNum);
                 if (ep) showEpisodeDetail(ep);
             });
         });
@@ -994,10 +996,12 @@ const DetailView = (() => {
                 .trim();
         }
 
+        const episodeNumber = ep.number || ep.malId || '?';
+
         body.innerHTML = `
             <button class="back-btn" id="backToEps">‹ Quay lại</button>
             <div class="episode-detail">
-                <h3 class="episode-detail-title">Tập ${ep.number}</h3>
+                <h3 class="episode-detail-title">Tập ${episodeNumber}</h3>
                 ${displayTitle ? `<div class="episode-detail-sub">${UI.escapeHtml(displayTitle)}</div>` : ''}
 
                 <div class="episode-detail-meta">
