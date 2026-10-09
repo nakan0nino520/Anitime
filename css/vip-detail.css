@@ -6,7 +6,9 @@
     border: 1.5px solid transparent;
     background-clip: padding-box;
     position: relative;
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
 }
 
 /* VIỀN VIP GRADIENT XOAY */
@@ -383,4 +385,4 @@
     .vip-time-block { padding: 12px 2px; }
     .detail-sheet.vip-sheet .detail-title { font-size: 20px; }
     .vip-countdown { margin: 16px 20px 0; padding: 16px; }
-  }
+}
