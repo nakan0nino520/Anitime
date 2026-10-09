@@ -809,6 +809,7 @@ const DetailView = (() => {
         if (!allCharacters.length) {
             body.innerHTML = '<div class="empty-small">Chưa có dữ liệu nhân vật</div>';
             modal.classList.add('show');
+            body.scrollTop = 0; // Đặt lại vị trí cuộn lên đầu
             return;
         }
 
@@ -856,6 +857,7 @@ const DetailView = (() => {
         });
 
         modal.classList.add('show');
+        body.scrollTop = 0; // Đặt lại vị trí cuộn lên đầu
         document.body.style.overflow = 'hidden';
     }
 
@@ -910,6 +912,8 @@ const DetailView = (() => {
                 ` : ''}
             </div>
         `;
+
+        body.scrollTop = 0; // Cuộn lên đầu khi xem chi tiết nhân vật
 
         document.getElementById('backToChars').addEventListener('click', () => {
             openCharactersModal();
@@ -1008,6 +1012,7 @@ const DetailView = (() => {
         if (!allEpisodes.length) {
             body.innerHTML = '<div class="empty-small">Chưa có dữ liệu tập</div>';
             modal.classList.add('show');
+            body.scrollTop = 0; // Đặt lại vị trí cuộn lên đầu
             return;
         }
 
@@ -1019,6 +1024,7 @@ const DetailView = (() => {
 
         bindEpisodeItems(body);
         modal.classList.add('show');
+        body.scrollTop = 0; // Đặt lại vị trí cuộn lên đầu
         document.body.style.overflow = 'hidden';
     }
 
@@ -1059,6 +1065,8 @@ const DetailView = (() => {
                 </div>
             </div>
         `;
+
+        body.scrollTop = 0; // Cuộn lên đầu khi xem chi tiết tập
 
         document.getElementById('backToEps').addEventListener('click', () => {
             openEpisodesModal();
