@@ -809,7 +809,7 @@ const DetailView = (() => {
         if (!allCharacters.length) {
             body.innerHTML = '<div class="empty-small">Chưa có dữ liệu nhân vật</div>';
             modal.classList.add('show');
-            body.scrollTop = 0; // Đặt lại vị trí cuộn lên đầu
+            setTimeout(() => { body.scrollTop = 0; }, 20);
             return;
         }
 
@@ -857,8 +857,12 @@ const DetailView = (() => {
         });
 
         modal.classList.add('show');
-        body.scrollTop = 0; // Đặt lại vị trí cuộn lên đầu
         document.body.style.overflow = 'hidden';
+
+        // 🔥 DÙNG TIMEOUT ĐỂ ÉP CUỘN LÊN ĐẦU SAU KHI RENDER VÀ HIỆN MODAL HOÀN TẤT
+        setTimeout(() => {
+            body.scrollTop = 0;
+        }, 20);
     }
 
     // ========== RENDER 1 CHAR CARD ==========
@@ -913,7 +917,7 @@ const DetailView = (() => {
             </div>
         `;
 
-        body.scrollTop = 0; // Cuộn lên đầu khi xem chi tiết nhân vật
+        setTimeout(() => { body.scrollTop = 0; }, 10);
 
         document.getElementById('backToChars').addEventListener('click', () => {
             openCharactersModal();
@@ -1012,7 +1016,7 @@ const DetailView = (() => {
         if (!allEpisodes.length) {
             body.innerHTML = '<div class="empty-small">Chưa có dữ liệu tập</div>';
             modal.classList.add('show');
-            body.scrollTop = 0; // Đặt lại vị trí cuộn lên đầu
+            setTimeout(() => { body.scrollTop = 0; }, 20);
             return;
         }
 
@@ -1024,8 +1028,12 @@ const DetailView = (() => {
 
         bindEpisodeItems(body);
         modal.classList.add('show');
-        body.scrollTop = 0; // Đặt lại vị trí cuộn lên đầu
         document.body.style.overflow = 'hidden';
+
+        // 🔥 DÙNG TIMEOUT ĐỂ ÉP CUỘN LÊN ĐẦU SAU KHI RENDER VÀ HIỆN MODAL HOÀN TẤT
+        setTimeout(() => {
+            body.scrollTop = 0;
+        }, 20);
     }
 
     // ========== HIỂN THỊ CHI TIẾT TẬP + SPOILER ==========
@@ -1066,7 +1074,7 @@ const DetailView = (() => {
             </div>
         `;
 
-        body.scrollTop = 0; // Cuộn lên đầu khi xem chi tiết tập
+        setTimeout(() => { body.scrollTop = 0; }, 10);
 
         document.getElementById('backToEps').addEventListener('click', () => {
             openEpisodesModal();
