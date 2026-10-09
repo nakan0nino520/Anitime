@@ -39,6 +39,11 @@ const LibraryView = (() => {
 
     // ========== HÀM CHUYỂN TAB GỌI TRỰC TIẾP TỪ HTML ==========
     function switchTab(status, btnElement) {
+        // Chống spam click đổi tab liên tục (giãn cách tối thiểu 300ms)
+        if (typeof RateLimiter !== 'undefined' && !RateLimiter.check('library_switch_tab', 300)) {
+            return;
+        }
+
         console.log('[Library] Switch tab to:', status);
         currentStatus = status;
 
@@ -213,6 +218,12 @@ const LibraryView = (() => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 e.preventDefault();
+                
+                // Chống spam click vào các nút hành động (giãn cách tối thiểu 250ms để bảo vệ LocalStorage)
+                if (typeof RateLimiter !== 'undefined' && !RateLimiter.check('library_action_btn', 250)) {
+                    return;
+                }
+
                 const action = btn.dataset.action;
                 const id = parseInt(btn.dataset.id);
                 const delta = parseInt(btn.dataset.delta || 0);
