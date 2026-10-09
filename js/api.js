@@ -209,5 +209,127 @@ async function search(keyword, filters = {}) {
     return data && data.Page ? data.Page.media : [];
 }
 
+// ========== LẤY NHÂN VẬT (ANILIST) ==========
+async function getCharacters(animeId) {
+    const ANILIST_URL = 'https://graphql.anilist.co';
+    const query = `
+        query ($id: Int) {
+            Media(id: $id) {
+                characters(perPage: 25, sort: [ROLE, RELEVANCE, ID]) {
+                    edges {
+                        role
+                        node {
+                            id
+                            name { full native }
+                            image { large medium }
+                            description
+                            gender
+                            age
+                            favourites
+                        }
+                        voiceActors(language: JAPANESE) {
+                            id
+                            name { full }
+                            image { large }
+                        }
+                    }
+                }
+            }
+        }
+    `;
+    try {
+        const res = await fetch(ANILIST_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify({ query, variables: { id: animeId } })
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const json = await res.json();
+        if (json.errors) throw new Error(json.errors[0].message);
+        const edges = json.data?.Media?.characters?.edges || [];
+        return edges.map(e => ({
+            id: e.node.id,
+            name: e.node.name.full,
+            nativeName: e.node.name.native,
+            image: e.node.image?.large || e.node.image?.medium || '',
+            role: e.role,
+            description: e.node.description || '',
+            gender: e.node.gender,
+            age: e.node.age,
+            favourites: e.node.favourites,
+            voiceActor: e.voiceActors?.[0] ? {
+                name: e.voiceActors[0].name.full,
+                image: e.voiceActors[0].image?.large || ''
+            } : null
+        }));
+    } catch (err) {
+        console.error('[API] getCharacters lỗi:', err);
+        return [];
+    }
+}
+
+// ========== LẤY DANH SÁCH TẬP (JIKAN) ==========
+async function getEpisodes(malId) {
+    try {
+        const res = await fetch(`https://api.jikan.moe/v4/anime/${malId}/episodes`);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const json = await res.json();
+        if (!json.data) return [];
+        return json.data.map(ep => ({
+            malId: ep.mal_id,
+            title: ep.title || `Tập ${ep.mal_id}`,
+            titleJapanese: ep.title_japanese || '',
+            titleRomanji: ep.title_romaji || '',
+            aired: ep.aired,
+            filler: ep.filler,
+            recap: ep.recap,
+            forumUrl: ep.forum_url,
+            url: ep.url
+        }));
+    } catch (err) {
+        console.error('[API] getEpisodes lỗi:', err);
+        return [];
+    }
+}
+
+// ========== LẤY MAL ID TỪ ANILIST ID ==========
+async function getMalIdFromAnilist(anilistId) {
+    const ANILIST_URL = 'https://graphql.anilist.co';
+    const query = `
+        query ($id: Int) {
+            Media(id: $id) {
+                idMal
+            }
+        }
+    `;
+    try {
+        const res = await fetch(ANILIST_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query, variables: { id: anilistId } })
+        });
+        const json = await res.json();
+        return json.data?.Media?.idMal || null;
+    } catch (err) {
+        return null;
+    }
+}
+
+// ========== LẤY TÓM TẮT TẬP (JIKAN EPISODE DETAIL) ==========
+async function getEpisodeDetail(malId, episodeNumber) {
+    try {
+        const res = await fetch(`https://api.jikan.moe/v4/anime/${malId}/episodes/${episodeNumber}`);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const json = await res.json();
+        return json.data || null;
+    } catch (err) {
+        console.error('[API] getEpisodeDetail lỗi:', err);
+        return null;
+    }
+}
+
 // Gán biến toàn cục
-window.API = { getSchedule, getSeasonal, getDetail, search };
+window.API = { 
+    getSchedule, getSeasonal, getDetail, search, 
+    getCharacters, getEpisodes, getMalIdFromAnilist, getEpisodeDetail 
+};
