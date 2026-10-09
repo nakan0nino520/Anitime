@@ -208,6 +208,47 @@
     <!-- TOAST & MODAL -->
     <div class="toast" id="toast"></div>
     <div class="modal-overlay" id="modalOverlay"></div>
+    <!-- MODAL TÌM ANIME BẰNG ẢNH (TRACE.MOE) -->
+    <div class="trace-modal" id="traceModal">
+        <div class="trace-modal-header">
+            <button class="trace-modal-close" id="traceModalClose">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            </button>
+            <div class="trace-modal-title">Tìm anime bằng ảnh</div>
+            <div style="width:36px"></div>
+        </div>
+
+        <div class="trace-modal-body">
+            <!-- PREVIEW -->
+            <div class="trace-preview-wrap" id="tracePreview"></div>
+
+            <!-- UPLOAD ZONE -->
+            <div class="trace-drop-zone" id="traceDropZone">
+                <div class="trace-drop-icon">📷</div>
+                <div class="trace-drop-title">Chọn hoặc kéo ảnh vào đây</div>
+                <div class="trace-drop-desc">Hỗ trợ JPG, PNG, GIF - Tối đa 10MB</div>
+                <button class="trace-btn primary big" id="traceUploadBtn">
+                    Chọn ảnh từ máy
+                </button>
+                <input type="file" id="traceFileInput" accept="image/*" hidden>
+            </div>
+
+            <!-- HOẶC URL -->
+            <div class="trace-url-wrap">
+                <div class="trace-url-label">Hoặc dán URL ảnh</div>
+                <div class="trace-url-row">
+                    <input type="url" id="traceUrlInput" class="trace-url-input" placeholder="https://..." autocomplete="off">
+                    <button class="trace-btn" id="traceUrlBtn">Tìm</button>
+                </div>
+            </div>
+
+            <!-- KẾT QUẢ -->
+            <div class="trace-result" id="traceResult"></div>
+        </div>
+    </div>
 
     <!-- MODAL BỘ LỌC TAG THỂ LOẠI -->
     <div class="genre-modal" id="genreModal">
