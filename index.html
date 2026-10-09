@@ -11,8 +11,6 @@
     <meta name="description" content="Lịch phát anime - Đếm ngược - Thư viện cá nhân">
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icons/icon-192.png">
-    
-    <!-- CSS -->
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="css/schedule.css">
@@ -21,14 +19,12 @@
     <title>AniTime — Lịch Anime</title>
 </head>
 <body>
-    <!-- AMBIENT BACKGROUND -->
     <div class="ambient">
         <div class="ambient-blob blob-1"></div>
         <div class="ambient-blob blob-2"></div>
         <div class="ambient-blob blob-3"></div>
     </div>
 
-    <!-- TOPBAR GLASS -->
     <header class="topbar">
         <div class="brand">
             <div class="brand-icon">
@@ -68,10 +64,55 @@
         </div>
     </header>
 
-    <!-- SCROLLABLE CONTENT -->
     <div class="content" id="content">
         <!-- VIEW: SCHEDULE -->
         <section class="view active" id="view-schedule">
+
+            <!-- ===== CÁC BỘ HOT ===== -->
+            <div class="hot-section">
+                <div class="hot-header">
+                    <div class="hot-title">
+                        <span class="hot-title-icon">🔥</span>
+                        <span>Các bộ HOT</span>
+                    </div>
+                </div>
+
+                <div class="hot-filter-bar">
+                    <button class="hot-filter" data-filter="year" id="hotFilterYear">
+                        <span class="hot-filter-label" id="hotYearLabel">2024</span>
+                        <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="6 9 12 15 18 9"/>
+                        </svg>
+                    </button>
+                    <button class="hot-filter" data-filter="season" id="hotFilterSeason">
+                        <span class="hot-filter-label" id="hotSeasonLabel">🍂 Thu</span>
+                        <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="6 9 12 15 18 9"/>
+                        </svg>
+                    </button>
+                    <button class="hot-filter" data-filter="genre" id="hotFilterGenre">
+                        <span class="hot-filter-label" id="hotGenreLabel">🎭 Thể loại</span>
+                        <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="6 9 12 15 18 9"/>
+                        </svg>
+                    </button>
+                    <button class="hot-filter" data-filter="sort" id="hotFilterSort">
+                        <span class="hot-filter-label" id="hotSortLabel">🔥 HOT</span>
+                        <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="6 9 12 15 18 9"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="hot-dropdown" id="hotDropdown"></div>
+
+                <div class="hot-scroll" id="hotScroll">
+                    <div class="hot-loading">
+                        <div class="spinner-small"></div>
+                    </div>
+                </div>
+            </div>
+
             <div class="segmented" id="scheduleViewTabs">
                 <button class="seg-btn active" data-view="daily">Theo ngày</button>
                 <button class="seg-btn" data-view="week">Tuần</button>
@@ -181,7 +222,6 @@
         </section>
     </div>
 
-    <!-- BOTTOM NAV -->
     <nav class="bottom-nav">
         <button class="nav-btn active" data-page="schedule">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -223,7 +263,6 @@
         </button>
     </nav>
 
-    <!-- TOAST & MODAL -->
     <div class="toast" id="toast"></div>
     <div class="modal-overlay" id="modalOverlay"></div>
     
@@ -241,10 +280,8 @@
         </div>
 
         <div class="trace-modal-body">
-            <!-- PREVIEW -->
             <div class="trace-preview-wrap" id="tracePreview"></div>
 
-            <!-- UPLOAD ZONE -->
             <div class="trace-drop-zone" id="traceDropZone">
                 <div class="trace-drop-icon">📷</div>
                 <div class="trace-drop-title">Chọn hoặc kéo ảnh vào đây</div>
@@ -255,7 +292,6 @@
                 <input type="file" id="traceFileInput" accept="image/*" hidden>
             </div>
 
-            <!-- HOẶC URL -->
             <div class="trace-url-wrap">
                 <div class="trace-url-label">Hoặc dán URL ảnh</div>
                 <div class="trace-url-row">
@@ -264,7 +300,6 @@
                 </div>
             </div>
 
-            <!-- KẾT QUẢ -->
             <div class="trace-result" id="traceResult"></div>
         </div>
     </div>
@@ -344,7 +379,6 @@
         </div>
     </div>
 
-    <!-- SCRIPTS -->
     <script src="js/timezone.js"></script>
     <script src="js/storage.js"></script>
     <script src="js/api.js"></script>
@@ -359,9 +393,10 @@
     <script src="js/news.js"></script>
     <script src="js/settings.js"></script>
     <script src="js/random-anime.js"></script>
+    <script src="js/hot-anime.js"></script>
     <script src="js/genre-filter.js"></script>
     <script src="js/rateLimiter.js"></script>
     <script src="js/trace-moe.js"></script>
     <script src="js/app.js"></script>
 </body>
-</html>
+                    </html>
