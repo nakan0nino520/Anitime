@@ -1,27 +1,28 @@
 // js/search.js
-
 const SearchView = (() => {
     const el = () => document.getElementById('searchResults');
     let initialized = false;
     let searchTimer = null;
     let lastKeyword = '';
-    
-    // Mở rộng cấu trúc filter để chứa đủ 5 tab từ modal
-    let currentFilters = { 
-        genres: [], 
-        themes: [], 
-        demographics: [], 
-        source: [], 
-        other: [], 
-        format: null, 
-        year: null, 
-        sort: 'POPULARITY_DESC' 
+
+    // CẤU TRÚC FILTER ĐẦY ĐỦ - 5 TAB TỪ MODAL
+    let currentFilters = {
+        genres: [],
+        themes: [],
+        demographics: [],
+        source: [],
+        other: [],
+        format: null,
+        year: null,
+        sort: 'POPULARITY_DESC'
     };
 
+    // ===== KHỞI TẠO =====
     function init() {
         if (initialized) return;
         initialized = true;
 
+        // INPUT TÌM KIẾM
         const input = document.getElementById('searchInput');
         if (input) {
             input.addEventListener('input', () => {
@@ -34,14 +35,13 @@ const SearchView = (() => {
             });
         }
 
-        // ===== BIND NÚT MỞ BỘ LỌC THỂ LOẠI =====
+        // BIND NÚT MỞ BỘ LỌC THỂ LOẠI
         const btnOpenGenre = document.getElementById('btnOpenGenreFilter');
         if (btnOpenGenre && window.GenreFilter) {
             btnOpenGenre.addEventListener('click', () => {
                 GenreFilter.open((result) => {
                     console.log('[Search] Bộ lọc đã chọn:', result);
-                    
-                    // GÁN ĐẦY ĐỦ CÁC DANH MỤC TỪ KẾT QUẢ MODAL
+
                     currentFilters.genres = result.genres || [];
                     currentFilters.themes = result.themes || [];
                     currentFilters.demographics = result.demographics || [];
@@ -53,10 +53,9 @@ const SearchView = (() => {
                         Store.set('genre_filter', result);
                     }
 
-                    // CẬP NHẬT TRẠNG THÁI GIAO DIỆN NÚT
                     updateGenreButtonState();
 
-                    // THỰC HIỆN TÌM KIẾM LẠI THEO BỘ LỌC MỚI
+                    // TÌM LẠI VỚI FILTER MỚI
                     const inputEl = document.getElementById('searchInput');
                     const kw = inputEl ? inputEl.value.trim() : '';
                     executeSearch(kw, currentFilters);
@@ -64,7 +63,7 @@ const SearchView = (() => {
             });
         }
 
-        // KHÔI PHỤC BỘ LỌC ĐÃ LƯU TRƯỚC ĐÓ (NẾU CÓ)
+        // KHÔI PHỤC BỘ LỌC ĐÃ LƯU
         const savedFilter = (typeof Store !== 'undefined') ? Store.get('genre_filter', null) : null;
         if (savedFilter) {
             currentFilters.genres = savedFilter.genres || [];
@@ -76,16 +75,15 @@ const SearchView = (() => {
         }
     }
 
-    // CẬP NHẬT GIAO DIỆN NÚT THỂ LOẠI KHI CÓ TAG ĐƯỢC CHỌN
+    // ===== CẬP NHẬT NÚT THỂ LOẠI =====
     function updateGenreButtonState() {
         const btnOpenGenre = document.getElementById('btnOpenGenreFilter');
         if (!btnOpenGenre) return;
 
-        // Tính tổng số lượng tag đã chọn ở tất cả các tab
-        const total = currentFilters.genres.length + 
-                      currentFilters.themes.length + 
-                      currentFilters.demographics.length + 
-                      currentFilters.source.length + 
+        const total = currentFilters.genres.length +
+                      currentFilters.themes.length +
+                      currentFilters.demographics.length +
+                      currentFilters.source.length +
                       currentFilters.other.length;
 
         if (total > 0) {
@@ -107,19 +105,19 @@ const SearchView = (() => {
         }
     }
 
-    // HÀM THỰC THI TÌM KIẾM CHUNG (KẾT HỢP KEYWORD VÀ FILTERS)
+    // ===== THỰC THI TÌM KIẾM =====
     async function executeSearch(keyword, filters) {
         const container = el();
         if (!container) return;
 
-        // Nếu không có từ khóa và không có filter nào được chọn
+        // KIỂM TRA CÓ FILTER HOẶC KEYWORD KHÔNG
         const hasKeyword = keyword && keyword.length >= 2;
-        const hasFilters = (filters.genres.length > 0) || 
-                           (filters.themes.length > 0) || 
-                           (filters.demographics.length > 0) || 
-                           (filters.source.length > 0) || 
-                           (filters.other.length > 0) || 
-                           filters.format || 
+        const hasFilters = (filters.genres.length > 0) ||
+                           (filters.themes.length > 0) ||
+                           (filters.demographics.length > 0) ||
+                           (filters.source.length > 0) ||
+                           (filters.other.length > 0) ||
+                           filters.format ||
                            filters.year;
 
         if (!hasKeyword && !hasFilters) {
@@ -127,11 +125,8 @@ const SearchView = (() => {
             return;
         }
 
-        // Kiểm tra Rate Limit: Giới hạn tối thiểu 600ms cho mỗi lần gọi API tìm kiếm
-        if (typeof RateLimiter !== 'undefined' && !RateLimiter.check('search_api_call', 600)) {
-            return;
-        }
-
+        // HIỂN THỊ SKELETON LOADING
+        container.classList.remove('grid-view');
         container.innerHTML = UI.skeleton(6);
 
         try {
@@ -150,7 +145,7 @@ const SearchView = (() => {
             container.classList.add('grid-view');
             container.innerHTML = data.map(m => UI.animeCard(m, { compact: true })).join('');
 
-            // BIND CLICK XEM CHI TIẾT ANIME
+            // BIND CLICK XEM CHI TIẾT
             container.querySelectorAll('.anime-card').forEach(card => {
                 card.addEventListener('click', (e) => {
                     if (e.target.closest('.fav-btn')) return;
@@ -161,16 +156,10 @@ const SearchView = (() => {
                 });
             });
 
-            // BIND NÚT YÊU THÍCH / LƯU TRỮ NHANH
+            // BIND NÚT YÊU THÍCH
             container.querySelectorAll('.fav-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    
-                    // Chống spam click nút yêu thích (giãn cách tối thiểu 200ms)
-                    if (typeof RateLimiter !== 'undefined' && !RateLimiter.check('search_fav_btn', 200)) {
-                        return;
-                    }
-
                     const id = parseInt(btn.dataset.id);
                     if (!id) return;
 
