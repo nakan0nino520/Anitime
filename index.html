@@ -43,6 +43,16 @@
             </div>
         </div>
         <div class="actions">
+            <button class="glass-btn" id="btnRandomAnime" aria-label="Anime ngẫu nhiên">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="3"/>
+                    <circle cx="8" cy="8" r="1"/>
+                    <circle cx="16" cy="8" r="1"/>
+                    <circle cx="12" cy="12" r="1"/>
+                    <circle cx="8" cy="16" r="1"/>
+                    <circle cx="16" cy="16" r="1"/>
+                </svg>
+            </button>
             <button class="glass-btn" id="btnRefresh" aria-label="Làm mới">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="23 4 23 10 17 10"/>
@@ -291,6 +301,46 @@
         <div class="genre-modal-footer">
             <button class="genre-btn-secondary" id="genreReset">Đặt lại</button>
             <button class="genre-btn-primary" id="genreApply">Áp dụng</button>
+        </div>
+    </div>
+
+    <!-- MODAL ANIME NGẪU NHIÊN -->
+    <div class="random-modal" id="randomModal">
+        <div class="random-modal-header">
+            <button class="random-modal-close" id="randomModalClose">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            </button>
+            <div class="random-modal-title">Không biết xem gì?</div>
+            <div style="width:36px"></div>
+        </div>
+
+        <div class="random-modal-body">
+            <div class="random-genre-bar" id="randomGenreBar"></div>
+
+            <div class="random-result" id="randomResult">
+                <div class="random-empty">
+                    <div class="random-empty-icon">🎲</div>
+                    <h3>Sẵn sàng chưa?</h3>
+                    <p>Chọn thể loại rồi nhấn "Quay" để nhận anime ngẫu nhiên</p>
+                </div>
+            </div>
+
+            <button class="random-roll-btn" id="randomRollBtn">
+                <span class="random-roll-icon">🎲</span>
+                <span>Quay</span>
+            </button>
+
+            <div class="random-actions" id="randomActions">
+                <button class="random-action-btn secondary" id="randomRollAgainBtn">
+                    🎲 Quay lại
+                </button>
+                <button class="random-action-btn primary" id="randomDetailBtn">
+                    Xem chi tiết
+                </button>
+            </div>
         </div>
     </div>
 
