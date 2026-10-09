@@ -1,30 +1,12 @@
-// ==================================================================
-// 3 ĐIỂM CẦN TINH CHỈNH
-// ==================================================================
-// 1. WHITESPACE: Tăng khoảng cách giữa các section
-// 2. TYPOGRAPHY: Nhãn phụ mờ hơn (var(--text-3))
-// 3. BORDER: Mỏng và tinh tế hơn
-
-// ==================================================================
-// SỬA css/detail.css
-// ==================================================================
-// HƯỚNG DẪN:
-// A) MỞ: https://github.com/nakan0nino520/AniTime/blob/main/css/detail.css
-// B) NHẤN BÚT CHÌ
-// C) CTRL+A → DELETE
-// D) DÁN TOÀN BỘ MÃ DƯỚI
-// E) COMMIT: "Tinh chỉnh UI chi tiết iOS 26"
-
-/*
 /* ============================================================
-   DETAIL.CSS - CHI TIẾT ANIME - iOS 26 TINH TẾ
+   DETAIL.CSS - CHI TIẾT ANIME - iOS 26 SÁNG SỦA & TINH TẾ
    ============================================================ */
 
 /* ===== OVERLAY ===== */
 .modal-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.9);
+    background: rgba(0, 0, 0, 0.85);
     z-index: 150;
     opacity: 0;
     pointer-events: none;
@@ -66,7 +48,7 @@
     top: 8px;
     width: 40px;
     height: 4px;
-    background: rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.35);
     border-radius: 100px;
     margin: 8px auto 0;
     z-index: 100;
@@ -81,7 +63,7 @@
     width: 38px;
     height: 38px;
     background: rgba(0, 0, 0, 0.7);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 50%;
     color: #fff;
     font-size: 15px;
@@ -141,8 +123,8 @@
     bottom: 16px;
     right: 20px;
     font-size: 11px;
-    color: rgba(255, 255, 255, 0.45);
-    font-weight: 400;
+    color: rgba(255, 255, 255, 0.6);
+    font-weight: 500;
     letter-spacing: 0.3px;
     max-width: 60%;
     text-align: right;
@@ -169,7 +151,7 @@
     flex-shrink: 0;
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.7);
     background: #1a1a1a;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
     transition: transform 0.3s var(--ease-spring);
 }
 .detail-cover:active { transform: scale(0.96); }
@@ -197,7 +179,7 @@
 }
 .detail-subtitle {
     font-size: 12px;
-    color: var(--text-3);
+    color: var(--text-2);
     font-weight: 500;
     letter-spacing: 0.1px;
     display: -webkit-box;
@@ -217,18 +199,18 @@
     align-items: center;
     gap: 4px;
     padding: 4px 10px;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 100px;
     font-size: 10px;
     font-weight: 600;
-    color: var(--text-2);
+    color: var(--text);
     letter-spacing: -0.1px;
     white-space: nowrap;
 }
 .badge-score {
-    background: rgba(10, 132, 255, 0.15) !important;
-    border-color: rgba(10, 132, 255, 0.3) !important;
+    background: rgba(10, 132, 255, 0.2) !important;
+    border-color: rgba(10, 132, 255, 0.4) !important;
     color: var(--accent) !important;
 }
 .badge-score .badge-icon { color: var(--accent); }
@@ -242,19 +224,19 @@
     margin: 0;
 }
 
-/* ===== CARDS ===== */
+/* ===== CARDS (SÁNG SỦA HƠN) ===== */
 .detail-card {
     margin: 20px 24px 0;
     padding: 18px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 18px;
 }
 .detail-card-label {
     display: block;
     font-size: 10px;
     font-weight: 700;
-    color: var(--text-3);
+    color: var(--text-2);
     text-transform: uppercase;
     letter-spacing: 0.8px;
     margin-bottom: 14px;
@@ -267,17 +249,17 @@
     justify-content: center;
     gap: 20px;
     padding: 4px;
-    background: rgba(255, 255, 255, 0.03);
+    background: rgba(255, 255, 255, 0.06);
     border-radius: 100px;
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     margin: 0;
 }
 .prog-btn {
     width: 44px;
     height: 44px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.15);
     color: var(--text);
     font-size: 22px;
     font-weight: 700;
@@ -295,7 +277,7 @@
 .prog-btn.plus { color: var(--green); }
 .prog-btn:active {
     transform: scale(0.82);
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.16);
 }
 .prog-value {
     display: flex;
@@ -312,7 +294,7 @@
 }
 .prog-total {
     font-size: 13px;
-    color: var(--text-3);
+    color: var(--text-2);
     font-weight: 500;
 }
 
@@ -324,7 +306,7 @@
 .score-current {
     font-size: 15px;
     font-weight: 700;
-    color: var(--text-2);
+    color: var(--text);
     font-family: var(--font-mono);
     letter-spacing: 0.3px;
 }
@@ -337,7 +319,7 @@
 .star {
     background: transparent;
     border: none;
-    color: rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.2);
     font-size: 22px;
     cursor: pointer;
     padding: 2px;
@@ -348,7 +330,7 @@
 }
 .star.active {
     color: #ffd60a;
-    text-shadow: 0 0 12px rgba(255, 214, 10, 0.6);
+    text-shadow: 0 0 12px rgba(255, 214, 10, 0.7);
 }
 .star:active { transform: scale(1.3); }
 
@@ -388,20 +370,20 @@
     align-items: center;
     gap: 14px;
     padding: 14px 16px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 14px;
     transition: background 0.2s;
 }
 .info-item:active {
-    background: rgba(255, 255, 255, 0.06);
+    background: rgba(255, 255, 255, 0.09);
 }
 .info-icon {
     font-size: 18px;
     flex-shrink: 0;
     width: 26px;
     text-align: center;
-    opacity: 0.85;
+    opacity: 0.9;
 }
 .info-content {
     display: flex;
@@ -411,7 +393,7 @@
 }
 .info-label {
     font-size: 10px;
-    color: var(--text-3);
+    color: var(--text-2);
     text-transform: uppercase;
     letter-spacing: 0.6px;
     font-weight: 600;
@@ -439,8 +421,8 @@
     justify-content: center;
     gap: 6px;
     padding: 20px 8px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 16px;
     text-align: center;
 }
@@ -454,7 +436,7 @@
 }
 .stat-label {
     font-size: 10px;
-    color: var(--text-3);
+    color: var(--text-2);
     text-transform: uppercase;
     letter-spacing: 0.6px;
     font-weight: 600;
@@ -499,8 +481,8 @@
     gap: 6px;
     margin-top: 14px;
     padding: 9px 18px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 100px;
     color: var(--accent);
     font-family: var(--font);
@@ -522,7 +504,7 @@
     overflow: hidden;
     background: #000;
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 .trailer-wrap iframe {
     width: 100%;
@@ -542,8 +524,8 @@
     align-items: center;
     gap: 14px;
     padding: 12px 14px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 14px;
 }
 .cast-avatar {
@@ -553,7 +535,7 @@
     object-fit: cover;
     background: #2a2a2a;
     flex-shrink: 0;
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 .cast-avatar-empty {
     display: flex;
@@ -576,7 +558,7 @@
 }
 .cast-role {
     font-size: 10.5px;
-    color: var(--text-3);
+    color: var(--text-2);
     margin-top: 3px;
     letter-spacing: 0.3px;
     text-transform: uppercase;
@@ -598,8 +580,8 @@
     align-items: center;
     gap: 14px;
     padding: 12px 16px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
 }
 .staff-name {
@@ -616,7 +598,7 @@
 .staff-role {
     font-size: 10.5px;
     font-weight: 600;
-    color: var(--text-3);
+    color: var(--text-2);
     text-align: right;
     flex-shrink: 0;
     letter-spacing: 0.3px;
@@ -634,8 +616,8 @@
     align-items: center;
     gap: 6px;
     padding: 10px 18px;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 100px;
     color: var(--text);
     text-decoration: none;
@@ -646,7 +628,7 @@
 }
 .stream-link:active {
     transform: scale(0.94);
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.12);
     color: var(--accent);
 }
 
@@ -674,7 +656,7 @@
     border-radius: 12px;
     object-fit: cover;
     background: #2a2a2a;
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 .relation-card span {
     display: -webkit-box;
@@ -703,8 +685,8 @@
     justify-content: center;
     gap: 8px;
     padding: 15px 16px;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 14px;
     color: var(--text);
     font-family: var(--font);
@@ -719,7 +701,7 @@
 }
 .bottom-action-btn:active {
     transform: scale(0.96);
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.12);
 }
 
 /* ===== ERROR ===== */
@@ -745,7 +727,7 @@
 }
 .detail-error p {
     font-size: 13px;
-    color: var(--text-3);
+    color: var(--text-2);
     max-width: 300px;
     line-height: 1.55;
 }
@@ -773,15 +755,15 @@
 }
 .copyable.holding {
     opacity: 0.7;
-    background: rgba(255, 255, 255, 0.06);
+    background: rgba(255, 255, 255, 0.08);
 }
 .copy-hint {
     display: block;
     font-size: 11px;
-    color: var(--text-3);
+    color: var(--text-2);
     margin-top: 6px;
     font-style: italic;
-    opacity: 0.7;
+    opacity: 0.8;
 }
 .copyable.copied {
     animation: copyFlash 0.6s ease;
@@ -804,8 +786,8 @@
     gap: 5px;
     margin-left: auto;
     padding: 6px 12px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 100px;
     color: var(--accent);
     font-family: var(--font);
@@ -819,8 +801,8 @@
 .btn-translate svg { stroke: currentColor; flex-shrink: 0; }
 .btn-translate:active { transform: scale(0.94); }
 .btn-translate.active {
-    background: rgba(10, 132, 255, 0.15);
-    border-color: rgba(10, 132, 255, 0.3);
+    background: rgba(10, 132, 255, 0.2);
+    border-color: rgba(10, 132, 255, 0.4);
     color: var(--accent);
 }
 .btn-translate.loading { opacity: 0.7; pointer-events: none; }
@@ -858,7 +840,7 @@
 }
 .settings-hero-sub {
     font-size: 13px;
-    color: var(--text-3);
+    color: var(--text-2);
     font-weight: 500;
     margin: 0;
 }
@@ -870,15 +852,15 @@
     font-family: var(--font-rounded);
     font-size: 11px;
     font-weight: 800;
-    color: var(--text-3);
+    color: var(--text-2);
     text-transform: uppercase;
     letter-spacing: 1.2px;
     margin-bottom: 12px;
     padding-left: 4px;
 }
 .settings-card {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 18px;
     overflow: hidden;
 }
@@ -888,28 +870,28 @@
     align-items: center;
     gap: 14px;
     padding: 16px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     min-height: 64px;
     transition: background 0.15s;
 }
 .settings-row:last-child { border-bottom: none; }
-.settings-row:active { background: rgba(255, 255, 255, 0.04); }
+.settings-row:active { background: rgba(255, 255, 255, 0.06); }
 
 .settings-icon-wrap {
     width: 36px;
     height: 36px;
     border-radius: 10px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 17px;
     flex-shrink: 0;
 }
-.settings-icon-wrap.blue { background: rgba(10, 132, 255, 0.12); border-color: rgba(10, 132, 255, 0.2); }
-.settings-icon-wrap.green { background: rgba(48, 209, 88, 0.12); border-color: rgba(48, 209, 88, 0.2); }
-.settings-icon-wrap.red { background: rgba(255, 55, 95, 0.12); border-color: rgba(255, 55, 95, 0.2); }
+.settings-icon-wrap.blue { background: rgba(10, 132, 255, 0.15); border-color: rgba(10, 132, 255, 0.3); }
+.settings-icon-wrap.green { background: rgba(48, 209, 88, 0.15); border-color: rgba(48, 209, 88, 0.3); }
+.settings-icon-wrap.red { background: rgba(255, 55, 95, 0.15); border-color: rgba(255, 55, 95, 0.3); }
 
 .settings-text {
     flex: 1;
@@ -927,7 +909,7 @@
 }
 .settings-desc {
     font-size: 11px;
-    color: var(--text-3);
+    color: var(--text-2);
     line-height: 1.35;
     white-space: nowrap;
     overflow: hidden;
@@ -936,8 +918,8 @@
 
 .settings-select {
     padding: 8px 28px 8px 12px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 10px;
     color: var(--accent);
     font-family: var(--font);
@@ -966,7 +948,7 @@
     padding: 16px;
     background: transparent;
     border: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     color: var(--text);
     font-family: var(--font);
     font-size: 14px;
@@ -977,11 +959,11 @@
     appearance: none;
 }
 .settings-action:last-child { border-bottom: none; }
-.settings-action:active { background: rgba(255, 255, 255, 0.04); }
+.settings-action:active { background: rgba(255, 255, 255, 0.06); }
 
 .chevron {
     font-size: 22px;
-    color: var(--text-3);
+    color: var(--text-2);
     font-weight: 300;
     line-height: 1;
 }
@@ -993,7 +975,7 @@
 .settings-logo {
     font-size: 36px;
     margin-bottom: 10px;
-    opacity: 0.5;
+    opacity: 0.7;
 }
 .settings-app-name {
     font-family: var(--font-rounded);
@@ -1005,14 +987,14 @@
 }
 .settings-version {
     font-size: 11px;
-    color: var(--text-3);
+    color: var(--text-2);
     font-family: var(--font-mono);
     margin-bottom: 10px;
 }
 .settings-credit {
     font-size: 10px;
-    color: var(--text-3);
-    opacity: 0.6;
+    color: var(--text-2);
+    opacity: 0.8;
 }
 
 /* TOGGLE */
@@ -1020,7 +1002,7 @@
     position: relative;
     width: 51px;
     height: 31px;
-    background: rgba(120, 120, 128, 0.28);
+    background: rgba(120, 120, 128, 0.35);
     border-radius: 100px;
     cursor: pointer;
     transition: background 0.3s var(--ease);
@@ -1083,63 +1065,3 @@
     .relation-card, .relation-card img { width: 130px; }
     .relation-card img { height: 185px; }
 }
-*/
-
-// ==================================================================
-// HÀNH ĐỘNG NGAY
-// ==================================================================
-// [ ] 1. MỞ https://github.com/nakan0nino520/AniTime/blob/main/css/detail.css
-// [ ] 2. NHẤN BÚT CHÌ
-// [ ] 3. CTRL+A → DELETE
-// [ ] 4. DÁN TOÀN BỘ MÃ Ở TRÊN
-// [ ] 5. COMMIT "Tinh chỉnh UI chi tiết iOS 26"
-// [ ] 6. CHỜ 2 PHÚT
-// [ ] 7. XÓA CACHE TRÌNH DUYỆT
-// [ ] 8. MỞ LẠI WEB → XEM CHI TIẾT ANIME
-
-// ==================================================================
-// NHỮNG THAY ĐỔI CHÍNH
-// ==================================================================
-
-// 1. WHITESPACE - TĂNG KHOẢNG CÁCH
-//    - .detail-section: 24px → 32px padding-top
-//    - .detail-card: 16px → 20px margin-top
-//    - .detail-header: 20px → 24px padding
-//    - .detail-actions: 20px → 24px padding
-//    - .detail-badges: gap 5px → 6px
-//    - .detail-info-grid: gap 8px → 10px
-//    - .detail-stats: gap 8px → 10px
-//    - .cast-list: gap 8px → 10px
-//    - .staff-list: gap 8px → 10px
-//    - .settings-section: 20px → 24px padding
-//    - .settings-row: 14px → 16px padding
-
-// 2. TYPOGRAPHY - CHỮ RÕ RÀNG HƠN
-//    - .detail-subtitle: text-2 → text-3 (mờ hơn)
-//    - .detail-badges .badge: text-2, font-weight 600
-//    - .detail-native-title: opacity 0.45
-//    - .prog-total: text-3 (mờ hơn)
-//    - .score-current: text-2 (rõ hơn chút)
-//    - .info-label: 10px, text-3, letter-spacing 0.6
-//    - .info-value: 13.5px, letter-spacing -0.1
-//    - .cast-role: 10.5px, text-3, uppercase
-//    - .staff-role: 10.5px, text-3, uppercase
-//    - .stat-label: 10px, text-3, letter-spacing 0.6
-//    - .settings-desc: text-3 (mờ hơn)
-//    - .settings-version: text-3
-
-// 3. BORDER TINH TẾ
-//    - Border: rgba(255, 255, 255, 0.05) - RẤT MỜ
-//    - Border-strong: rgba(255, 255, 255, 0.08)
-//    - Background: rgba(255, 255, 255, 0.03) - RẤT NHẸ
-//    - Áp dụng cho: card, info-item, stat-card, cast-item, staff-item
-//    - Không dùng var(--border) nữa
-//    - Border mỏng 1px, màu xám tối
-
-// 4. CHI TIẾT KHÁC
-//    - Badge: background nhẹ hơn, border mờ hơn
-//    - Star: màu mờ hơn khi chưa chọn (0.12)
-//    - Select: dùng accent color cho text
-//    - Toggle: nền xám mờ hơn (0.28)
-//    - Shadow: giảm nhẹ, chỉ giữ ở cover + trailer
-// ==================================================================
