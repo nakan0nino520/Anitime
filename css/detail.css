@@ -1659,6 +1659,29 @@
         grid-template-columns: repeat(3, 1fr);
         gap: 8px;
     }
+
+   .episode-placeholder-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+    background: rgba(10, 132, 255, 0.08);
+    border: 1px solid rgba(10, 132, 255, 0.2);
+    border-radius: 14px;
+    margin-bottom: 14px;
+}
+.episode-notice-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+    line-height: 1.2;
+}
+.episode-notice-text {
+    flex: 1;
+    font-size: 12px;
+    color: var(--text-2);
+    line-height: 1.5;
+    font-weight: 500;
+}
     .char-detail-avatar {
         width: 90px;
         height: 90px;
