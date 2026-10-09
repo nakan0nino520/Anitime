@@ -1,1 +1,386 @@
+.detail-sheet.vip-sheet {
+    background:
+        radial-gradient(ellipse 100% 50% at 50% 0%, rgba(255, 214, 10, 0.08), transparent 60%),
+        radial-gradient(ellipse 100% 50% at 50% 100%, rgba(191, 90, 242, 0.06), transparent 60%),
+        linear-gradient(180deg, #0a0a0a 0%, #050505 100%);
+    border: 1.5px solid transparent;
+    background-clip: padding-box;
+    position: relative;
+    overflow: hidden;
+}
 
+/* VIỀN VIP GRADIENT XOAY */
+.detail-sheet.vip-sheet::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 30px 30px 0 0;
+    padding: 2px;
+    background: conic-gradient(
+        from 0deg,
+        #ffd60a 0deg,
+        #ff9f0a 90deg,
+        #ff375f 180deg,
+        #bf5af2 270deg,
+        #ffd60a 360deg
+    );
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: vipBorderRotate 8s linear infinite;
+    pointer-events: none;
+    z-index: 100;
+}
+@keyframes vipBorderRotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* ===== PARTICLES ===== */
+.vip-detail-particles {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 1;
+}
+.vip-detail-particle {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0;
+    animation: vipDetailFloat 6s ease-in-out infinite;
+    box-shadow: 0 0 12px currentColor;
+}
+@keyframes vipDetailFloat {
+    0% {
+        opacity: 0;
+        transform: translateY(0) scale(0.3) rotate(0deg);
+    }
+    20% {
+        opacity: 0.8;
+        transform: translateY(-30px) scale(1) rotate(180deg);
+    }
+    80% {
+        opacity: 0.4;
+        transform: translateY(-150px) scale(0.7) rotate(360deg);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-200px) scale(0.3) rotate(540deg);
+    }
+}
+
+/* ===== VIP HEADER BAR ===== */
+.vip-header-bar {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.7) 100%);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border-bottom: 1px solid rgba(255, 214, 10, 0.15);
+}
+.vip-header-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: linear-gradient(135deg, rgba(255, 214, 10, 0.15), rgba(255, 159, 10, 0.15));
+    border: 1px solid rgba(255, 214, 10, 0.4);
+    border-radius: 100px;
+    color: #ffd60a;
+    font-family: var(--font-rounded);
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    box-shadow:
+        0 4px 20px rgba(255, 214, 10, 0.25),
+        0 0 0 1px rgba(255, 214, 10, 0.1) inset;
+}
+.vip-header-badge .crown-icon {
+    font-size: 14px;
+    animation: crownFloatSmall 2s ease-in-out infinite;
+}
+@keyframes crownFloatSmall {
+    0%, 100% { transform: translateY(0) rotate(-8deg); }
+    50% { transform: translateY(-3px) rotate(8deg); }
+}
+
+.vip-header-live {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: linear-gradient(135deg, #ff375f, #ff453a);
+    border-radius: 100px;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    box-shadow: 0 4px 16px rgba(255, 55, 95, 0.5);
+    animation: livePulseVip 1.5s ease-in-out infinite;
+}
+@keyframes livePulseVip {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.75; transform: scale(0.96); }
+}
+.vip-header-live::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #fff;
+    animation: liveDot 1s ease-in-out infinite;
+}
+@keyframes liveDot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+/* ===== VIP BANNER ===== */
+.detail-sheet.vip-sheet .detail-banner {
+    margin-top: 0;
+    position: relative;
+}
+.detail-sheet.vip-sheet .detail-banner::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(180deg, transparent 0%, transparent 40%, rgba(255, 214, 10, 0.08) 70%, rgba(0, 0, 0, 0.95) 100%),
+        radial-gradient(circle at 50% 100%, rgba(255, 214, 10, 0.15), transparent 60%);
+    pointer-events: none;
+}
+
+/* ===== VIP TITLE ===== */
+.detail-sheet.vip-sheet .detail-title {
+    font-family: Georgia, "Times New Roman", var(--font-rounded);
+    font-size: 24px;
+    font-weight: 900;
+    letter-spacing: -0.6px;
+    background: linear-gradient(135deg, #ffffff 0%, #ffd60a 50%, #ff9f0a 100%);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 2px 24px rgba(255, 214, 10, 0.3);
+    animation: titleShimmer 4s ease infinite;
+}
+@keyframes titleShimmer {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+/* ===== VIP POSTER ===== */
+.detail-sheet.vip-sheet .detail-cover {
+    border: 2.5px solid transparent;
+    background-clip: padding-box;
+    position: relative;
+    box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.9),
+        0 0 60px rgba(255, 214, 10, 0.35),
+        0 0 0 2px rgba(255, 214, 10, 0.5) inset;
+}
+.detail-sheet.vip-sheet .detail-cover::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 18px;
+    background: conic-gradient(
+        from 0deg,
+        #ffd60a 0deg,
+        #ff9f0a 90deg,
+        #ff375f 180deg,
+        #bf5af2 270deg,
+        #ffd60a 360deg
+    );
+    z-index: -1;
+    animation: vipBorderRotate 6s linear infinite;
+    filter: blur(8px);
+    opacity: 0.8;
+}
+
+/* ===== VIP BADGES ===== */
+.detail-sheet.vip-sheet .badge {
+    background: linear-gradient(135deg, rgba(255, 214, 10, 0.15), rgba(255, 159, 10, 0.15));
+    border-color: rgba(255, 214, 10, 0.4);
+    color: #ffd60a;
+}
+.detail-sheet.vip-sheet .badge-score {
+    background: linear-gradient(135deg, rgba(255, 214, 10, 0.25), rgba(255, 159, 10, 0.25)) !important;
+    border-color: rgba(255, 214, 10, 0.6) !important;
+    color: #ffd60a !important;
+    box-shadow: 0 4px 16px rgba(255, 214, 10, 0.3);
+}
+
+/* ===== VIP COUNTDOWN ===== */
+.vip-countdown {
+    margin: 20px 24px 0;
+    padding: 20px;
+    background:
+        radial-gradient(circle at 50% 0%, rgba(255, 214, 10, 0.15), transparent 70%),
+        linear-gradient(135deg, rgba(255, 55, 95, 0.1), rgba(191, 90, 242, 0.1));
+    border: 2px solid rgba(255, 214, 10, 0.4);
+    border-radius: 22px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    box-shadow:
+        0 8px 32px rgba(255, 214, 10, 0.25),
+        0 0 0 1px rgba(255, 214, 10, 0.2) inset;
+}
+.vip-countdown::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: conic-gradient(
+        from 0deg,
+        transparent 0deg,
+        rgba(255, 214, 10, 0.15) 90deg,
+        transparent 180deg,
+        rgba(255, 55, 95, 0.15) 270deg,
+        transparent 360deg
+    );
+    animation: vipBorderRotate 8s linear infinite;
+    pointer-events: none;
+}
+.vip-countdown-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    position: relative;
+    z-index: 1;
+}
+.vip-countdown-crown {
+    font-size: 22px;
+    filter: drop-shadow(0 2px 12px rgba(255, 214, 10, 0.9));
+    animation: crownFloat 2s ease-in-out infinite;
+}
+@keyframes crownFloat {
+    0%, 100% { transform: translateY(0) rotate(-8deg); }
+    50% { transform: translateY(-4px) rotate(8deg); }
+}
+.vip-countdown-label {
+    font-family: var(--font-rounded);
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: 1.5px;
+    background: linear-gradient(135deg, #ffd60a, #ff9f0a);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-transform: uppercase;
+}
+.vip-countdown-timer {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    position: relative;
+    z-index: 1;
+}
+.vip-time-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 14px 4px;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.6), rgba(30, 20, 0, 0.6));
+    border-radius: 14px;
+    border: 1.5px solid rgba(255, 214, 10, 0.3);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+.vip-time-value {
+    font-family: var(--font-mono);
+    font-size: 28px;
+    font-weight: 900;
+    background: linear-gradient(135deg, #ffffff, #ffd60a);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1;
+    text-shadow: 0 0 20px rgba(255, 214, 10, 0.6);
+}
+.vip-time-label {
+    font-size: 9px;
+    font-weight: 800;
+    color: rgba(255, 214, 10, 0.7);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+/* ===== VIP ACTIONS ===== */
+.detail-sheet.vip-sheet .status-select {
+    background: linear-gradient(135deg, rgba(255, 214, 10, 0.1), rgba(255, 159, 10, 0.1));
+    border-color: rgba(255, 214, 10, 0.4);
+    color: #ffd60a;
+}
+.detail-sheet.vip-sheet .prog-btn.plus {
+    background: linear-gradient(135deg, rgba(255, 214, 10, 0.2), rgba(255, 159, 10, 0.2));
+    border-color: rgba(255, 214, 10, 0.5);
+    color: #ffd60a;
+}
+.detail-sheet.vip-sheet .star.active {
+    color: #ffd60a;
+    text-shadow: 0 0 16px rgba(255, 214, 10, 0.9);
+}
+
+/* ===== VIP INFO ITEMS ===== */
+.detail-sheet.vip-sheet .info-item {
+    background: linear-gradient(135deg, rgba(255, 214, 10, 0.05), rgba(255, 159, 10, 0.05));
+    border-color: rgba(255, 214, 10, 0.2);
+}
+.detail-sheet.vip-sheet .stat-card {
+    background: linear-gradient(135deg, rgba(255, 214, 10, 0.08), rgba(255, 159, 10, 0.08));
+    border-color: rgba(255, 214, 10, 0.25);
+    box-shadow: 0 4px 16px rgba(255, 214, 10, 0.1);
+}
+
+/* ===== VIP SECTION TITLES ===== */
+.detail-sheet.vip-sheet .detail-section h3::before {
+    background: linear-gradient(180deg, #ffd60a, #ff9f0a);
+    box-shadow: 0 0 16px rgba(255, 214, 10, 0.8);
+}
+
+/* ===== VIP GENRE CHIPS ===== */
+.detail-sheet.vip-sheet .genre-chip {
+    border-color: rgba(255, 214, 10, 0.3) !important;
+    box-shadow: 0 2px 8px rgba(255, 214, 10, 0.15);
+}
+
+/* ===== VIP STREAMING LINKS ===== */
+.detail-sheet.vip-sheet .stream-link {
+    background: linear-gradient(135deg, rgba(255, 214, 10, 0.1), rgba(255, 159, 10, 0.1));
+    border-color: rgba(255, 214, 10, 0.35);
+    color: #ffd60a;
+}
+.detail-sheet.vip-sheet .stream-link:active {
+    background: linear-gradient(135deg, rgba(255, 214, 10, 0.2), rgba(255, 159, 10, 0.2));
+}
+
+/* ===== VIP ACTION BUTTONS ===== */
+.detail-sheet.vip-sheet .bottom-action-btn {
+    background: linear-gradient(135deg, rgba(255, 214, 10, 0.1), rgba(255, 159, 10, 0.1));
+    border-color: rgba(255, 214, 10, 0.35);
+    color: #ffd60a;
+}
+.detail-sheet.vip-sheet .bottom-action-btn:active {
+    background: linear-gradient(135deg, rgba(255, 214, 10, 0.2), rgba(255, 159, 10, 0.2));
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 420px) {
+    .vip-time-value { font-size: 22px; }
+    .vip-time-block { padding: 12px 2px; }
+    .detail-sheet.vip-sheet .detail-title { font-size: 20px; }
+    .vip-countdown { margin: 16px 20px 0; padding: 16px; }
+  }
