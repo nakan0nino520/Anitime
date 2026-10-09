@@ -1,8 +1,7 @@
-js/random-anime.js
+// js/random-anime.js
 // ANIME NGẪU NHIÊN - CHỌN THỂ LOẠI ĐỂ QUAY
 
 const RandomAnime = (() => {
-    const ANILIST_URL = 'https://graphql.anilist.co';
     let initialized = false;
     let currentAnime = null;
     let currentGenre = 'ALL';
@@ -187,21 +186,31 @@ const RandomAnime = (() => {
                 }
             `;
 
-            const res = await fetch(ANILIST_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    query,
-                    variables: { page, genres: genreFilter }
-                })
-            });
+            // Sử dụng window.API nếu tồn tại để đồng bộ cấu hình, nếu không dùng fetch trực tiếp
+            let jsonData;
+            if (window.API && typeof window.API === 'object') {
+                // Tận dụng hệ thống gọi chung
+                const endpoint = 'https://graphql.anilist.co';
+                const res = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                    body: JSON.stringify({ query, variables: { page, genres: genreFilter } })
+                });
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                jsonData = await res.json();
+                if (jsonData.errors) throw new Error(jsonData.errors[0].message);
+            } else {
+                const res = await fetch('https://graphql.anilist.co', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query, variables: { page, genres: genreFilter } })
+                });
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                jsonData = await res.json();
+                if (jsonData.errors) throw new Error(jsonData.errors[0].message);
+            }
 
-            if (!res.ok) throw new Error('HTTP ' + res.status);
-
-            const json = await res.json();
-            if (json.errors) throw new Error(json.errors[0].message);
-
-            const media = json.data?.Page?.media?.[0];
+            const media = jsonData?.data?.Page?.media?.[0];
             if (!media) throw new Error('Không có kết quả');
 
             currentAnime = media;
@@ -218,13 +227,16 @@ const RandomAnime = (() => {
                     <div class="random-empty-icon">⚠</div>
                     <h3>Không thể quay</h3>
                     <p>${escapeHtml(err.message)}</p>
-                    <button class="random-roll-btn" onclick="RandomAnime.rollPublic()" style="margin-top:20px">
+                    <button class="random-roll-btn" id="randomRetryBtn" style="margin-top:20px">
                         <span class="random-roll-icon">🎲</span>
                         <span>Thử lại</span>
                     </button>
                 </div>
             `;
-            if (rollBtn) rollBtn.style.display = 'flex';
+            const retryBtn = document.getElementById('randomRetryBtn');
+            if (retryBtn) {
+                retryBtn.addEventListener('click', roll);
+            }
         }
     }
 
@@ -301,8 +313,6 @@ const RandomAnime = (() => {
         `;
     }
 
-    function rollPublic() { roll(); }
-
     // ===== HELPER =====
     function cleanHtml(str) {
         if (!str) return '';
@@ -327,7 +337,7 @@ const RandomAnime = (() => {
             .replace(/'/g, '&#39;');
     }
 
-    return { init, open, close, roll, rollPublic };
+    return { init, open, close, roll };
 })();
 
 window.RandomAnime = RandomAnime;
