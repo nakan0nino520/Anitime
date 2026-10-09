@@ -329,3 +329,5 @@ const RandomAnime = (() => {
 
     return { init, open, close, roll, rollPublic };
 })();
+
+window.RandomAnime = RandomAnime;
