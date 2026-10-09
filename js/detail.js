@@ -54,6 +54,11 @@ const DetailView = (() => {
         const overlay = document.getElementById('modalOverlay');
         if (!overlay) return;
 
+        // XÓA CLASS VIP KHI ĐÓNG
+        if (sheetEl) {
+            sheetEl.classList.remove('vip-sheet');
+        }
+
         overlay.classList.remove('show');
 
         document.body.style.overflow = '';
@@ -192,6 +197,12 @@ const DetailView = (() => {
     function render(a) {
         if (!sheetEl) return;
 
+        // ===== KIỂM TRA ANIME VIP =====
+        const isVip = isVipAnime(a);
+        if (isVip) {
+            sheetEl.classList.add('vip-sheet');
+        }
+
         const status = typeof Store !== 'undefined' ? Store.getStatus(a.id) : null;
         const entry = typeof Store !== 'undefined' ? Store.getList()[a.id] : null;
         const progress = entry?.progress || 0;
@@ -216,6 +227,9 @@ const DetailView = (() => {
         const escSub = sub ? ((typeof UI !== 'undefined' && UI.escapeHtml) ? UI.escapeHtml(sub) : sub) : '';
         const escDesc = description ? ((typeof UI !== 'undefined' && UI.escapeHtml) ? UI.escapeHtml(description) : description) : '';
 
+        // ===== TẠO HTML VIP =====
+        const vipHTML = isVip ? buildVipHTML(a) : '';
+
         let warningHTML = '';
         try {
             if (window.ContentWarning && typeof ContentWarning.analyze === 'function') {
@@ -227,6 +241,7 @@ const DetailView = (() => {
         }
 
         const html = `
+            ${vipHTML}
             <div class="detail-banner" style="background-image:url('${banner}')">
                 <div class="detail-banner-overlay"></div>
                 ${nativeTitle ? `<div class="detail-native-title">${(typeof UI !== 'undefined' && UI.escapeHtml) ? UI.escapeHtml(nativeTitle) : nativeTitle}</div>` : ''}
@@ -572,6 +587,12 @@ const DetailView = (() => {
         const epModalClose = document.getElementById('episodesModalClose');
         if (epModalClose) {
             epModalClose.addEventListener('click', () => closeSubModal('episodesModal'));
+        }
+
+        // ===== TẠO PARTICLES VIP =====
+        if (sheet.classList.contains('vip-sheet')) {
+            createVipParticles();
+            startVipCountdownTicker();
         }
 
         if (window.ContentWarning && typeof ContentWarning.bindBannerEvents === 'function') {
@@ -1092,6 +1113,132 @@ const DetailView = (() => {
     function closeSubModal(modalId) {
         const modal = document.getElementById(modalId);
         if (modal) modal.classList.remove('show');
+    }
+
+    // ========== KIỂM TRA VIP ==========
+    function isVipAnime(anime) {
+        if (!anime) return false;
+        const pop = anime.popularity || 0;
+        const score = anime.averageScore || 0;
+        // VIP: popularity >= 100K HOẶC score >= 85
+        return pop >= 100000 || score >= 85;
+    }
+
+    // ========== XÂY DỰNG HTML VIP ==========
+    function buildVipHTML(a) {
+        const status = a.status;
+        const isLive = status === 'RELEASING';
+        const nextEp = a.nextAiringEpisode;
+
+        // VIP HEADER BAR
+        let headerBar = `
+            <div class="vip-header-bar">
+                <div class="vip-header-badge">
+                    <span class="crown-icon">👑</span>
+                    <span>VIP</span>
+                </div>
+                ${isLive ? '<div class="vip-header-live">LIVE</div>' : '<div class="vip-header-live" style="background:linear-gradient(135deg,#bf5af2,#5e5ce6)">LEGEND</div>'}
+            </div>
+            <div class="vip-detail-particles" id="vipParticles"></div>
+        `;
+
+        // VIP COUNTDOWN (NẾU LIVE)
+        let countdown = '';
+        if (isLive && nextEp && nextEp.airingAt) {
+            const now = Date.now() / 1000;
+            const diff = nextEp.airingAt - now;
+
+            if (diff > 0) {
+                const days = Math.floor(diff / 86400);
+                const hours = Math.floor((diff % 86400) / 3600);
+                const minutes = Math.floor((diff % 3600) / 60);
+                const seconds = Math.floor(diff % 60);
+
+                countdown = `
+                    <div class="vip-countdown" data-airing="${nextEp.airingAt}">
+                        <div class="vip-countdown-header">
+                            <span class="vip-countdown-crown">👑</span>
+                            <span class="vip-countdown-label">TẬP ${nextEp.episode} SẮP CHIẾU</span>
+                        </div>
+                        <div class="vip-countdown-timer">
+                            <div class="vip-time-block">
+                                <div class="vip-time-value" data-unit="days">${days}</div>
+                                <div class="vip-time-label">NGÀY</div>
+                            </div>
+                            <div class="vip-time-block">
+                                <div class="vip-time-value" data-unit="hours">${String(hours).padStart(2,'0')}</div>
+                                <div class="vip-time-label">GIỜ</div>
+                            </div>
+                            <div class="vip-time-block">
+                                <div class="vip-time-value" data-unit="minutes">${String(minutes).padStart(2,'0')}</div>
+                                <div class="vip-time-label">PHÚT</div>
+                            </div>
+                            <div class="vip-time-block">
+                                <div class="vip-time-value" data-unit="seconds">${String(seconds).padStart(2,'0')}</div>
+                                <div class="vip-time-label">GIÂY</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        return headerBar + countdown;
+    }
+
+    // ========== TẠO PARTICLES ==========
+    function createVipParticles() {
+        const container = document.getElementById('vipParticles');
+        if (!container) return;
+
+        const colors = ['#ffd60a', '#ff9f0a', '#ff375f', '#bf5af2'];
+
+        for (let i = 0; i < 40; i++) {
+            const p = document.createElement('div');
+            p.className = 'vip-detail-particle';
+            p.style.left = Math.random() * 100 + '%';
+            p.style.top = Math.random() * 100 + '%';
+            p.style.background = colors[Math.floor(Math.random() * colors.length)];
+            p.style.color = colors[Math.floor(Math.random() * colors.length)];
+            p.style.animationDelay = Math.random() * 6 + 's';
+            p.style.animationDuration = (4 + Math.random() * 4) + 's';
+            p.style.width = p.style.height = (3 + Math.random() * 5) + 'px';
+            container.appendChild(p);
+        }
+    }
+
+    // ========== TICKER COUNTDOWN VIP ==========
+    function startVipCountdownTicker() {
+        if (window._vipCountdownTicker) return;
+        window._vipCountdownTicker = setInterval(() => {
+            document.querySelectorAll('.vip-countdown').forEach(el => {
+                const airingAt = parseInt(el.dataset.airing);
+                if (!airingAt) return;
+
+                const now = Date.now() / 1000;
+                const diff = airingAt - now;
+
+                if (diff <= 0) {
+                    el.innerHTML = '<div style="text-align:center;padding:20px;color:#ff375f;font-weight:800;font-size:16px">🔴 ĐANG CHIẾU!</div>';
+                    return;
+                }
+
+                const days = Math.floor(diff / 86400);
+                const hours = Math.floor((diff % 86400) / 3600);
+                const minutes = Math.floor((diff % 3600) / 60);
+                const seconds = Math.floor(diff % 60);
+
+                const d = el.querySelector('[data-unit="days"]');
+                const h = el.querySelector('[data-unit="hours"]');
+                const m = el.querySelector('[data-unit="minutes"]');
+                const s = el.querySelector('[data-unit="seconds"]');
+
+                if (d) d.textContent = days;
+                if (h) h.textContent = String(hours).padStart(2, '0');
+                if (m) m.textContent = String(minutes).padStart(2, '0');
+                if (s) s.textContent = String(seconds).padStart(2, '0');
+            });
+        }, 1000);
     }
 
     return { open, close };
