@@ -5,7 +5,18 @@ const SearchView = (() => {
     let initialized = false;
     let searchTimer = null;
     let lastKeyword = '';
-    let currentFilters = { genres: [], format: null, year: null, sort: 'POPULARITY_DESC' };
+    
+    // Mở rộng cấu trúc filter để chứa đủ 5 tab từ modal
+    let currentFilters = { 
+        genres: [], 
+        themes: [], 
+        demographics: [], 
+        source: [], 
+        other: [], 
+        format: null, 
+        year: null, 
+        sort: 'POPULARITY_DESC' 
+    };
 
     function init() {
         if (initialized) return;
@@ -29,7 +40,13 @@ const SearchView = (() => {
             btnOpenGenre.addEventListener('click', () => {
                 GenreFilter.open((result) => {
                     console.log('[Search] Bộ lọc đã chọn:', result);
+                    
+                    // GÁN ĐẦY ĐỦ CÁC DANH MỤC TỪ KẾT QUẢ MODAL
                     currentFilters.genres = result.genres || [];
+                    currentFilters.themes = result.themes || [];
+                    currentFilters.demographics = result.demographics || [];
+                    currentFilters.source = result.source || [];
+                    currentFilters.other = result.other || [];
 
                     // LƯU BỘ LỌC VÀO STORE
                     if (typeof Store !== 'undefined') {
@@ -51,6 +68,10 @@ const SearchView = (() => {
         const savedFilter = (typeof Store !== 'undefined') ? Store.get('genre_filter', null) : null;
         if (savedFilter) {
             currentFilters.genres = savedFilter.genres || [];
+            currentFilters.themes = savedFilter.themes || [];
+            currentFilters.demographics = savedFilter.demographics || [];
+            currentFilters.source = savedFilter.source || [];
+            currentFilters.other = savedFilter.other || [];
             updateGenreButtonState();
         }
     }
@@ -60,7 +81,13 @@ const SearchView = (() => {
         const btnOpenGenre = document.getElementById('btnOpenGenreFilter');
         if (!btnOpenGenre) return;
 
-        const total = currentFilters.genres.length;
+        // Tính tổng số lượng tag đã chọn ở tất cả các tab
+        const total = currentFilters.genres.length + 
+                      currentFilters.themes.length + 
+                      currentFilters.demographics.length + 
+                      currentFilters.source.length + 
+                      currentFilters.other.length;
+
         if (total > 0) {
             btnOpenGenre.classList.add('active');
             btnOpenGenre.innerHTML = `
@@ -87,7 +114,13 @@ const SearchView = (() => {
 
         // Nếu không có từ khóa và không có filter nào được chọn
         const hasKeyword = keyword && keyword.length >= 2;
-        const hasFilters = filters.genres.length > 0 || filters.format || filters.year;
+        const hasFilters = (filters.genres.length > 0) || 
+                           (filters.themes.length > 0) || 
+                           (filters.demographics.length > 0) || 
+                           (filters.source.length > 0) || 
+                           (filters.other.length > 0) || 
+                           filters.format || 
+                           filters.year;
 
         if (!hasKeyword && !hasFilters) {
             container.innerHTML = `<div class="loading"><p>Nhập từ khóa hoặc chọn bộ lọc để tìm</p></div>`;
