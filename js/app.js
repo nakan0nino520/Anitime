@@ -104,8 +104,5 @@
     }
 
     console.log('%c AniTime v1.0 ', 'background:#0a84ff;color:#fff;padding:4px 8px;border-radius:4px;font-weight:bold');
-    console.log('%c Dữ liệu: Jikan API · Host: GitHub Pages ', 'color:#8e8e93;font-size:11px');
-})();
-    console.log('%c AniTime v1.0 ', 'background:#0a84ff;color:#fff;padding:4px 8px;border-radius:4px;font-weight:bold');
     console.log('%c Dữ liệu: AniList API · Host: GitHub Pages ', 'color:#8e8e93;font-size:11px');
 })();
