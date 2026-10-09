@@ -70,7 +70,7 @@ async function gql(query, variables = {}) {
     }
 }
 
-// LỊCH PHÁT (Tham số từ/đến tính bằng GIÂY)
+// LỊCH PHÁT SÓNG
 async function getSchedule(fromSec, toSec) {
     const query = `
         query ($from: Int, $to: Int) {
@@ -133,12 +133,12 @@ async function getDetail(id) {
     return data ? data.Media : null;
 }
 
-// HÀM TÌM KIẾM CHÍNH (HỖ TRỢ ĐỒNG THỜI KEYWORD, GENRES, TAGS, SOURCE, FORMAT, VÀ YEAR)
+// HÀM TÌM KIẾM CHÍNH (ĐÃ GỘP TẤT CẢ TAGS/THEMES/DEMOGRAPHICS)
 async function search(keyword, filters = {}) {
     const query = `
-        query ($search: String, $genres: [String], $tags: [String], $source: MediaSource, $format: MediaFormat, $sort: [MediaSort], $seasonYear: Int) {
+        query ($search: String, $genres: [String], $source: MediaSource, $format: MediaFormat, $sort: [MediaSort], $seasonYear: Int) {
             Page(perPage: 30) {
-                media(search: $search, genre_in: $genres, tag_in: $tags, source: $source, format: $format, seasonYear: $seasonYear, type: ANIME, sort: $sort) {
+                media(search: $search, genre_in: $genres, source: $source, format: $format, seasonYear: $seasonYear, type: ANIME, sort: $sort) {
                     id title { romaji native english }
                     coverImage { large }
                     genres averageScore popularity episodes format seasonYear
@@ -171,17 +171,22 @@ async function search(keyword, filters = {}) {
             if (formatList.includes(upper)) {
                 selectedFormat = upper;
             }
-            // Xử lý lọc theo thập kỷ (Ví dụ: 2020s -> 2020)
             if (/^\d{4}s$/.test(item)) {
                 selectedYear = parseInt(item);
             }
         }
     }
 
+    // Gộp toàn bộ các thể loại từ nhiều tab lại thành 1 mảng duy nhất
+    const combinedGenres = [
+        ...(filters.genres || []),
+        ...(filters.themes || []),
+        ...(filters.demographics || [])
+    ];
+
     const vars = {
         search: keyword && keyword.trim() ? keyword.trim() : null,
-        genres: filters.genres && filters.genres.length ? filters.genres : null,
-        tags: filters.themes && filters.themes.length ? filters.themes : null,
+        genres: combinedGenres.length ? combinedGenres : null,
         source: filters.source && filters.source.length ? (sourceMap[filters.source[0]] || null) : null,
         format: selectedFormat,
         seasonYear: selectedYear,
