@@ -142,7 +142,7 @@
     font-weight: 900;
     letter-spacing: -0.6px;
     color: #ffffff; /* Đổi chữ thành màu trắng */
-    text-shadow: 0 2px 24px rgba(255, 255, 255, 0.5); /* Đổi glow thành màu trắng (độ mờ 50%) */
+    text-shadow: 0 2px 24px rgba(255, 255, 255, 0.7); /* Đổi glow thành màu trắng (độ mờ 50%) */
     animation: titleShimmer 4s ease infinite;
 }
 
@@ -156,7 +156,7 @@
     position: relative;
     box-shadow:
         0 20px 60px rgba(0, 0, 0, 0.9),
-        0 0 60px rgba(255, 214, 10, 0.35);
+        0 0 60px rgba(0 ,0 , 0, 0.8;
 }
 
 /* ===== VIP BADGES ===== */
@@ -2048,4 +2048,4 @@ window.DetailView = DetailView;     });
     return { open, close };
 })();
 
-window.DetailView = DetailView;dow.DetailView = DetailView;
+window.DetailView = DetailView;dow.DetailView = DetailView;lView;
