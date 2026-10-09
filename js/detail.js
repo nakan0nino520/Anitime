@@ -246,8 +246,6 @@ const DetailView = (() => {
         const escDesc = description ? ((typeof UI !== 'undefined' && UI.escapeHtml) ? UI.escapeHtml(description) : description) : '';
 
         const html = `
-            ${warningHTML}
-
             <!-- BANNER -->
             <div class="detail-banner" style="background-image:url('${banner}')">
                 <div class="detail-banner-overlay"></div>
@@ -313,6 +311,9 @@ const DetailView = (() => {
                     `).join('')}
                 </div>
             </div>
+
+            <!-- CẢNH BÁO NỘI DUNG (ĐÃ CHUYỂN XUỐNG ĐÂY ĐỂ GIỮ NGUYÊN BANNER GỐC) -->
+            ${warningHTML}
 
             <!-- THÔNG TIN -->
             <div class="detail-section">
