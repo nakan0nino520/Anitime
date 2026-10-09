@@ -136,14 +136,8 @@ async function getDetail(id) {
 
 // ============================================================
 // HÀM TÌM KIẾM CHÍNH - XÂY DỰNG QUERY ĐỘNG
-// CHỈ THÊM FIELD VÀO QUERY NẾU CÓ GIÁ TRỊ
-// TRÁNH TRUYỀN null CHO ARRAY - GÂY LỖI ANILIST
 // ============================================================
 async function search(keyword, filters = {}) {
-    console.log('[API] search() - keyword:', keyword);
-    console.log('[API] search() - filters:', filters);
-
-    // ===== DANH SÁCH 18 GENRES CHÍNH THỨC CỦA ANILIST =====
     const officialGenres = [
         'Action', 'Adventure', 'Comedy', 'Drama', 'Ecchi',
         'Fantasy', 'Horror', 'Mahou Shoujo', 'Mecha', 'Music',
@@ -151,7 +145,6 @@ async function search(keyword, filters = {}) {
         'Slice of Life', 'Sports', 'Supernatural', 'Thriller'
     ];
 
-    // ===== PHÂN LOẠI GENRES vs TAGS =====
     const rawGenres = filters.genres || [];
     const genresList = rawGenres.filter(g => officialGenres.includes(g));
     const extraGenres = rawGenres.filter(g => !officialGenres.includes(g));
@@ -162,7 +155,6 @@ async function search(keyword, filters = {}) {
         ...extraGenres
     ];
 
-    // ===== MAP SOURCE =====
     const sourceMap = {
         'Manga': 'MANGA',
         'Light Novel': 'LIGHT_NOVEL',
@@ -175,7 +167,6 @@ async function search(keyword, filters = {}) {
         'Other': 'OTHER'
     };
 
-    // ===== XỬ LÝ OTHER (FORMAT / NĂM) =====
     const formatList = ['TV', 'TV_SHORT', 'MOVIE', 'OVA', 'ONA', 'SPECIAL', 'MUSIC'];
     let selectedFormat = filters.format || null;
     let selectedYear = filters.year || null;
@@ -186,71 +177,59 @@ async function search(keyword, filters = {}) {
             if (formatList.includes(upper)) {
                 selectedFormat = upper;
             }
-            // XỬ LÝ THẬP KỶ (2020s → 2020)
             if (/^\d{4}s$/i.test(item)) {
                 selectedYear = parseInt(item);
             }
-            // XỬ LÝ NĂM CỤ THỂ (2024)
             if (/^\d{4}$/.test(item)) {
                 selectedYear = parseInt(item);
             }
         }
     }
 
-    // ===== XÂY DỰNG QUERY ĐỘNG =====
-    // CHỈ THÊM PARAMETER VÀO QUERY NẾU CÓ GIÁ TRỊ
     const queryParams = [];
     const varDefs = [];
     const varValues = {};
 
-    // KEYWORD
     if (keyword && keyword.trim()) {
         varDefs.push('$search: String');
         queryParams.push('search: $search');
         varValues.search = keyword.trim();
     }
 
-    // GENRES
     if (genresList.length > 0) {
         varDefs.push('$genres: [String]');
         queryParams.push('genre_in: $genres');
         varValues.genres = genresList;
     }
 
-    // TAGS
     if (tagsList.length > 0) {
         varDefs.push('$tags: [String]');
         queryParams.push('tag_in: $tags');
         varValues.tags = tagsList;
     }
 
-    // SOURCE
     if (filters.source && filters.source.length && sourceMap[filters.source[0]]) {
         varDefs.push('$source: MediaSource');
         queryParams.push('source: $source');
         varValues.source = sourceMap[filters.source[0]];
     }
 
-    // FORMAT
     if (selectedFormat) {
         varDefs.push('$format: MediaFormat');
         queryParams.push('format: $format');
         varValues.format = selectedFormat;
     }
 
-    // NĂM
     if (selectedYear) {
         varDefs.push('$seasonYear: Int');
         queryParams.push('seasonYear: $seasonYear');
         varValues.seasonYear = selectedYear;
     }
 
-    // SORT (LUÔN CÓ)
     varDefs.push('$sort: [MediaSort]');
     queryParams.push('sort: $sort');
     varValues.sort = [filters.sort || 'POPULARITY_DESC'];
 
-    // ===== TẠO QUERY CUỐI CÙNG =====
     const varDefStr = '(' + varDefs.join(', ') + ')';
     const paramStr = queryParams.join(', ');
 
@@ -273,14 +252,9 @@ async function search(keyword, filters = {}) {
         }
     `;
 
-    console.log('[API] Query:', query);
-    console.log('[API] Vars:', varValues);
-
     try {
         const data = await gql(query, varValues);
-        const result = data && data.Page ? data.Page.media : [];
-        console.log('[API] Kết quả:', result.length);
-        return result;
+        return data && data.Page ? data.Page.media : [];
     } catch (err) {
         console.error('[API] search lỗi:', err);
         return [];
@@ -370,6 +344,37 @@ async function getEpisodes(malId) {
     }
 }
 
+// ========== LẤY DANH SÁCH TẬP TỪ ANILIST (DỰ PHÒNG) ==========
+async function getAnilistEpisodes(anilistId) {
+    const query = `
+        query ($id: Int) {
+            Media(id: $id) {
+                streamingEpisodes {
+                    title
+                    url
+                    site
+                }
+                episodes
+            }
+        }
+    `;
+    try {
+        const data = await gql(query, { id: anilistId });
+        const media = data?.Media;
+        if (!media || !media.streamingEpisodes) return [];
+        
+        return media.streamingEpisodes.map((ep, index) => ({
+            malId: index + 1,
+            title: ep.title || `Tập ${index + 1}`,
+            url: ep.url,
+            site: ep.site
+        }));
+    } catch (err) {
+        console.error('[API] getAnilistEpisodes lỗi:', err);
+        return [];
+    }
+}
+
 // ========== LẤY MAL ID TỪ ANILIST ID ==========
 async function getMalIdFromAnilist(anilistId) {
     const ANILIST_URL = 'https://graphql.anilist.co';
@@ -409,5 +414,5 @@ async function getEpisodeDetail(malId, episodeNumber) {
 // GÁN BIẾN TOÀN CỤC
 window.API = {
     getSchedule, getSeasonal, getDetail, search,
-    getCharacters, getEpisodes, getMalIdFromAnilist, getEpisodeDetail
+    getCharacters, getEpisodes, getAnilistEpisodes, getMalIdFromAnilist, getEpisodeDetail
 };
