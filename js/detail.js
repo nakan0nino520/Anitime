@@ -1,11 +1,10 @@
-// js/detail.js - TRANG CHI TIẾT ANIME - PHIÊN BẢN iOS CAO CẤP (ĐÃ TỐI ƯU MƯỢT MÀ)
+// js/detail.js - TRANG CHI TIẾT ANIME (ĐÃ TÍCH HỢP CẢNH BÁO NỘI DUNG & TỐI ƯU MƯỢT MÀ)
 
 const DetailView = (() => {
     let currentAnime = null;
     let sheetEl = null;
     let scrollY = 0;
 
-    // ========== BIẾN LƯU TRỮ ==========
     let allCharacters = [];
     let allEpisodes = [];
     let malIdCache = null;
@@ -15,12 +14,8 @@ const DetailView = (() => {
         const overlay = document.getElementById('modalOverlay');
         if (!overlay) return;
 
-        // LƯU VỊ TRÍ CUỘN HIỆN TẠI
         scrollY = window.scrollY;
         document.body.style.overflow = 'hidden';
-        document.body.style.position = 'fixed';
-        document.body.style.top = `-${scrollY}px`;
-        document.body.style.width = '100%';
 
         overlay.classList.add('show');
         overlay.innerHTML = `
@@ -39,7 +34,7 @@ const DetailView = (() => {
 
         try {
             if (typeof API === 'undefined' || typeof API.getDetail !== 'function') {
-                throw new Error("Không tìm thấy hàm API.getDetail trong api.js");
+                throw new Error("Không tìm thấy API.getDetail");
             }
             currentAnime = await API.getDetail(id);
             render(currentAnime);
@@ -49,18 +44,19 @@ const DetailView = (() => {
         }
     }
 
-    // ========== ĐÓNG CHI TIẾT ==========
+    // ========== ĐÓNG ==========
     function close() {
+        const charModal = document.getElementById('charactersModal');
+        if (charModal) charModal.remove();
+        const epModal = document.getElementById('episodesModal');
+        if (epModal) epModal.remove();
+
         const overlay = document.getElementById('modalOverlay');
         if (!overlay) return;
 
         overlay.classList.remove('show');
 
-        // KHÔI PHỤC CUỘN
         document.body.style.overflow = '';
-        document.body.style.position = '';
-        document.body.style.top = '';
-        document.body.style.width = '';
         window.scrollTo(0, scrollY);
 
         setTimeout(() => {
@@ -79,18 +75,13 @@ const DetailView = (() => {
         const closeBtn = document.getElementById('detailClose');
 
         if (closeBtn) closeBtn.addEventListener('click', close);
-
-        // CLICK NGOÀI ĐỂ ĐÓNG
         if (overlay) {
             overlay.addEventListener('click', (e) => {
                 if (e.target === overlay) close();
             });
         }
 
-        // SWIPE XUỐNG ĐỂ ĐÓNG
-        let startY = 0;
-        let currentY = 0;
-        let isDragging = false;
+        let startY = 0, currentY = 0, isDragging = false;
 
         if (sheetEl) {
             sheetEl.addEventListener('touchstart', (e) => {
@@ -115,15 +106,11 @@ const DetailView = (() => {
                 isDragging = false;
                 const diff = currentY - startY;
                 sheetEl.style.transition = '';
-                if (diff > 120) {
-                    close();
-                } else {
-                    sheetEl.style.transform = '';
-                }
+                if (diff > 120) close();
+                else sheetEl.style.transform = '';
             });
         }
 
-        // PHÍM ESC ĐỂ ĐÓNG
         const escHandler = (e) => {
             if (e.key === 'Escape') {
                 document.removeEventListener('keydown', escHandler);
@@ -133,7 +120,7 @@ const DetailView = (() => {
         document.addEventListener('keydown', escHandler);
     }
 
-    // ========== HELPER: FORMAT NGÀY ==========
+    // ========== HELPERS ==========
     function formatDate(d) {
         if (!d || !d.year) return null;
         const day = d.day ? String(d.day).padStart(2, '0') : null;
@@ -143,7 +130,6 @@ const DetailView = (() => {
         return `${d.year}`;
     }
 
-    // ========== HELPER: FORMAT SỐ ==========
     function formatNumber(num) {
         if (!num && num !== 0) return '—';
         if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
@@ -151,7 +137,6 @@ const DetailView = (() => {
         return num.toString();
     }
 
-    // ========== HELPER: LÀM SẠCH HTML ==========
     function cleanHtml(str) {
         if (!str) return '';
         return str
@@ -166,7 +151,6 @@ const DetailView = (() => {
             .trim();
     }
 
-    // ========== HELPER: MÀU SCORE ==========
     function scoreColor(score) {
         if (!score) return 'var(--text-3)';
         const s = score / 10;
@@ -177,21 +161,14 @@ const DetailView = (() => {
         return '#ff375f';
     }
 
-    // ========== HELPER: BADGE FORMAT ==========
     function formatIcon(format) {
         const map = {
-            'TV': '📺',
-            'MOVIE': '🎬',
-            'OVA': '💿',
-            'ONA': '🌐',
-            'SPECIAL': '⭐',
-            'TV_SHORT': '📹',
-            'MUSIC': '🎵'
+            'TV': '📺', 'MOVIE': '🎬', 'OVA': '💿', 'ONA': '🌐',
+            'SPECIAL': '⭐', 'TV_SHORT': '📹', 'MUSIC': '🎵'
         };
         return map[format] || '📺';
     }
 
-    // ========== HELPER: TRẠNG THÁI ==========
     function statusLabel(s) {
         const map = {
             'FINISHED': '✓ Đã kết thúc',
@@ -203,6 +180,14 @@ const DetailView = (() => {
         return map[s] || s;
     }
 
+    function formatAiredDate(dateStr) {
+        if (!dateStr) return '';
+        try {
+            const d = new Date(dateStr);
+            return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+        } catch (e) { return dateStr; }
+    }
+
     // ========== RENDER CHÍNH ==========
     function render(a) {
         if (!sheetEl) return;
@@ -212,16 +197,14 @@ const DetailView = (() => {
         const progress = entry?.progress || 0;
         const userScore = entry?.score || 0;
 
-        const title = (typeof UI !== 'undefined' && UI.titleOf) ? UI.titleOf(a) : (a.title?.romaji || a.title?.english || '');
+        const title = (typeof UI !== 'undefined' && UI.titleOf) ? UI.titleOf(a) : (a.title?.romaji || '');
         const sub = (typeof UI !== 'undefined' && UI.subtitleOf) ? UI.subtitleOf(a) : '';
         const nativeTitle = a.title?.native || '';
         const banner = a.bannerImage || a.coverImage?.extraLarge || a.coverImage?.large;
         const cover = a.coverImage?.extraLarge || a.coverImage?.large;
         const studios = (a.studios?.nodes || []).map(s => s.name).join(', ');
-        const staff = (a.staff?.edges || []).slice(0, 6);
         const links = (a.externalLinks || []).filter(l => l.type === 'STREAMING').slice(0, 8);
         const relations = (a.relations?.edges || []).slice(0, 6);
-        const recommendations = (a.recommendations?.nodes || []).slice(0, 6);
         const trailer = a.trailer && a.trailer.site === 'youtube' ? a.trailer.id : null;
         const description = cleanHtml(a.description);
         const startDate = formatDate(a.startDate);
@@ -233,14 +216,23 @@ const DetailView = (() => {
         const escSub = sub ? ((typeof UI !== 'undefined' && UI.escapeHtml) ? UI.escapeHtml(sub) : sub) : '';
         const escDesc = description ? ((typeof UI !== 'undefined' && UI.escapeHtml) ? UI.escapeHtml(description) : description) : '';
 
+        // ===== PHÂN TÍCH CẢNH BÁO NỘI DUNG =====
+        let warningHTML = '';
+        try {
+            if (window.ContentWarning && typeof ContentWarning.analyze === 'function') {
+                const warnings = ContentWarning.analyze(a);
+                warningHTML = ContentWarning.renderBanner(warnings);
+            }
+        } catch (err) {
+            console.warn('[Detail] ContentWarning lỗi:', err);
+        }
+
         const html = `
-            <!-- BANNER -->
             <div class="detail-banner" style="background-image:url('${banner}')">
                 <div class="detail-banner-overlay"></div>
                 ${nativeTitle ? `<div class="detail-native-title">${(typeof UI !== 'undefined' && UI.escapeHtml) ? UI.escapeHtml(nativeTitle) : nativeTitle}</div>` : ''}
             </div>
 
-            <!-- HEADER -->
             <div class="detail-header">
                 <img class="detail-cover" src="${cover}" alt="${escTitle}" loading="lazy" onerror="this.style.display='none'">
                 <div class="detail-title-block">
@@ -259,7 +251,6 @@ const DetailView = (() => {
                 </div>
             </div>
 
-            <!-- ACTIONS -->
             <div class="detail-actions">
                 <select class="glass-select status-select" id="statusSelect">
                     <option value="">— Thêm vào thư viện —</option>
@@ -272,7 +263,6 @@ const DetailView = (() => {
                 </select>
             </div>
 
-            <!-- PROGRESS -->
             ${(status === 'WATCHING' || status === 'PAUSED') ? `
                 <div class="detail-card detail-progress">
                     <label class="detail-card-label">📊 Tiến độ xem</label>
@@ -287,7 +277,6 @@ const DetailView = (() => {
                 </div>
             ` : ''}
 
-            <!-- SCORE -->
             <div class="detail-card detail-score">
                 <label class="detail-card-label">⭐ Đánh giá của bạn</label>
                 <div class="score-display">
@@ -295,12 +284,13 @@ const DetailView = (() => {
                 </div>
                 <div class="score-stars" data-id="${a.id}">
                     ${[1,2,3,4,5,6,7,8,9,10].map(i => `
-                        <button class="star ${i <= userScore ? 'active' : ''}" data-score="${i}" aria-label="Đánh giá ${i}">★</button>
+                        <button class="star ${i <= userScore ? 'active' : ''}" data-score="${i}">★</button>
                     `).join('')}
                 </div>
             </div>
 
-            <!-- THÔNG TIN -->
+            ${warningHTML}
+
             <div class="detail-section">
                 <h3>Thông tin</h3>
                 <div class="detail-info-grid">
@@ -316,7 +306,6 @@ const DetailView = (() => {
                 </div>
             </div>
 
-            <!-- STATS -->
             <div class="detail-section">
                 <h3>Thống kê</h3>
                 <div class="detail-stats">
@@ -335,7 +324,6 @@ const DetailView = (() => {
                 </div>
             </div>
 
-            <!-- GENRES -->
             ${(a.genres && a.genres.length) ? `
                 <div class="detail-section">
                     <h3>Thể loại</h3>
@@ -348,7 +336,6 @@ const DetailView = (() => {
                 </div>
             ` : ''}
 
-            <!-- SYNOPSIS -->
             ${description ? `
                 <div class="detail-section">
                     <h3>Nội dung</h3>
@@ -362,7 +349,6 @@ const DetailView = (() => {
                 </div>
             ` : ''}
 
-            <!-- TRAILER -->
             ${trailer ? `
                 <div class="detail-section">
                     <h3>Trailer chính thức</h3>
@@ -372,7 +358,6 @@ const DetailView = (() => {
                 </div>
             ` : ''}
 
-            <!-- SECTION: NHÂN VẬT -->
             <div class="detail-section">
                 <h3>
                     Nhân vật
@@ -388,7 +373,6 @@ const DetailView = (() => {
                 </div>
             </div>
 
-            <!-- SECTION: DANH SÁCH TẬP -->
             <div class="detail-section">
                 <h3>
                     Danh sách tập
@@ -401,7 +385,6 @@ const DetailView = (() => {
                 </div>
             </div>
 
-            <!-- STREAMING -->
             ${links.length ? `
                 <div class="detail-section">
                     <h3>Xem bản quyền</h3>
@@ -416,7 +399,6 @@ const DetailView = (() => {
                 </div>
             ` : ''}
 
-            <!-- RELATIONS -->
             ${relations.length ? `
                 <div class="detail-section">
                     <h3>Phần liên quan</h3>
@@ -431,7 +413,6 @@ const DetailView = (() => {
                 </div>
             ` : ''}
 
-            <!-- BOTTOM ACTIONS -->
             <div class="detail-section detail-bottom-actions">
                 ${a.siteUrl ? `
                     <a href="${a.siteUrl}" target="_blank" rel="noopener" class="bottom-action-btn">
@@ -462,7 +443,11 @@ const DetailView = (() => {
         if (loading) loading.remove();
         sheetEl.appendChild(contentWrapper);
 
-        // CHÈN MODAL NHÂN VẬT
+        const oldCharModal = document.getElementById('charactersModal');
+        if (oldCharModal) oldCharModal.remove();
+        const oldEpModal = document.getElementById('episodesModal');
+        if (oldEpModal) oldEpModal.remove();
+
         const charModal = document.createElement('div');
         charModal.className = 'sub-modal';
         charModal.id = 'charactersModal';
@@ -474,9 +459,8 @@ const DetailView = (() => {
             </div>
             <div class="sub-modal-body" id="charactersModalBody"></div>
         `;
-        sheetEl.appendChild(charModal);
+        document.body.appendChild(charModal);
 
-        // CHÈN MODAL TẬP PHIM
         const epModal = document.createElement('div');
         epModal.className = 'sub-modal';
         epModal.id = 'episodesModal';
@@ -488,17 +472,16 @@ const DetailView = (() => {
             </div>
             <div class="sub-modal-body" id="episodesModalBody"></div>
         `;
-        sheetEl.appendChild(epModal);
+        document.body.appendChild(epModal);
 
         bindDetailEvents(a);
     }
 
-    // ========== BIND SỰ KIỆN CHI TIẾT ==========
+    // ========== BIND SỰ KIỆN ==========
     function bindDetailEvents(a) {
         const sheet = document.getElementById('detailSheet');
         if (!sheet) return;
 
-        // KÍCH HOẠT NHẤN GIỮ ĐỂ SAO CHÉP ĐÃ TỐI ƯU
         bindCopyableElements(sheet);
 
         const btnReadMore = sheet.querySelector('#btnReadMore');
@@ -520,14 +503,11 @@ const DetailView = (() => {
                 const val = statusSel.value || null;
                 if (typeof Store !== 'undefined') {
                     Store.setStatus(a.id, val, {
-                        id: a.id,
-                        title: a.title,
-                        coverImage: a.coverImage,
-                        episodes: a.episodes,
-                        format: a.format
+                        id: a.id, title: a.title, coverImage: a.coverImage,
+                        episodes: a.episodes, format: a.format
                     });
                 }
-                if (typeof UI !== 'undefined') UI.toast(val ? '✓ Đã thêm vào thư viện' : '✓ Đã xóa khỏi thư viện');
+                if (typeof UI !== 'undefined') UI.toast(val ? '✓ Đã thêm vào thư viện' : '✓ Đã xóa');
                 setTimeout(() => open(a.id), 200);
             });
         }
@@ -569,42 +549,32 @@ const DetailView = (() => {
             });
         });
 
-        // ===== LOAD NHÂN VẬT =====
-        loadCharacters(a.id, a.idMal);
+        loadCharacters(a.id);
+        loadEpisodes(null, a.id);
 
-        // ===== LOAD TẬP PHIM =====
-        loadEpisodes(a.idMal || a.id, a.id);
-
-        // ===== BIND NÚT XEM TẤT CẢ NHÂN VẬT =====
         const btnViewCharacters = sheet.querySelector('#btnViewCharacters');
         if (btnViewCharacters) {
-            btnViewCharacters.addEventListener('click', () => {
-                openCharactersModal();
-            });
+            btnViewCharacters.addEventListener('click', () => openCharactersModal());
         }
 
-        // ===== BIND NÚT XEM TẤT CẢ TẬP =====
         const btnViewEpisodes = sheet.querySelector('#btnViewEpisodes');
         if (btnViewEpisodes) {
-            btnViewEpisodes.addEventListener('click', () => {
-                openEpisodesModal();
-            });
+            btnViewEpisodes.addEventListener('click', () => openEpisodesModal());
         }
 
-        // ===== BIND ĐÓNG MODAL NHÂN VẬT =====
-        const charModalClose = sheet.querySelector('#charactersModalClose');
+        const charModalClose = document.getElementById('charactersModalClose');
         if (charModalClose) {
-            charModalClose.addEventListener('click', () => {
-                closeSubModal('charactersModal');
-            });
+            charModalClose.addEventListener('click', () => closeSubModal('charactersModal'));
         }
 
-        // ===== BIND ĐÓNG MODAL TẬP =====
-        const epModalClose = sheet.querySelector('#episodesModalClose');
+        const epModalClose = document.getElementById('episodesModalClose');
         if (epModalClose) {
-            epModalClose.addEventListener('click', () => {
-                closeSubModal('episodesModal');
-            });
+            epModalClose.addEventListener('click', () => closeSubModal('episodesModal'));
+        }
+
+        // ===== BIND CẢNH BÁO NỘI DUNG =====
+        if (window.ContentWarning && typeof ContentWarning.bindBannerEvents === 'function') {
+            ContentWarning.bindBannerEvents(sheet);
         }
 
         const btnShare = sheet.querySelector('#btnShare');
@@ -616,9 +586,8 @@ const DetailView = (() => {
                     url: a.siteUrl || location.href
                 };
                 try {
-                    if (navigator.share) {
-                        await navigator.share(shareData);
-                    } else {
+                    if (navigator.share) await navigator.share(shareData);
+                    else {
                         await navigator.clipboard.writeText(shareData.url);
                         if (typeof UI !== 'undefined') UI.toast('✓ Đã copy link');
                     }
@@ -638,7 +607,7 @@ const DetailView = (() => {
             <div class="detail-error">
                 <div class="detail-error-icon">⚠</div>
                 <h3>Không thể tải</h3>
-                <p>${(typeof UI !== 'undefined' && UI.escapeHtml) ? UI.escapeHtml(err.message || 'Lỗi không xác định') : 'Lỗi không xác định'}</p>
+                <p>${(typeof UI !== 'undefined' && UI.escapeHtml) ? UI.escapeHtml(err.message || 'Lỗi không xác định') : 'Lỗi'}</p>
                 <button class="detail-retry" onclick="location.reload()">Thử lại</button>
             </div>
         `;
@@ -646,19 +615,16 @@ const DetailView = (() => {
         if (closeBtn) closeBtn.addEventListener('click', close);
     }
 
-    // ========== HÀM HỖ TRỢ: NHẤN GIỮ ĐỂ SAO CHÉP (TỐI ƯU KHÔNG LAG) ==========
+    // ========== COPYABLE ==========
     function bindCopyableElements(container) {
-        const copyables = container.querySelectorAll('.copyable');
-        copyables.forEach(el => {
-            let holdTimer = null;
-            let isHolding = false;
+        container.querySelectorAll('.copyable').forEach(el => {
+            let holdTimer = null, isHolding = false;
 
             const startHold = (e) => {
                 if (e.target.closest('button') || e.target.closest('a')) return;
                 isHolding = true;
                 el.classList.add('holding');
                 if (navigator.vibrate) navigator.vibrate(10);
-
                 holdTimer = setTimeout(() => {
                     if (!isHolding) return;
                     doCopy(el);
@@ -670,98 +636,67 @@ const DetailView = (() => {
                 if (!isHolding) return;
                 isHolding = false;
                 el.classList.remove('holding');
-                if (holdTimer) {
-                    clearTimeout(holdTimer);
-                    holdTimer = null;
-                }
+                if (holdTimer) { clearTimeout(holdTimer); holdTimer = null; }
             };
 
             el.addEventListener('touchstart', startHold, { passive: true });
             el.addEventListener('touchend', endHold, { passive: true });
             el.addEventListener('touchcancel', endHold, { passive: true });
-
             el.addEventListener('mousedown', startHold);
             el.addEventListener('mouseup', endHold);
             el.addEventListener('mouseleave', endHold);
-
-            el.addEventListener('contextmenu', (e) => {
-                e.preventDefault();
-                doCopy(el);
-            });
+            el.addEventListener('contextmenu', (e) => { e.preventDefault(); doCopy(el); });
         });
     }
 
     async function doCopy(el) {
         const type = el.dataset.copyType || 'text';
-        let text = '';
-
-        if (type === 'synopsis') {
-            text = el.dataset.original || el.textContent;
-        } else {
-            text = el.dataset.copyText || el.textContent;
-        }
-
+        let text = type === 'synopsis' ? (el.dataset.original || el.textContent) : (el.dataset.copyText || el.textContent);
         text = text.trim();
-        if (!text) {
-            if (typeof UI !== 'undefined') UI.toast('⚠ Không có nội dung để sao chép');
-            return;
-        }
+        if (!text) { if (typeof UI !== 'undefined') UI.toast('⚠ Không có nội dung'); return; }
 
         try {
             if (navigator.clipboard && navigator.clipboard.writeText) {
                 await navigator.clipboard.writeText(text);
             } else {
-                const textarea = document.createElement('textarea');
-                textarea.value = text;
-                textarea.style.position = 'fixed';
-                textarea.style.top = '-9999px';
-                textarea.style.left = '-9999px';
-                textarea.setAttribute('readonly', '');
-                document.body.appendChild(textarea);
-                textarea.select();
-                textarea.setSelectionRange(0, text.length);
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                ta.style.position = 'fixed';
+                ta.style.top = '-9999px';
+                document.body.appendChild(ta);
+                ta.select();
                 document.execCommand('copy');
-                document.body.removeChild(textarea);
+                document.body.removeChild(ta);
             }
-
-            const label = {
-                title: 'tên anime',
-                subtitle: 'tên phụ',
-                synopsis: 'mô tả'
-            }[type] || 'văn bản';
-
+            const label = { title: 'tên anime', subtitle: 'tên phụ', synopsis: 'mô tả' }[type] || 'văn bản';
             if (typeof UI !== 'undefined') UI.toast('✓ Đã sao chép ' + label);
             if (navigator.vibrate) navigator.vibrate([30, 50, 30]);
-
             el.classList.add('copied');
             setTimeout(() => el.classList.remove('copied'), 600);
-
         } catch (err) {
-            console.error('[Detail] Copy lỗi:', err);
             if (typeof UI !== 'undefined') UI.toast('⚠ Không thể sao chép');
         }
     }
 
-    // ========== LOAD NHÂN VẬT ==========
-    async function loadCharacters(anilistId, malId) {
+    // ========== NHÂN VẬT ==========
+    async function loadCharacters(anilistId) {
         const preview = sheetEl?.querySelector('#charactersPreview');
         const count = sheetEl?.querySelector('#charactersCount');
         if (!preview) return;
 
         try {
             const chars = await API.getCharacters(anilistId);
-            allCharacters = chars;
+            allCharacters = chars || [];
 
-            if (!chars.length) {
+            if (!allCharacters.length) {
                 preview.innerHTML = '<div class="empty-small">Không có thông tin nhân vật</div>';
                 if (count) count.innerHTML = '';
                 return;
             }
 
-            // ĐẾM THEO VAI TRÒ
-            const mainCount = chars.filter(c => c.role === 'MAIN').length;
-            const supportCount = chars.filter(c => c.role === 'SUPPORTING').length;
-            const backgroundCount = chars.filter(c => c.role === 'BACKGROUND').length;
+            const mainCount = allCharacters.filter(c => c.role === 'MAIN').length;
+            const supportCount = allCharacters.filter(c => c.role === 'SUPPORTING').length;
+            const backgroundCount = allCharacters.filter(c => c.role === 'BACKGROUND').length;
 
             if (count) {
                 count.innerHTML = `
@@ -769,22 +704,20 @@ const DetailView = (() => {
                         <span class="char-count-badge main">⭐ ${mainCount} chính</span>
                         <span class="char-count-badge support">👥 ${supportCount} phụ</span>
                         ${backgroundCount > 0 ? `<span class="char-count-badge background">📌 ${backgroundCount} nền</span>` : ''}
-                        <span class="char-count-total">Tổng: ${chars.length}</span>
+                        <span class="char-count-total">Tổng: ${allCharacters.length}</span>
                     </div>
                 `;
             }
 
-            // HIỂN THỊ 6 NHÂN VẬT CHÍNH ĐẦU TIÊN
-            const previews = chars.slice(0, 6);
+            const previews = allCharacters.slice(0, 6);
             preview.innerHTML = previews.map(c => `
                 <div class="char-preview-item" data-char-id="${c.id}">
-                    <img src="${c.image}" alt="${UI.escapeHtml(c.name)}" loading="lazy">
+                    <img src="${c.image}" alt="" loading="lazy">
                     <div class="char-preview-name">${UI.escapeHtml(c.name)}</div>
                     <div class="char-preview-role role-${c.role.toLowerCase()}">${roleLabel(c.role)}</div>
                 </div>
             `).join('');
 
-            // BIND CLICK
             preview.querySelectorAll('.char-preview-item').forEach(el => {
                 el.addEventListener('click', () => {
                     const id = parseInt(el.dataset.charId);
@@ -792,18 +725,15 @@ const DetailView = (() => {
                     if (char) showCharacterDetail(char);
                 });
             });
-
         } catch (err) {
             console.error('[Detail] loadCharacters:', err);
             preview.innerHTML = '<div class="empty-small">Lỗi tải nhân vật</div>';
-            if (count) count.innerHTML = '';
         }
     }
 
-    // ========== MỞ MODAL NHÂN VẬT ==========
     function openCharactersModal() {
-        const modal = sheetEl?.querySelector('#charactersModal');
-        const body = sheetEl?.querySelector('#charactersModalBody');
+        const modal = document.getElementById('charactersModal');
+        const body = document.getElementById('charactersModalBody');
         if (!modal || !body) return;
 
         if (!allCharacters.length) {
@@ -813,41 +743,16 @@ const DetailView = (() => {
             return;
         }
 
-        // NHÓM THEO VAI TRÒ
         const main = allCharacters.filter(c => c.role === 'MAIN');
         const support = allCharacters.filter(c => c.role === 'SUPPORTING');
         const background = allCharacters.filter(c => c.role === 'BACKGROUND');
 
         body.innerHTML = `
-            ${main.length ? `
-                <div class="char-group">
-                    <div class="char-group-title">⭐ Nhân vật chính (${main.length})</div>
-                    <div class="char-grid">
-                        ${main.map(c => renderCharCard(c)).join('')}
-                    </div>
-                </div>
-            ` : ''}
-
-            ${support.length ? `
-                <div class="char-group">
-                    <div class="char-group-title">👥 Nhân vật phụ (${support.length})</div>
-                    <div class="char-grid">
-                        ${support.map(c => renderCharCard(c)).join('')}
-                    </div>
-                </div>
-            ` : ''}
-
-            ${background.length ? `
-                <div class="char-group">
-                    <div class="char-group-title">📌 Nhân vật nền (${background.length})</div>
-                    <div class="char-grid">
-                        ${background.map(c => renderCharCard(c)).join('')}
-                    </div>
-                </div>
-            ` : ''}
+            ${main.length ? `<div class="char-group"><div class="char-group-title">⭐ Nhân vật chính (${main.length})</div><div class="char-grid">${main.map(c => renderCharCard(c)).join('')}</div></div>` : ''}
+            ${support.length ? `<div class="char-group"><div class="char-group-title">👥 Nhân vật phụ (${support.length})</div><div class="char-grid">${support.map(c => renderCharCard(c)).join('')}</div></div>` : ''}
+            ${background.length ? `<div class="char-group"><div class="char-group-title">📌 Nhân vật nền (${background.length})</div><div class="char-grid">${background.map(c => renderCharCard(c)).join('')}</div></div>` : ''}
         `;
 
-        // BIND CLICK
         body.querySelectorAll('.char-card').forEach(el => {
             el.addEventListener('click', () => {
                 const id = parseInt(el.dataset.charId);
@@ -858,27 +763,21 @@ const DetailView = (() => {
 
         modal.classList.add('show');
         document.body.style.overflow = 'hidden';
-
-        // 🔥 DÙNG TIMEOUT ĐỂ ÉP CUỘN LÊN ĐẦU SAU KHI RENDER VÀ HIỆN MODAL HOÀN TẤT
-        setTimeout(() => {
-            body.scrollTop = 0;
-        }, 20);
+        setTimeout(() => { body.scrollTop = 0; }, 20);
     }
 
-    // ========== RENDER 1 CHAR CARD ==========
     function renderCharCard(c) {
         return `
             <div class="char-card" data-char-id="${c.id}">
-                <img src="${c.image}" alt="${UI.escapeHtml(c.name)}" loading="lazy">
+                <img src="${c.image}" alt="" loading="lazy">
                 <div class="char-card-name">${UI.escapeHtml(c.name)}</div>
                 ${c.voiceActor ? `<div class="char-card-va">${UI.escapeHtml(c.voiceActor.name)}</div>` : ''}
             </div>
         `;
     }
 
-    // ========== HIỂN THỊ CHI TIẾT NHÂN VẬT ==========
     function showCharacterDetail(char) {
-        const body = sheetEl?.querySelector('#charactersModalBody');
+        const body = document.getElementById('charactersModalBody');
         if (!body) return;
 
         body.innerHTML = `
@@ -897,7 +796,6 @@ const DetailView = (() => {
                         </div>
                     </div>
                 </div>
-
                 ${char.voiceActor ? `
                     <div class="char-detail-va">
                         <div class="char-detail-va-label">🎤 Diễn viên lồng tiếng</div>
@@ -907,7 +805,6 @@ const DetailView = (() => {
                         </div>
                     </div>
                 ` : ''}
-
                 ${char.description ? `
                     <div class="char-detail-desc">
                         <div class="char-detail-desc-label">📖 Tiểu sử</div>
@@ -916,69 +813,80 @@ const DetailView = (() => {
                 ` : ''}
             </div>
         `;
-
         setTimeout(() => { body.scrollTop = 0; }, 10);
-
-        document.getElementById('backToChars').addEventListener('click', () => {
-            openCharactersModal();
-        });
+        document.getElementById('backToChars').addEventListener('click', openCharactersModal);
     }
 
-    // ========== HELPER: NHÃN VAI TRÒ ==========
     function roleLabel(role) {
-        const map = {
-            'MAIN': 'Nhân vật chính',
-            'SUPPORTING': 'Nhân vật phụ',
-            'BACKGROUND': 'Nhân vật nền'
-        };
+        const map = { 'MAIN': 'Nhân vật chính', 'SUPPORTING': 'Nhân vật phụ', 'BACKGROUND': 'Nhân vật nền' };
         return map[role] || role;
     }
 
-    // ========== LOAD TẬP PHIM ==========
+    // ========== TẬP PHIM ==========
     async function loadEpisodes(malId, anilistId) {
         const preview = sheetEl?.querySelector('#episodesPreview');
         if (!preview) return;
 
         try {
-            // LẤY MAL ID NẾU CHƯA CÓ
-            if (!malId && anilistId) {
-                malId = await API.getMalIdFromAnilist(anilistId);
+            let realMalId = malId;
+            if (!realMalId || realMalId === anilistId) {
+                realMalId = await API.getMalIdFromAnilist(anilistId);
             }
 
-            if (!malId) {
-                preview.innerHTML = '<div class="empty-small">Không có dữ liệu tập</div>';
+            if (!realMalId) {
+                showEpisodeFallback(preview);
                 return;
             }
 
-            malIdCache = malId;
-            const eps = await API.getEpisodes(malId);
-            allEpisodes = eps;
+            malIdCache = realMalId;
+            const eps = await API.getEpisodes(realMalId);
+            allEpisodes = eps || [];
 
-            if (!eps.length) {
-                preview.innerHTML = '<div class="empty-small">Chưa có thông tin tập</div>';
+            if (!allEpisodes.length) {
+                showEpisodeFallback(preview);
                 return;
             }
 
-            // HIỂN THỊ 5 TẬP ĐẦU
-            const previews = eps.slice(0, 5);
+            const previews = allEpisodes.slice(0, 5);
             preview.innerHTML = `
                 <div class="episode-list">
                     ${previews.map(ep => renderEpisodeItem(ep)).join('')}
                 </div>
-                ${eps.length > 5 ? `
-                    <div class="episode-more">+ ${eps.length - 5} tập khác</div>
-                ` : ''}
+                ${allEpisodes.length > 5 ? `<div class="episode-more">+ ${allEpisodes.length - 5} tập khác</div>` : ''}
             `;
-
             bindEpisodeItems(preview);
 
         } catch (err) {
             console.error('[Detail] loadEpisodes:', err);
-            preview.innerHTML = '<div class="empty-small">Lỗi tải tập</div>';
+            showEpisodeFallback(preview);
         }
     }
 
-    // ========== RENDER 1 EPISODE ITEM ==========
+    function showEpisodeFallback(preview) {
+        const totalEps = currentAnime?.episodes || 0;
+
+        if (totalEps > 0) {
+            preview.innerHTML = `
+                <div class="episode-list">
+                    ${Array.from({ length: Math.min(totalEps, 5) }, (_, i) => `
+                        <div class="episode-item episode-placeholder" data-ep="${i + 1}">
+                            <div class="episode-number">${i + 1}</div>
+                            <div class="episode-info">
+                                <div class="episode-title">Tập ${i + 1}</div>
+                                <div class="episode-meta">
+                                    <span class="ep-badge placeholder">Chưa có thông tin</span>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                ${totalEps > 5 ? `<div class="episode-more">+ ${totalEps - 5} tập khác</div>` : ''}
+            `;
+        } else {
+            preview.innerHTML = '<div class="empty-small">Không có thông tin tập</div>';
+        }
+    }
+
     function renderEpisodeItem(ep) {
         return `
             <div class="episode-item" data-ep="${ep.malId}">
@@ -996,26 +904,73 @@ const DetailView = (() => {
         `;
     }
 
-    // ========== BIND EPISODE ITEMS ==========
     function bindEpisodeItems(container) {
-        container.querySelectorAll('.episode-item').forEach(el => {
+        container.querySelectorAll('.episode-item:not(.episode-placeholder)').forEach(el => {
             el.addEventListener('click', () => {
                 const epNum = parseInt(el.dataset.ep);
                 const ep = allEpisodes.find(e => e.malId === epNum);
                 if (ep) showEpisodeDetail(ep);
             });
         });
+
+        container.querySelectorAll('.episode-placeholder').forEach(el => {
+            el.addEventListener('click', () => {
+                const epNum = parseInt(el.dataset.ep);
+                if (typeof UI !== 'undefined') UI.toast('Tập ' + epNum + ' chưa có thông tin từ MAL');
+            });
+        });
     }
 
-    // ========== MỞ MODAL TẬP PHIM ==========
     function openEpisodesModal() {
-        const modal = sheetEl?.querySelector('#episodesModal');
-        const body = sheetEl?.querySelector('#episodesModalBody');
+        const modal = document.getElementById('episodesModal');
+        const body = document.getElementById('episodesModalBody');
         if (!modal || !body) return;
 
         if (!allEpisodes.length) {
-            body.innerHTML = '<div class="empty-small">Chưa có dữ liệu tập</div>';
+            const totalEps = currentAnime?.episodes || 0;
+
+            if (totalEps > 0) {
+                body.innerHTML = `
+                    <div class="episode-placeholder-notice">
+                        <div class="episode-notice-icon">ℹ️</div>
+                        <div class="episode-notice-text">
+                            Chưa có thông tin chi tiết từ MyAnimeList.
+                            Hiển thị ${totalEps} tập dựa trên AniList.
+                        </div>
+                    </div>
+                    <div class="episode-list">
+                        ${Array.from({ length: totalEps }, (_, i) => `
+                            <div class="episode-item episode-placeholder" data-ep="${i + 1}">
+                                <div class="episode-number">${i + 1}</div>
+                                <div class="episode-info">
+                                    <div class="episode-title">Tập ${i + 1}</div>
+                                    <div class="episode-meta">
+                                        <span class="ep-badge placeholder">Chưa có thông tin</span>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+
+                body.querySelectorAll('.episode-placeholder').forEach(el => {
+                    el.addEventListener('click', () => {
+                        const epNum = parseInt(el.dataset.ep);
+                        if (typeof UI !== 'undefined') UI.toast('Tập ' + epNum + ' chưa có thông tin từ MAL');
+                    });
+                });
+            } else {
+                body.innerHTML = `
+                    <div class="empty-small">
+                        <div style="font-size:32px;margin-bottom:12px">📭</div>
+                        <div style="font-weight:700;color:var(--text);margin-bottom:6px">Chưa có dữ liệu tập</div>
+                        <div style="font-size:12px;color:var(--text-3)">Anime này chưa có thông tin tập từ MyAnimeList</div>
+                    </div>
+                `;
+            }
+
             modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
             setTimeout(() => { body.scrollTop = 0; }, 20);
             return;
         }
@@ -1025,20 +980,14 @@ const DetailView = (() => {
                 ${allEpisodes.map(ep => renderEpisodeItem(ep)).join('')}
             </div>
         `;
-
         bindEpisodeItems(body);
         modal.classList.add('show');
         document.body.style.overflow = 'hidden';
-
-        // 🔥 DÙNG TIMEOUT ĐỂ ÉP CUỘN LÊN ĐẦU SAU KHI RENDER VÀ HIỆN MODAL HOÀN TẤT
-        setTimeout(() => {
-            body.scrollTop = 0;
-        }, 20);
+        setTimeout(() => { body.scrollTop = 0; }, 20);
     }
 
-    // ========== HIỂN THỊ CHI TIẾT TẬP + SPOILER ==========
     async function showEpisodeDetail(ep) {
-        const body = sheetEl?.querySelector('#episodesModalBody');
+        const body = document.getElementById('episodesModalBody');
         if (!body) return;
 
         body.innerHTML = `
@@ -1046,29 +995,22 @@ const DetailView = (() => {
             <div class="episode-detail">
                 <h3 class="episode-detail-title">Tập ${ep.malId}</h3>
                 <div class="episode-detail-sub">${UI.escapeHtml(ep.title || 'Không có tiêu đề')}</div>
-
                 <div class="episode-detail-meta">
                     ${ep.aired ? `<span>📅 ${formatAiredDate(ep.aired)}</span>` : ''}
                     ${ep.filler ? '<span class="ep-badge filler">Filler</span>' : ''}
                     ${ep.recap ? '<span class="ep-badge recap">Recap</span>' : ''}
                 </div>
-
                 <div class="episode-spoiler-box" id="spoilerBox">
                     <div class="spoiler-warning">
                         <div class="spoiler-icon">⚠️</div>
                         <div class="spoiler-title">Cảnh báo tiết lộ nội dung</div>
                         <div class="spoiler-desc">Phần tóm tắt có thể tiết lộ tình tiết quan trọng</div>
-                        <button class="spoiler-btn" id="spoilerConfirm">
-                            👁 Xác nhận xem tóm tắt
-                        </button>
+                        <button class="spoiler-btn" id="spoilerConfirm">👁 Xác nhận xem tóm tắt</button>
                     </div>
                 </div>
-
                 <div class="episode-summary hidden" id="episodeSummary">
                     <div class="episode-summary-label">📖 Tóm tắt</div>
-                    <div class="episode-summary-loading" id="summaryLoading">
-                        <div class="spinner-small"></div>
-                    </div>
+                    <div class="episode-summary-loading" id="summaryLoading"><div class="spinner-small"></div></div>
                     <p class="episode-summary-text" id="summaryText" style="display:none"></p>
                 </div>
             </div>
@@ -1076,9 +1018,7 @@ const DetailView = (() => {
 
         setTimeout(() => { body.scrollTop = 0; }, 10);
 
-        document.getElementById('backToEps').addEventListener('click', () => {
-            openEpisodesModal();
-        });
+        document.getElementById('backToEps').addEventListener('click', openEpisodesModal);
 
         document.getElementById('spoilerConfirm').addEventListener('click', async () => {
             const spoilerBox = document.getElementById('spoilerBox');
@@ -1089,12 +1029,10 @@ const DetailView = (() => {
             spoilerBox.style.display = 'none';
             summary.classList.remove('hidden');
 
-            // LẤY TÓM TẮT
             try {
                 const detail = await API.getEpisodeDetail(malIdCache, ep.malId);
                 loading.style.display = 'none';
                 text.style.display = 'block';
-
                 if (detail && detail.synopsis) {
                     text.textContent = detail.synopsis;
                 } else {
@@ -1111,22 +1049,9 @@ const DetailView = (() => {
         });
     }
 
-    // ========== ĐÓNG SUB MODAL ==========
     function closeSubModal(modalId) {
-        const modal = sheetEl?.querySelector('#' + modalId);
+        const modal = document.getElementById(modalId);
         if (modal) modal.classList.remove('show');
-        document.body.style.overflow = '';
-    }
-
-    // ========== FORMAT NGÀY ==========
-    function formatAiredDate(dateStr) {
-        if (!dateStr) return '';
-        try {
-            const d = new Date(dateStr);
-            return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
-        } catch (e) {
-            return dateStr;
-        }
     }
 
     return { open, close };
