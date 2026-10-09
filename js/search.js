@@ -24,6 +24,11 @@ const SearchView = (() => {
     }
 
     async function search(keyword) {
+        // Kiểm tra Rate Limit: Giới hạn tối thiểu 600ms cho mỗi lần gọi API tìm kiếm để tránh spam request
+        if (typeof RateLimiter !== 'undefined' && !RateLimiter.check('search_api_call', 600)) {
+            return;
+        }
+
         const container = el();
         if (!container) return;
         container.innerHTML = UI.skeleton(6);
@@ -44,6 +49,12 @@ const SearchView = (() => {
             container.querySelectorAll('.fav-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     e.stopPropagation();
+                    
+                    // Chống spam click nút yêu thích (giãn cách tối thiểu 200ms)
+                    if (typeof RateLimiter !== 'undefined' && !RateLimiter.check('search_fav_btn', 200)) {
+                        return;
+                    }
+
                     const id = parseInt(btn.dataset.id);
                     const st = Store.getStatus(id);
                     if (st === 'WATCHING' || st === 'PLANNING') {
@@ -65,3 +76,5 @@ const SearchView = (() => {
 
     return { init };
 })();
+
+window.SearchView = SearchView;
