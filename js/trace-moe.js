@@ -196,6 +196,7 @@ const TraceMoe = (() => {
 
     // ========== HIỂN THỊ KẾT QUẢ ==========
     function renderResults(data, imageName) {
+        window._traceLastData = data; // Lưu lại dữ liệu để hỗ trợ nút quay lại
         const result = document.getElementById('traceResult');
         if (!result) return;
 
@@ -235,7 +236,6 @@ const TraceMoe = (() => {
     function renderResultItem(item, index) {
         const similarity = (item.similarity * 100).toFixed(1);
         const title = item.anilist?.title?.romaji || item.filename || 'Unknown';
-        const episode = item.episode || '?';
         const time = formatTime(item.from);
         const preview = item.image || '';
 
@@ -271,7 +271,6 @@ const TraceMoe = (() => {
         const similarity = (item.similarity * 100).toFixed(1);
         const title = item.anilist?.title?.romaji || item.filename || 'Unknown';
         const titleNative = item.anilist?.title?.native || '';
-        const episode = item.episode || '?';
         const time = formatTime(item.from);
         const preview = item.image || '';
         const videoUrl = item.video || '';
