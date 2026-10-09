@@ -72,11 +72,19 @@
         });
     }
 
-    // PHÍM TẮT
+    // PHÍM TẮT (Đã bổ sung đóng modal RandomAnime khi nhấn Esc)
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             if (typeof DetailView !== 'undefined') DetailView.close();
             if (typeof SettingsView !== 'undefined') SettingsView.close();
+            // Đóng modal quay ngẫu nhiên nếu đang mở
+            const randomModal = document.getElementById('randomModal');
+            if (randomModal && randomModal.classList.contains('show')) {
+                randomModal.classList.remove('show');
+                document.body.style.overflow = '';
+                document.body.style.position = '';
+                document.body.style.width = '';
+            }
         }
     });
 
@@ -99,6 +107,7 @@
     // EXPORT RA NGOÀI BIẾN TOÀN CỤC
     window.applyEffectsToBody = applyEffectsToBody;
     window.switchView = switchView;
+    
     if (window.TraceMoe && typeof TraceMoe.init === 'function') {
         TraceMoe.init();
     }
