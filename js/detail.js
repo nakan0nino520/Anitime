@@ -1130,18 +1130,12 @@ const DetailView = (() => {
         const isLive = status === 'RELEASING';
         const nextEp = a.nextAiringEpisode;
 
-        // VIP HEADER BAR
+
+
+ // VIP HEADER - CHỈ CÒN PARTICLES
         let headerBar = `
-            <div class="vip-header-bar">
-                <div class="vip-header-badge">
-                    <span class="crown-icon">👑</span>
-                    <span>VIP</span>
-                </div>
-                ${isLive ? '<div class="vip-header-live">LIVE</div>' : '<div class="vip-header-live" style="background:linear-gradient(135deg,#bf5af2,#5e5ce6)">LEGEND</div>'}
-            </div>
             <div class="vip-detail-particles" id="vipParticles"></div>
         `;
-
         // VIP COUNTDOWN (NẾU LIVE)
         let countdown = '';
         if (isLive && nextEp && nextEp.airingAt) {
