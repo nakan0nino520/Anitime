@@ -1,9 +1,6 @@
-// js/app.js
-
 (function () {
     'use strict';
 
-    // ========== ÁP DỤNG HIỆU ỨNG VÀO BODY ==========
     function applyEffectsToBody() {
         if (typeof Store === 'undefined') return;
         const s = Store.getSettings();
@@ -14,7 +11,6 @@
         body.classList.toggle('compact-mode', !!s.compactMode);
     }
 
-    // KHỞI TẠO MÚI GIỜ
     if (typeof TZ !== 'undefined') {
         TZ.detect();
         const settings = typeof Store !== 'undefined' ? Store.getSettings() : {};
@@ -23,7 +19,6 @@
         }
     }
 
-    // ĐỔI VIEW
     function switchView(page) {
         document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -33,25 +28,21 @@
         const btn = document.querySelector(`.nav-btn[data-page="${page}"]`);
         if (btn) btn.classList.add('active');
 
-        // INIT VIEW TƯƠNG ỨNG
         if (page === 'schedule' && typeof ScheduleView !== 'undefined') ScheduleView.init();
         else if (page === 'seasonal' && typeof SeasonalView !== 'undefined') SeasonalView.init();
         else if (page === 'library' && typeof LibraryView !== 'undefined') LibraryView.init();
         else if (page === 'search' && typeof SearchView !== 'undefined') SearchView.init();
         else if (page === 'news' && typeof NewsView !== 'undefined') NewsView.init();
 
-        // LƯU TRANG HIỆN TẠI
         if (typeof Store !== 'undefined') Store.setSetting('lastPage', page);
     }
 
-    // BIND BOTTOM NAV
     document.querySelectorAll('.nav-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             switchView(btn.dataset.page);
         });
     });
 
-    // BIND TOPBAR BUTTONS
     const btnRefresh = document.getElementById('btnRefresh');
     if (btnRefresh) {
         btnRefresh.addEventListener('click', () => {
@@ -72,12 +63,10 @@
         });
     }
 
-    // PHÍM TẮT (Đã bổ sung đóng modal RandomAnime khi nhấn Esc)
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             if (typeof DetailView !== 'undefined') DetailView.close();
             if (typeof SettingsView !== 'undefined') SettingsView.close();
-            // Đóng modal quay ngẫu nhiên nếu đang mở
             const randomModal = document.getElementById('randomModal');
             if (randomModal && randomModal.classList.contains('show')) {
                 randomModal.classList.remove('show');
@@ -88,23 +77,18 @@
         }
     });
 
-    // CHẶN ZOOM CỦA TRÌNH DUYỆT
     document.addEventListener('gesturestart', (e) => e.preventDefault());
 
-    // ========== KHỞI ĐỘNG ==========
     const settings = typeof Store !== 'undefined' ? Store.getSettings() : {};
     const startPage = settings.startPage || 'schedule';
     switchView(startPage);
 
-    // ========== ÁP DỤNG HIỆU ỨNG ĐÃ LƯU ==========
     applyEffectsToBody();
 
-    // THÔNG BÁO PERMISSION
     if (settings.notifications && typeof Notify !== 'undefined' && Notify.isEnabled() === false) {
         Notify.requestPermission();
     }
 
-    // EXPORT RA NGOÀI BIẾN TOÀN CỤC
     window.applyEffectsToBody = applyEffectsToBody;
     window.switchView = switchView;
     
@@ -112,10 +96,16 @@
         TraceMoe.init();
     }
 
-    // ========== KHỞI TẠO RANDOM ANIME ==========
     if (window.RandomAnime && typeof RandomAnime.init === 'function') {
         RandomAnime.init();
     }
+
+    // ========== KHỞI TẠO HOT ANIME ==========
+    setTimeout(() => {
+        if (window.HotAnime && typeof HotAnime.init === 'function') {
+            HotAnime.init();
+        }
+    }, 200);
 
     console.log('%c AniTime v1.0 ', 'background:#0a84ff;color:#fff;padding:4px 8px;border-radius:4px;font-weight:bold');
     console.log('%c Dữ liệu: AniList API · Host: GitHub Pages ', 'color:#8e8e93;font-size:11px');
