@@ -1,5 +1,4 @@
 // js/api.js
-
 const ENDPOINT = 'https://graphql.anilist.co';
 const CACHE_TTL = 3600000; // 1 GIỜ
 const MIN_INTERVAL = 2000; // 30 REQUEST/PHÚT
@@ -70,7 +69,7 @@ async function gql(query, variables = {}) {
     }
 }
 
-// LỊCH PHÁT SÓNG
+// ========== LỊCH PHÁT SÓNG ==========
 async function getSchedule(fromSec, toSec) {
     const query = `
         query ($from: Int, $to: Int) {
@@ -91,6 +90,7 @@ async function getSchedule(fromSec, toSec) {
     return data && data.Page ? data.Page.airingSchedules : [];
 }
 
+// ========== MÙA ==========
 async function getSeasonal(season, year, format) {
     const query = `
         query ($season: MediaSeason, $year: Int, $format: MediaFormat) {
@@ -107,6 +107,7 @@ async function getSeasonal(season, year, format) {
     return data && data.Page ? data.Page.media : [];
 }
 
+// ========== CHI TIẾT ==========
 async function getDetail(id) {
     const query = `
         query ($id: Int) {
@@ -133,21 +134,35 @@ async function getDetail(id) {
     return data ? data.Media : null;
 }
 
-// HÀM TÌM KIẾM CHÍNH (PHÂN TÁCH ĐÚNG GENRES VÀ TAGS CHO ANILIST)
+// ============================================================
+// HÀM TÌM KIẾM CHÍNH - XÂY DỰNG QUERY ĐỘNG
+// CHỈ THÊM FIELD VÀO QUERY NẾU CÓ GIÁ TRỊ
+// TRÁNH TRUYỀN null CHO ARRAY - GÂY LỖI ANILIST
+// ============================================================
 async function search(keyword, filters = {}) {
-    const query = `
-        query ($search: String, $genres: [String], $tags: [String], $source: MediaSource, $format: MediaFormat, $sort: [MediaSort], $seasonYear: Int) {
-            Page(perPage: 30) {
-                media(search: $search, genre_in: $genres, tag_in: $tags, source: $source, format: $format, seasonYear: $seasonYear, type: ANIME, sort: $sort) {
-                    id title { romaji native english }
-                    coverImage { large }
-                    genres averageScore popularity episodes format seasonYear
-                }
-            }
-        }
-    `;
+    console.log('[API] search() - keyword:', keyword);
+    console.log('[API] search() - filters:', filters);
 
-    // Map Nguồn từ UI sang chuẩn Enum của AniList API
+    // ===== DANH SÁCH 18 GENRES CHÍNH THỨC CỦA ANILIST =====
+    const officialGenres = [
+        'Action', 'Adventure', 'Comedy', 'Drama', 'Ecchi',
+        'Fantasy', 'Horror', 'Mahou Shoujo', 'Mecha', 'Music',
+        'Mystery', 'Psychological', 'Romance', 'Sci-Fi',
+        'Slice of Life', 'Sports', 'Supernatural', 'Thriller'
+    ];
+
+    // ===== PHÂN LOẠI GENRES vs TAGS =====
+    const rawGenres = filters.genres || [];
+    const genresList = rawGenres.filter(g => officialGenres.includes(g));
+    const extraGenres = rawGenres.filter(g => !officialGenres.includes(g));
+
+    const tagsList = [
+        ...(filters.themes || []),
+        ...(filters.demographics || []),
+        ...extraGenres
+    ];
+
+    // ===== MAP SOURCE =====
     const sourceMap = {
         'Manga': 'MANGA',
         'Light Novel': 'LIGHT_NOVEL',
@@ -160,53 +175,116 @@ async function search(keyword, filters = {}) {
         'Other': 'OTHER'
     };
 
-    // Xử lý bộ lọc phần "Khác" (Format hoặc Thập kỷ / Năm)
-    const formatList = ['TV', 'MOVIE', 'OVA', 'ONA', 'SPECIAL'];
+    // ===== XỬ LÝ OTHER (FORMAT / NĂM) =====
+    const formatList = ['TV', 'TV_SHORT', 'MOVIE', 'OVA', 'ONA', 'SPECIAL', 'MUSIC'];
     let selectedFormat = filters.format || null;
     let selectedYear = filters.year || null;
 
     if (filters.other && Array.isArray(filters.other)) {
         for (const item of filters.other) {
-            const upper = item.toUpperCase();
+            const upper = item.toUpperCase().replace('-', '_');
             if (formatList.includes(upper)) {
                 selectedFormat = upper;
             }
-            if (/^\d{4}s$/.test(item)) {
+            // XỬ LÝ THẬP KỶ (2020s → 2020)
+            if (/^\d{4}s$/i.test(item)) {
+                selectedYear = parseInt(item);
+            }
+            // XỬ LÝ NĂM CỤ THỂ (2024)
+            if (/^\d{4}$/.test(item)) {
                 selectedYear = parseInt(item);
             }
         }
     }
 
-    // Danh sách các thể loại chính thức của AniList
-    const officialGenres = [
-        'Action', 'Adventure', 'Comedy', 'Drama', 'Ecchi',
-        'Fantasy', 'Horror', 'Mahou Shoujo', 'Mecha', 'Music',
-        'Mystery', 'Psychological', 'Romance', 'Sci-Fi',
-        'Slice of Life', 'Sports', 'Supernatural', 'Thriller'
-    ];
+    // ===== XÂY DỰNG QUERY ĐỘNG =====
+    // CHỈ THÊM PARAMETER VÀO QUERY NẾU CÓ GIÁ TRỊ
+    const queryParams = [];
+    const varDefs = [];
+    const varValues = {};
 
-    const rawGenres = filters.genres || [];
-    const genresList = rawGenres.filter(g => officialGenres.includes(g));
+    // KEYWORD
+    if (keyword && keyword.trim()) {
+        varDefs.push('$search: String');
+        queryParams.push('search: $search');
+        varValues.search = keyword.trim();
+    }
 
-    // Đẩy các tag từ themes, demographics và thể loại phụ vào tag_in
-    const tagsList = [
-        ...(filters.themes || []),
-        ...(filters.demographics || []),
-        ...rawGenres.filter(g => !officialGenres.includes(g))
-    ];
+    // GENRES
+    if (genresList.length > 0) {
+        varDefs.push('$genres: [String]');
+        queryParams.push('genre_in: $genres');
+        varValues.genres = genresList;
+    }
 
-    const vars = {
-        search: keyword && keyword.trim() ? keyword.trim() : null,
-        genres: genresList.length ? genresList : null,
-        tags: tagsList.length ? tagsList : null,
-        source: filters.source && filters.source.length ? (sourceMap[filters.source[0]] || null) : null,
-        format: selectedFormat,
-        seasonYear: selectedYear,
-        sort: [filters.sort || 'POPULARITY_DESC']
-    };
+    // TAGS
+    if (tagsList.length > 0) {
+        varDefs.push('$tags: [String]');
+        queryParams.push('tag_in: $tags');
+        varValues.tags = tagsList;
+    }
 
-    const data = await gql(query, vars);
-    return data && data.Page ? data.Page.media : [];
+    // SOURCE
+    if (filters.source && filters.source.length && sourceMap[filters.source[0]]) {
+        varDefs.push('$source: MediaSource');
+        queryParams.push('source: $source');
+        varValues.source = sourceMap[filters.source[0]];
+    }
+
+    // FORMAT
+    if (selectedFormat) {
+        varDefs.push('$format: MediaFormat');
+        queryParams.push('format: $format');
+        varValues.format = selectedFormat;
+    }
+
+    // NĂM
+    if (selectedYear) {
+        varDefs.push('$seasonYear: Int');
+        queryParams.push('seasonYear: $seasonYear');
+        varValues.seasonYear = selectedYear;
+    }
+
+    // SORT (LUÔN CÓ)
+    varDefs.push('$sort: [MediaSort]');
+    queryParams.push('sort: $sort');
+    varValues.sort = [filters.sort || 'POPULARITY_DESC'];
+
+    // ===== TẠO QUERY CUỐI CÙNG =====
+    const varDefStr = '(' + varDefs.join(', ') + ')';
+    const paramStr = queryParams.join(', ');
+
+    const query = `
+        query ${varDefStr} {
+            Page(perPage: 30) {
+                media(${paramStr}, type: ANIME, isAdult: false) {
+                    id
+                    title { romaji native english }
+                    coverImage { large extraLarge }
+                    genres
+                    averageScore
+                    popularity
+                    episodes
+                    format
+                    seasonYear
+                    siteUrl
+                }
+            }
+        }
+    `;
+
+    console.log('[API] Query:', query);
+    console.log('[API] Vars:', varValues);
+
+    try {
+        const data = await gql(query, varValues);
+        const result = data && data.Page ? data.Page.media : [];
+        console.log('[API] Kết quả:', result.length);
+        return result;
+    } catch (err) {
+        console.error('[API] search lỗi:', err);
+        return [];
+    }
 }
 
 // ========== LẤY NHÂN VẬT (ANILIST) ==========
@@ -315,7 +393,7 @@ async function getMalIdFromAnilist(anilistId) {
     }
 }
 
-// ========== LẤY TÓM TẮT TẬP (JIKAN EPISODE DETAIL) ==========
+// ========== LẤY TÓM TẮT TẬP (JIKAN) ==========
 async function getEpisodeDetail(malId, episodeNumber) {
     try {
         const res = await fetch(`https://api.jikan.moe/v4/anime/${malId}/episodes/${episodeNumber}`);
@@ -328,8 +406,8 @@ async function getEpisodeDetail(malId, episodeNumber) {
     }
 }
 
-// Gán biến toàn cục
-window.API = { 
-    getSchedule, getSeasonal, getDetail, search, 
-    getCharacters, getEpisodes, getMalIdFromAnilist, getEpisodeDetail 
+// GÁN BIẾN TOÀN CỤC
+window.API = {
+    getSchedule, getSeasonal, getDetail, search,
+    getCharacters, getEpisodes, getMalIdFromAnilist, getEpisodeDetail
 };
