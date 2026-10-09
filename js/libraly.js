@@ -1,9 +1,12 @@
+// js/library.js
+// THƯ VIỆN CÁ NHÂN - 6 TAB
+
 const LibraryView = (() => {
     const el = () => document.getElementById('library');
     const tabsEl = () => document.getElementById('libraryTabs');
     let currentStatus = 'WATCHING';
+    let tabsBound = false;
 
-    // ========== NHÃN TIẾNG VIỆT ==========
     const STATUS_LABELS = {
         WATCHING: 'Đang xem',
         PLANNING: 'Kế hoạch',
@@ -11,15 +14,6 @@ const LibraryView = (() => {
         PAUSED: 'Tạm dừng',
         DROPPED: 'Bỏ',
         CONSIDERING: 'Cân nhắc'
-    };
-
-    const STATUS_COLORS = {
-        WATCHING: '#0a84ff',
-        PLANNING: '#ff9f0a',
-        COMPLETED: '#30d158',
-        PAUSED: '#ffd60a',
-        DROPPED: '#ff375f',
-        CONSIDERING: '#bf5af2'
     };
 
     const STATUS_ICONS = {
@@ -31,40 +25,48 @@ const LibraryView = (() => {
         CONSIDERING: '💭'
     };
 
-    // ========== KHỞI TẠO ==========
+    // ===== KHỞI TẠO =====
     function init() {
         console.log('[Library] init');
+        bindTabsOnce();
         render();
     }
 
-    // ========== HÀM CHUYỂN TAB GỌI TRỰC TIẾP TỪ HTML ==========
-    function switchTab(status, btnElement) {
-        // Chống spam click đổi tab liên tục (giãn cách tối thiểu 300ms)
-        if (typeof RateLimiter !== 'undefined' && !RateLimiter.check('library_switch_tab', 300)) {
+    // ===== BIND TABS 1 LẦN =====
+    function bindTabsOnce() {
+        const tabs = tabsEl();
+        if (!tabs) {
+            console.warn('[Library] Không tìm thấy #libraryTabs');
             return;
         }
 
-        console.log('[Library] Switch tab to:', status);
-        currentStatus = status;
+        if (tabsBound) return;
+        tabsBound = true;
 
-        // Cập nhật class active cho các nút tab
-        const tabs = tabsEl();
-        if (tabs) {
-            tabs.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
-        }
-        if (btnElement) {
-            btnElement.classList.add('active');
-        } else if (tabs) {
-            // Fallback nếu không truyền btnElement trực tiếp
-            const targetBtn = tabs.querySelector(`[data-status="${status}"]`);
-            if (targetBtn) targetBtn.classList.add('active');
-        }
+        const btns = tabs.querySelectorAll('.seg-btn');
+        console.log('[Library] Bind tabs:', btns.length);
 
-        render();
-        if (navigator.vibrate) navigator.vibrate(10);
+        btns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const newStatus = btn.dataset.status;
+                if (!newStatus) return;
+
+                btns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                if (newStatus === currentStatus) return;
+                currentStatus = newStatus;
+                render();
+
+                if (navigator.vibrate) navigator.vibrate(10);
+            });
+        });
     }
 
-    // ========== RENDER ==========
+    // ===== RENDER =====
     function render() {
         const container = el();
         if (!container) return;
@@ -81,7 +83,6 @@ const LibraryView = (() => {
 
         console.log('[Library] Render', currentStatus, ':', entries.length, 'entries');
 
-        // ===== TRỐNG =====
         if (!entries.length) {
             container.classList.remove('grid-view');
             container.innerHTML = `
@@ -89,7 +90,7 @@ const LibraryView = (() => {
                     <div class="library-empty-icon">${STATUS_ICONS[currentStatus]}</div>
                     <h3>Chưa có anime nào</h3>
                     <p>Thêm anime vào <strong>"${STATUS_LABELS[currentStatus]}"</strong> từ trang chi tiết</p>
-                    <button class="library-empty-btn" onclick="switchView('schedule')">
+                    <button class="library-empty-btn" onclick="if(window.switchView)switchView('schedule')">
                         Khám phá lịch chiếu
                     </button>
                 </div>
@@ -97,7 +98,6 @@ const LibraryView = (() => {
             return;
         }
 
-        // ===== RENDER LIST =====
         container.classList.remove('grid-view');
         container.innerHTML = entries.map(([id, data]) => renderEntry(id, data)).join('');
 
@@ -105,100 +105,82 @@ const LibraryView = (() => {
         bindActionButtons(container);
     }
 
-    // ========== RENDER 1 ENTRY ==========
+    // ===== RENDER ENTRY =====
     function renderEntry(id, data) {
         const media = data.data || {};
         const title = getTitle(media);
-        const cover = media.coverImage?.large || media.coverImage?.extraLarge || '';
+        const cover = (media.coverImage && (media.coverImage.large || media.coverImage.extraLarge)) || '';
         const episodes = media.episodes || '?';
         const progress = data.progress || 0;
         const score = data.score || 0;
         const percent = (episodes !== '?' && episodes > 0) ? Math.round((progress / episodes) * 100) : 0;
-        const color = STATUS_COLORS[data.status] || '#0a84ff';
 
         return `
             <article class="anime-card library-card" data-id="${id}">
                 <div class="library-cover-wrap">
-                    ${cover
-                        ? `<img class="anime-cover" src="${cover}" loading="lazy" alt="">`
-                        : `<div class="anime-cover"></div>`
-                    }
-                    ${progress > 0 ? `
-                        <div class="library-progress-badge" style="background:${color}20;color:${color};border-color:${color}40">
-                            ${progress}/${episodes}
-                        </div>
-                    ` : ''}
+                    ${cover ? '<img class="anime-cover" src="' + cover + '" loading="lazy" alt="">' : '<div class="anime-cover"></div>'}
+                    ${progress > 0 ? '<div class="library-progress-badge">' + progress + '/' + episodes + '</div>' : ''}
                 </div>
-
                 <div class="anime-info">
                     <h3 class="anime-title">${escapeHtml(title)}</h3>
-
                     <div class="anime-meta">
-                        ${episodes !== '?' ? `<span class="anime-meta-item">📺 ${episodes} tập</span>` : ''}
-                        ${score ? `<span class="anime-meta-item">⭐ ${score}/10</span>` : ''}
-                        ${media.format ? `<span class="anime-meta-item">${media.format}</span>` : ''}
+                        ${episodes !== '?' ? '<span class="anime-meta-item">📺 ' + episodes + ' tập</span>' : ''}
+                        ${score ? '<span class="anime-meta-item">⭐ ' + score + '/10</span>' : ''}
+                        ${media.format ? '<span class="anime-meta-item">' + media.format + '</span>' : ''}
                     </div>
-
                     ${progress > 0 && episodes !== '?' ? `
                         <div class="library-progress-bar">
-                            <div class="library-progress-fill" style="width:${percent}\%;background:${color}"></div>
+                            <div class="library-progress-fill" style="width:${percent}%"></div>
                         </div>
-                        <div class="library-progress-text">
-                            Đã xem ${progress}/${episodes} tập (${percent}%)
-                        </div>
+                        <div class="library-progress-text">Đã xem ${progress}/${episodes} tập (${percent}%)</div>
                     ` : ''}
-
-                    <div class="library-actions">
-                        ${renderActions(data.status, id)}
-                    </div>
+                    <div class="library-actions">${renderActions(data.status, id)}</div>
                 </div>
             </article>
         `;
     }
 
-    // ========== NÚT HÀNH ĐỘNG THEO TRẠNG THÁI ==========
+    // ===== NÚT HÀNH ĐỘNG =====
     function renderActions(status, id) {
         if (status === 'WATCHING') {
             return `
-                <button class="lib-btn minus" data-action="progress" data-id="${id}" data-delta="-1" title="Giảm 1 tập">−</button>
-                <button class="lib-btn plus" data-action="progress" data-id="${id}" data-delta="1" title="Tăng 1 tập">+</button>
-                <button class="lib-btn success" data-action="complete" data-id="${id}" title="Hoàn thành">✓ Xong</button>
-                <button class="lib-btn warning" data-action="pause" data-id="${id}" title="Tạm dừng">⏸</button>
+                <button class="lib-btn minus" data-action="progress" data-id="${id}" data-delta="-1">−</button>
+                <button class="lib-btn plus" data-action="progress" data-id="${id}" data-delta="1">+</button>
+                <button class="lib-btn success" data-action="complete" data-id="${id}">✓ Xong</button>
+                <button class="lib-btn warning" data-action="pause" data-id="${id}">⏸</button>
             `;
         }
         if (status === 'PLANNING') {
             return `
-                <button class="lib-btn primary" data-action="start" data-id="${id}" title="Bắt đầu xem">▶ Bắt đầu</button>
-                <button class="lib-btn danger" data-action="remove" data-id="${id}" title="Xóa">✕</button>
+                <button class="lib-btn primary" data-action="start" data-id="${id}">▶ Bắt đầu</button>
+                <button class="lib-btn danger" data-action="remove" data-id="${id}">✕</button>
             `;
         }
         if (status === 'COMPLETED') {
-            return `
-                <button class="lib-btn primary" data-action="rewatch" data-id="${id}" title="Xem lại">↻ Xem lại</button>
-            `;
+            return '<button class="lib-btn primary" data-action="rewatch" data-id="' + id + '">↻ Xem lại</button>';
         }
         if (status === 'PAUSED') {
             return `
-                <button class="lib-btn primary" data-action="resume" data-id="${id}" title="Tiếp tục">▶ Tiếp tục</button>
-                <button class="lib-btn danger" data-action="drop" data-id="${id}" title="Bỏ">✕ Bỏ</button>
+                <button class="lib-btn primary" data-action="resume" data-id="${id}">▶ Tiếp tục</button>
+                <button class="lib-btn danger" data-action="drop" data-id="${id}">✕ Bỏ</button>
             `;
         }
         if (status === 'DROPPED') {
             return `
-                <button class="lib-btn primary" data-action="restart" data-id="${id}" title="Xem lại">↻ Xem lại</button>
-                <button class="lib-btn danger" data-action="remove" data-id="${id}" title="Xóa">🗑</button>
+                <button class="lib-btn primary" data-action="restart" data-id="${id}">↻ Xem lại</button>
+                <button class="lib-btn danger" data-action="remove" data-id="${id}">🗑</button>
             `;
         }
         if (status === 'CONSIDERING') {
             return `
-                <button class="lib-btn primary" data-action="plan" data-id="${id}" title="Kế hoạch">🕐 Kế hoạch</button>
-                <button class="lib-btn danger" data-action="remove" data-id="${id}" title="Xóa">✕</button>
+                <button class="lib-btn primary" data-action="plan" data-id="${id}">🕐 Kế hoạch</button>
+                <button class="lib-btn danger" data-action="remove" data-id="${id}">✕</button>
             `;
         }
         return '';
     }
 
-    // ========== BIND CLICK CARD ==========
+    // ===== BIND CARD =====
     function bindCardEvents(container) {
         container.querySelectorAll('.anime-card').forEach(card => {
             card.addEventListener('click', (e) => {
@@ -212,28 +194,21 @@ const LibraryView = (() => {
         });
     }
 
-    // ========== BIND NÚT HÀNH ĐỘNG ==========
+    // ===== BIND NÚT =====
     function bindActionButtons(container) {
         container.querySelectorAll('.lib-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 e.preventDefault();
-                
-                // Chống spam click vào các nút hành động (giãn cách tối thiểu 250ms để bảo vệ LocalStorage)
-                if (typeof RateLimiter !== 'undefined' && !RateLimiter.check('library_action_btn', 250)) {
-                    return;
-                }
-
                 const action = btn.dataset.action;
                 const id = parseInt(btn.dataset.id);
                 const delta = parseInt(btn.dataset.delta || 0);
-                if (!action || !id) return;
-                handleAction(action, id, delta);
+                if (action && id) handleAction(action, id, delta);
             });
         });
     }
 
-    // ========== XỬ LÝ HÀNH ĐỘNG ==========
+    // ===== XỬ LÝ HÀNH ĐỘNG =====
     function handleAction(action, id, delta) {
         if (typeof Store === 'undefined') return;
         if (navigator.vibrate) navigator.vibrate(10);
@@ -242,8 +217,8 @@ const LibraryView = (() => {
             case 'progress': {
                 const u = Store.updateProgress(id, delta);
                 if (u && typeof UI !== 'undefined') {
-                    const total = u.data?.episodes || '?';
-                    UI.toast(delta > 0 ? `+1 tập (${u.progress}/${total})` : `-1 tập (${u.progress}/${total})`);
+                    const total = (u.data && u.data.episodes) || '?';
+                    UI.toast(delta > 0 ? '+1 tập (' + u.progress + '/' + total + ')' : '-1 tập (' + u.progress + '/' + total + ')');
                 }
                 render();
                 break;
@@ -267,12 +242,7 @@ const LibraryView = (() => {
                 break;
             case 'restart':
                 Store.setStatus(id, 'WATCHING');
-                if (typeof Store.setProgress === 'function') {
-                    Store.setProgress(id, 0);
-                } else if (typeof Store.updateProgress === 'function') {
-                    const current = Store.getList()[id]?.progress || 0;
-                    Store.updateProgress(id, -current);
-                }
+                Store.setProgress(id, 0);
                 if (typeof UI !== 'undefined') UI.toast('↻ Xem lại từ đầu');
                 render();
                 break;
@@ -296,7 +266,7 @@ const LibraryView = (() => {
         }
     }
 
-    // ========== HELPER: TÊN ANIME ==========
+    // ===== HELPER =====
     function getTitle(media) {
         if (!media) return 'Unknown';
         const s = (typeof Store !== 'undefined') ? Store.getSettings() : {};
@@ -307,7 +277,6 @@ const LibraryView = (() => {
         return t.romaji || t.english || t.native || 'Unknown';
     }
 
-    // ========== HELPER: ESCAPE HTML ==========
     function escapeHtml(str) {
         if (!str) return '';
         if (typeof UI !== 'undefined' && UI.escapeHtml) return UI.escapeHtml(str);
@@ -319,7 +288,7 @@ const LibraryView = (() => {
             .replace(/'/g, '&#39;');
     }
 
-    return { init, render, switchTab };
+    return { init, render };
 })();
 
 window.LibraryView = LibraryView;
