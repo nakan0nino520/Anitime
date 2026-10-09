@@ -1053,7 +1053,9 @@
     .trace-thumb { width: 80px; height: 54px; }
 }
 
-
+/* ============================================================
+   RANDOM ANIME MODAL (QUAY NGẪU NHIÊN)
+   ============================================================ */
 .random-modal {
     position: fixed;
     inset: 0;
@@ -1289,9 +1291,9 @@
     white-space: nowrap;
 }
 .random-badge.score {
-    background: color-mix(in srgb, var(--score-color) 15%, transparent);
-    border-color: color-mix(in srgb, var(--score-color) 40%, transparent);
-    color: var(--score-color);
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: var(--score-color, #30d158);
 }
 .random-season {
     font-size: 10.5px;
@@ -1411,4 +1413,4 @@
     .random-cover { width: 80px; height: 112px; }
     .random-title { font-size: 15px; }
     .random-roll-btn { padding: 16px; font-size: 16px; }
-   }
+}
