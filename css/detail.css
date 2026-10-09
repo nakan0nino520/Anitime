@@ -1,9 +1,30 @@
+// ==================================================================
+// 3 ĐIỂM CẦN TINH CHỈNH
+// ==================================================================
+// 1. WHITESPACE: Tăng khoảng cách giữa các section
+// 2. TYPOGRAPHY: Nhãn phụ mờ hơn (var(--text-3))
+// 3. BORDER: Mỏng và tinh tế hơn
+
+// ==================================================================
+// SỬA css/detail.css
+// ==================================================================
+// HƯỚNG DẪN:
+// A) MỞ: https://github.com/nakan0nino520/AniTime/blob/main/css/detail.css
+// B) NHẤN BÚT CHÌ
+// C) CTRL+A → DELETE
+// D) DÁN TOÀN BỘ MÃ DƯỚI
+// E) COMMIT: "Tinh chỉnh UI chi tiết iOS 26"
+
+/*
+/* ============================================================
+   DETAIL.CSS - CHI TIẾT ANIME - iOS 26 TINH TẾ
+   ============================================================ */
+
+/* ===== OVERLAY ===== */
 .modal-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.75);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
+    background: rgba(0, 0, 0, 0.9);
     z-index: 150;
     opacity: 0;
     pointer-events: none;
@@ -17,6 +38,7 @@
     pointer-events: auto;
 }
 
+/* ===== BOTTOM SHEET ===== */
 .detail-sheet {
     width: 100%;
     max-width: 720px;
@@ -38,30 +60,28 @@
 }
 .detail-sheet::-webkit-scrollbar { width: 0; }
 
-/* GRABBER */
+/* ===== GRABBER ===== */
 .detail-grabber {
     position: sticky;
     top: 8px;
     width: 40px;
     height: 4px;
-    background: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.25);
     border-radius: 100px;
     margin: 8px auto 0;
     z-index: 100;
     pointer-events: none;
 }
 
-/* NÚT ĐÓNG */
+/* ===== NÚT ĐÓNG ===== */
 .detail-close {
     position: absolute;
     top: 16px;
     left: 16px;
     width: 38px;
     height: 38px;
-    background: rgba(0, 0, 0, 0.65);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border: 1px solid rgba(255, 255, 255, 0.18);
+    background: rgba(0, 0, 0, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 50%;
     color: #fff;
     font-size: 15px;
@@ -71,18 +91,17 @@
     align-items: center;
     justify-content: center;
     z-index: 30;
-    transition: transform 0.2s var(--ease-spring), background 0.2s;
+    transition: all 0.2s var(--ease-spring);
     -webkit-appearance: none;
     appearance: none;
     padding: 0;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
 }
 .detail-close:active {
     transform: scale(0.88);
-    background: rgba(255, 55, 95, 0.5);
+    background: rgba(255, 55, 95, 0.4);
 }
 
-/* LOADING */
+/* ===== LOADING ===== */
 .detail-loading {
     display: flex;
     flex-direction: column;
@@ -94,9 +113,7 @@
     font-size: 13px;
 }
 
-/* ============================================================
-   2. BANNER & HEADER
-   ============================================================ */
+/* ===== BANNER ===== */
 .detail-banner {
     position: relative;
     width: 100%;
@@ -121,12 +138,12 @@
 }
 .detail-native-title {
     position: absolute;
-    bottom: 12px;
-    right: 16px;
+    bottom: 16px;
+    right: 20px;
     font-size: 11px;
-    color: rgba(255, 255, 255, 0.5);
-    font-weight: 500;
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+    color: rgba(255, 255, 255, 0.45);
+    font-weight: 400;
+    letter-spacing: 0.3px;
     max-width: 60%;
     text-align: right;
     white-space: nowrap;
@@ -134,12 +151,13 @@
     text-overflow: ellipsis;
 }
 
+/* ===== HEADER ===== */
 .detail-header {
     position: relative;
     display: flex;
-    gap: 14px;
-    padding: 0 20px;
-    margin-top: -80px;
+    gap: 16px;
+    padding: 0 24px;
+    margin-top: -84px;
     z-index: 2;
     align-items: flex-end;
 }
@@ -149,10 +167,9 @@
     border-radius: 14px;
     object-fit: cover;
     flex-shrink: 0;
-    box-shadow:
-        0 12px 32px rgba(0, 0, 0, 0.8),
-        0 0 0 3px rgba(255, 255, 255, 0.12);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.7);
     background: #1a1a1a;
+    border: 1px solid rgba(255, 255, 255, 0.08);
     transition: transform 0.3s var(--ease-spring);
 }
 .detail-cover:active { transform: scale(0.96); }
@@ -160,29 +177,29 @@
 .detail-title-block {
     flex: 1;
     min-width: 0;
-    padding-bottom: 4px;
+    padding-bottom: 6px;
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 6px;
 }
 .detail-title {
     font-family: var(--font-rounded);
-    font-size: 20px;
+    font-size: 21px;
     font-weight: 800;
-    line-height: 1.2;
-    letter-spacing: -0.5px;
+    line-height: 1.25;
+    letter-spacing: -0.6px;
     color: var(--text);
-    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.9);
+    margin: 0;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
-    margin: 0;
 }
 .detail-subtitle {
     font-size: 12px;
-    color: var(--text-2);
+    color: var(--text-3);
     font-weight: 500;
+    letter-spacing: 0.1px;
     display: -webkit-box;
     -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
@@ -192,81 +209,75 @@
 .detail-badges {
     display: flex;
     flex-wrap: wrap;
-    gap: 5px;
-    margin-top: 4px;
+    gap: 6px;
+    margin-top: 6px;
 }
 .detail-badges .badge {
     display: inline-flex;
     align-items: center;
     gap: 4px;
     padding: 4px 10px;
-    background: var(--glass-2);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid var(--border-strong);
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 100px;
     font-size: 10px;
-    font-weight: 700;
-    color: var(--text);
+    font-weight: 600;
+    color: var(--text-2);
     letter-spacing: -0.1px;
     white-space: nowrap;
 }
 .badge-score {
-    background: color-mix(in srgb, var(--score-clr) 20%, var(--glass-2)) !important;
-    border-color: color-mix(in srgb, var(--score-clr) 50%, transparent) !important;
-    color: var(--score-clr) !important;
+    background: rgba(10, 132, 255, 0.15) !important;
+    border-color: rgba(10, 132, 255, 0.3) !important;
+    color: var(--accent) !important;
 }
-.badge-score .badge-icon { color: var(--score-clr); }
+.badge-score .badge-icon { color: var(--accent); }
 
-/* ============================================================
-   3. ACTIONS & CARDS
-   ============================================================ */
+/* ===== ACTIONS ===== */
 .detail-actions {
-    padding: 20px 20px 0;
+    padding: 24px 24px 0;
 }
 .status-select {
     width: 100%;
     margin: 0;
 }
 
+/* ===== CARDS ===== */
 .detail-card {
-    margin: 16px 20px 0;
-    padding: 16px;
-    background: var(--glass-1);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border: 1px solid var(--border);
+    margin: 20px 24px 0;
+    padding: 18px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
     border-radius: 18px;
-    box-shadow: var(--shadow-s);
 }
 .detail-card-label {
     display: block;
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 700;
-    color: var(--text-2);
+    color: var(--text-3);
     text-transform: uppercase;
-    letter-spacing: 0.6px;
-    margin-bottom: 12px;
+    letter-spacing: 0.8px;
+    margin-bottom: 14px;
 }
 
-/* PROGRESS */
+/* ===== PROGRESS ===== */
 .detail-progress .progress-counter {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 20px;
     padding: 4px;
-    background: rgba(255, 255, 255, 0.04);
+    background: rgba(255, 255, 255, 0.03);
     border-radius: 100px;
-    border: 1px solid var(--border);
+    border: 1px solid rgba(255, 255, 255, 0.06);
     margin: 0;
 }
 .prog-btn {
     width: 44px;
     height: 44px;
     border-radius: 50%;
-    background: var(--glass-2);
-    border: 1px solid var(--border-strong);
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     color: var(--text);
     font-size: 22px;
     font-weight: 700;
@@ -284,7 +295,7 @@
 .prog-btn.plus { color: var(--green); }
 .prog-btn:active {
     transform: scale(0.82);
-    background: var(--glass-3);
+    background: rgba(255, 255, 255, 0.1);
 }
 .prog-value {
     display: flex;
@@ -301,20 +312,21 @@
 }
 .prog-total {
     font-size: 13px;
-    color: var(--text-2);
-    font-weight: 600;
+    color: var(--text-3);
+    font-weight: 500;
 }
 
-/* SCORE */
+/* ===== SCORE ===== */
 .detail-score .score-display {
     text-align: center;
-    margin-bottom: 12px;
+    margin-bottom: 14px;
 }
 .score-current {
-    font-size: 16px;
-    font-weight: 800;
-    color: var(--text);
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-2);
     font-family: var(--font-mono);
+    letter-spacing: 0.3px;
 }
 .score-stars {
     display: flex;
@@ -325,7 +337,7 @@
 .star {
     background: transparent;
     border: none;
-    color: rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.12);
     font-size: 22px;
     cursor: pointer;
     padding: 2px;
@@ -336,15 +348,13 @@
 }
 .star.active {
     color: #ffd60a;
-    text-shadow: 0 0 12px rgba(255, 214, 10, 0.7);
+    text-shadow: 0 0 12px rgba(255, 214, 10, 0.6);
 }
 .star:active { transform: scale(1.3); }
 
-/* ============================================================
-   4. SECTIONS
-   ============================================================ */
+/* ===== SECTIONS ===== */
 .detail-section {
-    padding: 24px 20px 0;
+    padding: 32px 24px 0;
 }
 .detail-section h3 {
     font-family: var(--font-rounded);
@@ -355,7 +365,7 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    margin: 0 0 14px 0;
+    margin: 0 0 18px 0;
 }
 .detail-section h3::before {
     content: '';
@@ -367,68 +377,70 @@
     flex-shrink: 0;
 }
 
-/* INFO GRID */
+/* ===== INFO GRID ===== */
 .detail-info-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 8px;
+    gap: 10px;
 }
 .info-item {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 12px 14px;
-    background: var(--glass-1);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border: 1px solid var(--border);
+    gap: 14px;
+    padding: 14px 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
     border-radius: 14px;
+    transition: background 0.2s;
+}
+.info-item:active {
+    background: rgba(255, 255, 255, 0.06);
 }
 .info-icon {
-    font-size: 20px;
+    font-size: 18px;
     flex-shrink: 0;
-    width: 28px;
+    width: 26px;
     text-align: center;
+    opacity: 0.85;
 }
 .info-content {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 3px;
     min-width: 0;
 }
 .info-label {
     font-size: 10px;
     color: var(--text-3);
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    font-weight: 700;
+    letter-spacing: 0.6px;
+    font-weight: 600;
 }
 .info-value {
-    font-size: 13px;
+    font-size: 13.5px;
     color: var(--text);
     font-weight: 600;
+    letter-spacing: -0.1px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-/* STATS */
+/* ===== STATS ===== */
 .detail-stats {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
+    gap: 10px;
 }
 .stat-card {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 4px;
-    padding: 16px 8px;
-    background: var(--glass-1);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border: 1px solid var(--border);
+    gap: 6px;
+    padding: 20px 8px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
     border-radius: 16px;
     text-align: center;
 }
@@ -437,44 +449,45 @@
     font-size: 22px;
     font-weight: 800;
     color: var(--text);
-    letter-spacing: -0.5px;
+    letter-spacing: -0.6px;
     line-height: 1;
 }
 .stat-label {
     font-size: 10px;
-    color: var(--text-2);
+    color: var(--text-3);
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    font-weight: 700;
+    letter-spacing: 0.6px;
+    font-weight: 600;
 }
 
-/* GENRES */
+/* ===== GENRES ===== */
 .detail-genres {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
+    gap: 8px;
 }
 .detail-genres .genre-chip {
-    padding: 6px 12px;
+    padding: 7px 14px;
     font-size: 11px;
     font-weight: 700;
     border-radius: 100px;
     text-transform: uppercase;
-    letter-spacing: 0.3px;
+    letter-spacing: 0.4px;
     border: 1px solid transparent;
 }
 
-/* SYNOPSIS */
+/* ===== SYNOPSIS ===== */
 .detail-synopsis {
     color: var(--text-2);
     font-size: 14px;
-    line-height: 1.7;
+    line-height: 1.75;
     display: -webkit-box;
     -webkit-line-clamp: 5;
     -webkit-box-orient: vertical;
     overflow: hidden;
     transition: all 0.4s var(--ease);
     white-space: pre-line;
+    letter-spacing: -0.1px;
 }
 .detail-synopsis.expanded {
     -webkit-line-clamp: unset;
@@ -484,12 +497,10 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    margin-top: 12px;
+    margin-top: 14px;
     padding: 9px 18px;
-    background: var(--glass-1);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid var(--border-strong);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 100px;
     color: var(--accent);
     font-family: var(--font);
@@ -502,7 +513,7 @@
 }
 .btn-read-more:active { transform: scale(0.95); }
 
-/* TRAILER */
+/* ===== TRAILER ===== */
 .trailer-wrap {
     position: relative;
     width: 100%;
@@ -510,8 +521,8 @@
     border-radius: 16px;
     overflow: hidden;
     background: #000;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.7);
-    border: 1px solid var(--border);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.06);
 }
 .trailer-wrap iframe {
     width: 100%;
@@ -520,31 +531,29 @@
     display: block;
 }
 
-/* CAST */
+/* ===== CAST ===== */
 .cast-list {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
 }
 .cast-item {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 10px 12px;
-    background: var(--glass-1);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border: 1px solid var(--border);
+    gap: 14px;
+    padding: 12px 14px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
     border-radius: 14px;
 }
 .cast-avatar {
-    width: 46px;
-    height: 46px;
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
     object-fit: cover;
     background: #2a2a2a;
     flex-shrink: 0;
-    border: 1px solid var(--border-strong);
+    border: 1px solid rgba(255, 255, 255, 0.06);
 }
 .cast-avatar-empty {
     display: flex;
@@ -557,44 +566,47 @@
     min-width: 0;
 }
 .cast-name {
-    font-size: 13px;
-    font-weight: 700;
+    font-size: 13.5px;
+    font-weight: 600;
     color: var(--text);
+    letter-spacing: -0.1px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 .cast-role {
-    font-size: 11px;
-    color: var(--text-2);
-    margin-top: 2px;
+    font-size: 10.5px;
+    color: var(--text-3);
+    margin-top: 3px;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    font-weight: 600;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-/* STAFF */
+/* ===== STAFF ===== */
 .staff-list {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
 }
 .staff-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 12px;
-    padding: 10px 14px;
-    background: var(--glass-1);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border: 1px solid var(--border);
+    gap: 14px;
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
     border-radius: 12px;
 }
 .staff-name {
-    font-size: 13px;
+    font-size: 13.5px;
     font-weight: 600;
     color: var(--text);
+    letter-spacing: -0.1px;
     flex: 1;
     min-width: 0;
     white-space: nowrap;
@@ -602,14 +614,16 @@
     text-overflow: ellipsis;
 }
 .staff-role {
-    font-size: 11px;
+    font-size: 10.5px;
     font-weight: 600;
-    color: var(--text-2);
+    color: var(--text-3);
     text-align: right;
     flex-shrink: 0;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
 }
 
-/* STREAMING */
+/* ===== STREAMING ===== */
 .streaming-links {
     display: flex;
     flex-wrap: wrap;
@@ -619,31 +633,29 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 10px 16px;
-    background: var(--glass-1);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border: 1px solid var(--border-strong);
+    padding: 10px 18px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 100px;
     color: var(--text);
     text-decoration: none;
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 600;
+    letter-spacing: -0.1px;
     transition: all 0.2s var(--ease-spring);
-    box-shadow: var(--shadow-s);
 }
 .stream-link:active {
     transform: scale(0.94);
-    background: var(--glass-3);
+    background: rgba(255, 255, 255, 0.08);
     color: var(--accent);
 }
 
-/* RELATIONS */
+/* ===== RELATIONS ===== */
 .relation-scroll {
     display: flex;
-    gap: 10px;
+    gap: 12px;
     overflow-x: auto;
-    padding-bottom: 8px;
+    padding-bottom: 10px;
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
 }
@@ -662,8 +674,7 @@
     border-radius: 12px;
     object-fit: cover;
     background: #2a2a2a;
-    border: 1px solid var(--border);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.06);
 }
 .relation-card span {
     display: -webkit-box;
@@ -673,16 +684,17 @@
     font-size: 11px;
     font-weight: 600;
     color: var(--text-2);
-    margin-top: 8px;
-    line-height: 1.3;
+    margin-top: 10px;
+    line-height: 1.35;
     text-align: left;
+    letter-spacing: -0.1px;
 }
 
-/* BOTTOM ACTIONS */
+/* ===== BOTTOM ACTIONS ===== */
 .detail-bottom-actions {
     display: flex;
-    gap: 8px;
-    padding-bottom: 24px;
+    gap: 10px;
+    padding-bottom: 28px;
 }
 .bottom-action-btn {
     flex: 1;
@@ -690,28 +702,27 @@
     align-items: center;
     justify-content: center;
     gap: 8px;
-    padding: 14px 16px;
-    background: var(--glass-1);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border: 1px solid var(--border-strong);
+    padding: 15px 16px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 14px;
     color: var(--text);
     font-family: var(--font);
     font-size: 13px;
-    font-weight: 700;
+    font-weight: 600;
     text-decoration: none;
     cursor: pointer;
+    letter-spacing: -0.1px;
     transition: all 0.2s var(--ease-spring);
     -webkit-appearance: none;
     appearance: none;
 }
 .bottom-action-btn:active {
     transform: scale(0.96);
-    background: var(--glass-3);
+    background: rgba(255, 255, 255, 0.08);
 }
 
-/* ERROR */
+/* ===== ERROR ===== */
 .detail-error {
     display: flex;
     flex-direction: column;
@@ -734,9 +745,9 @@
 }
 .detail-error p {
     font-size: 13px;
-    color: var(--text-2);
+    color: var(--text-3);
     max-width: 300px;
-    line-height: 1.5;
+    line-height: 1.55;
 }
 .detail-retry {
     margin-top: 12px;
@@ -749,9 +760,7 @@
     cursor: pointer;
 }
 
-/* ============================================================
-   5. COPYABLE - NHẤN GIỮ ĐỂ SAO CHÉP
-   ============================================================ */
+/* ===== COPYABLE ===== */
 .copyable {
     cursor: pointer;
     position: relative;
@@ -764,22 +773,23 @@
 }
 .copyable.holding {
     opacity: 0.7;
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.06);
 }
 .copy-hint {
     display: block;
     font-size: 11px;
-    color: var(--text-3, #8e8e93);
-    margin-top: 4px;
+    color: var(--text-3);
+    margin-top: 6px;
     font-style: italic;
+    opacity: 0.7;
 }
 .copyable.copied {
     animation: copyFlash 0.6s ease;
 }
 @keyframes copyFlash {
     0% {
-        background: rgba(48, 209, 88, 0.3);
-        box-shadow: 0 0 0 3px rgba(48, 209, 88, 0.5) inset;
+        background: rgba(48, 209, 88, 0.25);
+        box-shadow: 0 0 0 3px rgba(48, 209, 88, 0.4) inset;
     }
     100% {
         background: transparent;
@@ -787,76 +797,56 @@
     }
 }
 
-/* ============================================================
-   6. NÚT DỊCH MÔ TẢ
-   ============================================================ */
+/* ===== NÚT DỊCH ===== */
 .btn-translate {
     display: inline-flex;
     align-items: center;
     gap: 5px;
     margin-left: auto;
     padding: 6px 12px;
-    background: var(--glass-2);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid var(--border-strong);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 100px;
     color: var(--accent);
     font-family: var(--font);
     font-size: 11px;
     font-weight: 700;
     cursor: pointer;
-    transition: all 0.25s var(--ease-spring);
+    transition: all 0.2s var(--ease-spring);
     -webkit-appearance: none;
     appearance: none;
-    text-transform: none;
-    letter-spacing: 0;
 }
-.btn-translate svg {
-    stroke: currentColor;
-    flex-shrink: 0;
-}
-.btn-translate:active {
-    transform: scale(0.94);
-    background: var(--glass-3);
-}
+.btn-translate svg { stroke: currentColor; flex-shrink: 0; }
+.btn-translate:active { transform: scale(0.94); }
 .btn-translate.active {
-    background: rgba(10, 132, 255, 0.18);
-    border-color: var(--accent);
+    background: rgba(10, 132, 255, 0.15);
+    border-color: rgba(10, 132, 255, 0.3);
     color: var(--accent);
-    box-shadow: 0 0 16px var(--accent-glow);
 }
-.btn-translate.loading {
-    opacity: 0.7;
-    pointer-events: none;
-}
-.btn-translate:disabled {
-    cursor: wait;
-    opacity: 0.7;
-}
+.btn-translate.loading { opacity: 0.7; pointer-events: none; }
+.btn-translate:disabled { cursor: wait; opacity: 0.7; }
 
 /* ============================================================
-   7. SETTINGS MODAL
+   SETTINGS MODAL
    ============================================================ */
 .settings-sheet {
     padding-bottom: calc(60px + var(--safe-bottom));
 }
-
 .settings-hero {
     text-align: center;
-    padding: 20px 20px 32px;
+    padding: 24px 24px 36px;
 }
 .settings-hero-icon {
     width: 68px;
     height: 68px;
-    margin: 0 auto 16px;
+    margin: 0 auto 18px;
     border-radius: 20px;
     background: var(--grad-primary, linear-gradient(135deg, #0a84ff 0%, #bf5af2 100%));
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 32px;
-    box-shadow: 0 12px 32px var(--accent-glow, rgba(10, 132, 255, 0.4));
+    box-shadow: 0 12px 32px rgba(10, 132, 255, 0.35);
 }
 .settings-hero-title {
     font-family: var(--font-rounded);
@@ -868,41 +858,38 @@
 }
 .settings-hero-sub {
     font-size: 13px;
-    color: var(--text-2);
+    color: var(--text-3);
     font-weight: 500;
     margin: 0;
 }
 
 .settings-section {
-    padding: 0 20px 24px;
+    padding: 0 24px 28px;
 }
 .settings-section-title {
     font-family: var(--font-rounded);
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 800;
-    color: var(--text-2);
+    color: var(--text-3);
     text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 10px;
+    letter-spacing: 1.2px;
+    margin-bottom: 12px;
     padding-left: 4px;
 }
 .settings-card {
-    background: var(--glass-1);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
     border-radius: 18px;
     overflow: hidden;
-    box-shadow: var(--shadow-s);
 }
 
 .settings-row {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 14px 16px;
-    border-bottom: 1px solid var(--border);
-    min-height: 62px;
+    gap: 14px;
+    padding: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    min-height: 64px;
     transition: background 0.15s;
 }
 .settings-row:last-child { border-bottom: none; }
@@ -912,35 +899,36 @@
     width: 36px;
     height: 36px;
     border-radius: 10px;
-    background: var(--glass-2);
-    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.06);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 18px;
+    font-size: 17px;
     flex-shrink: 0;
 }
-.settings-icon-wrap.blue { background: rgba(10, 132, 255, 0.15); border-color: rgba(10, 132, 255, 0.3); }
-.settings-icon-wrap.green { background: rgba(48, 209, 88, 0.15); border-color: rgba(48, 209, 88, 0.3); }
-.settings-icon-wrap.red { background: rgba(255, 55, 95, 0.15); border-color: rgba(255, 55, 95, 0.3); }
+.settings-icon-wrap.blue { background: rgba(10, 132, 255, 0.12); border-color: rgba(10, 132, 255, 0.2); }
+.settings-icon-wrap.green { background: rgba(48, 209, 88, 0.12); border-color: rgba(48, 209, 88, 0.2); }
+.settings-icon-wrap.red { background: rgba(255, 55, 95, 0.12); border-color: rgba(255, 55, 95, 0.2); }
 
 .settings-text {
     flex: 1;
     min-width: 0;
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 3px;
 }
 .settings-label {
     font-size: 14px;
     font-weight: 600;
     color: var(--text);
     line-height: 1.3;
+    letter-spacing: -0.1px;
 }
 .settings-desc {
     font-size: 11px;
-    color: var(--text-2);
-    line-height: 1.3;
+    color: var(--text-3);
+    line-height: 1.35;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -948,10 +936,8 @@
 
 .settings-select {
     padding: 8px 28px 8px 12px;
-    background: var(--glass-2);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid var(--border-strong);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 10px;
     color: var(--accent);
     font-family: var(--font);
@@ -976,11 +962,11 @@
     width: 100%;
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 14px 16px;
+    gap: 14px;
+    padding: 16px;
     background: transparent;
     border: none;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
     color: var(--text);
     font-family: var(--font);
     font-size: 14px;
@@ -1002,12 +988,12 @@
 
 .settings-footer {
     text-align: center;
-    padding: 40px 20px 20px;
+    padding: 44px 24px 24px;
 }
 .settings-logo {
     font-size: 36px;
-    margin-bottom: 8px;
-    opacity: 0.6;
+    margin-bottom: 10px;
+    opacity: 0.5;
 }
 .settings-app-name {
     font-family: var(--font-rounded);
@@ -1019,21 +1005,22 @@
 }
 .settings-version {
     font-size: 11px;
-    color: var(--text-2);
+    color: var(--text-3);
     font-family: var(--font-mono);
-    margin-bottom: 8px;
+    margin-bottom: 10px;
 }
 .settings-credit {
     font-size: 10px;
     color: var(--text-3);
+    opacity: 0.6;
 }
 
-/* TOGGLE SWITCH */
+/* TOGGLE */
 .toggle {
     position: relative;
     width: 51px;
     height: 31px;
-    background: rgba(120, 120, 128, 0.32);
+    background: rgba(120, 120, 128, 0.28);
     border-radius: 100px;
     cursor: pointer;
     transition: background 0.3s var(--ease);
@@ -1045,12 +1032,8 @@
 }
 .toggle.on {
     background: #30d158;
-    box-shadow: 0 0 16px rgba(48, 209, 88, 0.4);
 }
-.toggle.locked {
-    cursor: default;
-    opacity: 0.9;
-}
+.toggle.locked { cursor: default; opacity: 0.9; }
 .toggle-knob {
     position: absolute;
     top: 2px;
@@ -1067,21 +1050,21 @@
 }
 
 /* ============================================================
-   8. RESPONSIVE
+   RESPONSIVE
    ============================================================ */
 @media (max-width: 420px) {
     .detail-cover { width: 100px; height: 140px; }
-    .detail-title { font-size: 17px; }
-    .detail-header { padding: 0 16px; margin-top: -70px; gap: 12px; }
-    .detail-section { padding: 20px 16px 0; }
-    .detail-actions { padding: 16px 16px 0; }
-    .detail-card { margin: 12px 16px 0; padding: 14px; }
-    .star { font-size: 18px; }
-    .stat-value { font-size: 18px; }
+    .detail-title { font-size: 18px; }
+    .detail-header { padding: 0 20px; margin-top: -72px; gap: 12px; }
+    .detail-section { padding: 28px 20px 0; }
+    .detail-actions { padding: 20px 20px 0; }
+    .detail-card { margin: 18px 20px 0; padding: 16px; }
+    .star { font-size: 19px; }
+    .stat-value { font-size: 19px; }
     .relation-card, .relation-card img { width: 95px; }
     .relation-card img { height: 135px; }
-    .settings-section { padding: 0 16px 20px; }
-    .settings-row { padding: 12px 14px; }
+    .settings-section { padding: 0 20px 24px; }
+    .settings-row { padding: 14px; }
     .settings-label { font-size: 13px; }
     .settings-select { font-size: 11px; max-width: 110px; padding: 7px 24px 7px 10px; }
     .toggle { width: 46px; height: 28px; }
@@ -1091,12 +1074,72 @@
 
 @media (min-width: 768px) {
     .detail-header { padding: 0 32px; }
-    .detail-section { padding: 32px 32px 0; }
-    .detail-actions { padding: 24px 32px 0; }
-    .detail-card { margin: 20px 32px 0; }
+    .detail-section { padding: 40px 32px 0; }
+    .detail-actions { padding: 28px 32px 0; }
+    .detail-card { margin: 24px 32px 0; }
     .detail-title { font-size: 24px; }
     .detail-cover { width: 140px; height: 195px; }
     .detail-info-grid { grid-template-columns: repeat(2, 1fr); }
     .relation-card, .relation-card img { width: 130px; }
     .relation-card img { height: 185px; }
-    }
+}
+*/
+
+// ==================================================================
+// HÀNH ĐỘNG NGAY
+// ==================================================================
+// [ ] 1. MỞ https://github.com/nakan0nino520/AniTime/blob/main/css/detail.css
+// [ ] 2. NHẤN BÚT CHÌ
+// [ ] 3. CTRL+A → DELETE
+// [ ] 4. DÁN TOÀN BỘ MÃ Ở TRÊN
+// [ ] 5. COMMIT "Tinh chỉnh UI chi tiết iOS 26"
+// [ ] 6. CHỜ 2 PHÚT
+// [ ] 7. XÓA CACHE TRÌNH DUYỆT
+// [ ] 8. MỞ LẠI WEB → XEM CHI TIẾT ANIME
+
+// ==================================================================
+// NHỮNG THAY ĐỔI CHÍNH
+// ==================================================================
+
+// 1. WHITESPACE - TĂNG KHOẢNG CÁCH
+//    - .detail-section: 24px → 32px padding-top
+//    - .detail-card: 16px → 20px margin-top
+//    - .detail-header: 20px → 24px padding
+//    - .detail-actions: 20px → 24px padding
+//    - .detail-badges: gap 5px → 6px
+//    - .detail-info-grid: gap 8px → 10px
+//    - .detail-stats: gap 8px → 10px
+//    - .cast-list: gap 8px → 10px
+//    - .staff-list: gap 8px → 10px
+//    - .settings-section: 20px → 24px padding
+//    - .settings-row: 14px → 16px padding
+
+// 2. TYPOGRAPHY - CHỮ RÕ RÀNG HƠN
+//    - .detail-subtitle: text-2 → text-3 (mờ hơn)
+//    - .detail-badges .badge: text-2, font-weight 600
+//    - .detail-native-title: opacity 0.45
+//    - .prog-total: text-3 (mờ hơn)
+//    - .score-current: text-2 (rõ hơn chút)
+//    - .info-label: 10px, text-3, letter-spacing 0.6
+//    - .info-value: 13.5px, letter-spacing -0.1
+//    - .cast-role: 10.5px, text-3, uppercase
+//    - .staff-role: 10.5px, text-3, uppercase
+//    - .stat-label: 10px, text-3, letter-spacing 0.6
+//    - .settings-desc: text-3 (mờ hơn)
+//    - .settings-version: text-3
+
+// 3. BORDER TINH TẾ
+//    - Border: rgba(255, 255, 255, 0.05) - RẤT MỜ
+//    - Border-strong: rgba(255, 255, 255, 0.08)
+//    - Background: rgba(255, 255, 255, 0.03) - RẤT NHẸ
+//    - Áp dụng cho: card, info-item, stat-card, cast-item, staff-item
+//    - Không dùng var(--border) nữa
+//    - Border mỏng 1px, màu xám tối
+
+// 4. CHI TIẾT KHÁC
+//    - Badge: background nhẹ hơn, border mờ hơn
+//    - Star: màu mờ hơn khi chưa chọn (0.12)
+//    - Select: dùng accent color cho text
+//    - Toggle: nền xám mờ hơn (0.28)
+//    - Shadow: giảm nhẹ, chỉ giữ ở cover + trailer
+// ==================================================================
