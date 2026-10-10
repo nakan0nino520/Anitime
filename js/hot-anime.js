@@ -333,11 +333,7 @@ const HotAnime = (() => {
         loadClassicSection();
     }
 
-    return { init, updateFormatFilter };
-    return { init, loadHotSection, isHot, isSuperHot };
-})();
-
-window.HotAnime = HotAnime;
-})();
+    return { init, updateFormatFilter, loadHotSection, isHot, isSuperHot };
+    })();
 
 window.HotAnime = HotAnime;
