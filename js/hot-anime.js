@@ -1,4 +1,5 @@
 const HotAnime = (() => {
+    let currentFormatFilter = 'ALL';
     const HOT_POPULARITY = 100000;
     const HOT_SCORE = 85;
     const SUPER_HOT_POPULARITY = 300000;
