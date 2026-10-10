@@ -1,6 +1,31 @@
 // js/schedule.js
 
 const ScheduleView = (() => {
+    // BIẾN LƯU FORMAT FILTER
+    let formatFilter = 'ALL';
+
+    // ===== KHỞI TẠO FORMAT FILTER =====
+    function initFormatFilter() {
+        const bar = document.getElementById('formatFilterBar');
+        if (!bar) return;
+
+        const pills = bar.querySelectorAll('.format-pill');
+        pills.forEach(pill => {
+            pill.addEventListener('click', () => {
+                pills.forEach(p => p.classList.remove('active'));
+                pill.classList.add('active');
+                formatFilter = pill.dataset.format || 'ALL';
+
+                if (navigator.vibrate) navigator.vibrate(10);
+
+                render();
+
+                if (window.HotAnime && typeof HotAnime.updateFormatFilter === 'function') {
+                    HotAnime.updateFormatFilter(formatFilter);
+                }
+            });
+        });
+    }
     const el = () => document.getElementById('schedule');
     const daysNav = () => document.getElementById('daysNav');
     let currentDate = new Date();
@@ -16,7 +41,9 @@ const ScheduleView = (() => {
             renderDaysNav();
             renderInfoBar();
             bindSegmented();
-            bindCardEvents(); // Gán sự kiện cho #schedule 1 lần duy nhất
+            bindCardEvents();
+            initFormatFilter(); 
+            // Gán sự kiện cho #schedule 1 lần duy nhất
             if (typeof Countdown !== 'undefined') {
                 Countdown.onTick(() => typeof UI !== 'undefined' && UI.tickCountdowns && UI.tickCountdowns());
                 Countdown.start();
@@ -150,6 +177,16 @@ const ScheduleView = (() => {
         if (!container) return;
 
         let items = [...scheduleCache];
+          // ===== LỌC THEO FORMAT =====
+        if (formatFilter !== 'ALL') {
+            items = items.filter(it => {
+                const format = it.media?.format || '';
+                if (formatFilter === 'TV') return format === 'TV' || format === 'TV_SHORT';
+                if (formatFilter === 'MOVIE') return format === 'MOVIE';
+                if (formatFilter === 'OVA') return format === 'OVA' || format === 'ONA' || format === 'SPECIAL';
+                return true;
+            });
+        }
 
         // LỌC MY LIST
         if (filterMyList && typeof Store !== 'undefined') {
