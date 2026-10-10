@@ -334,6 +334,10 @@ const HotAnime = (() => {
     }
 
     return { init, updateFormatFilter };
+    return { init, loadHotSection, isHot, isSuperHot };
+})();
+
+window.HotAnime = HotAnime;
 })();
 
 window.HotAnime = HotAnime;
