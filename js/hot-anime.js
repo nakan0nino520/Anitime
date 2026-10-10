@@ -1,15 +1,17 @@
+// js/hot-anime.js
+// 2 KHUNG: ĐANG HOT + ĐÃ HOT
+
 const HotAnime = (() => {
     let currentFormatFilter = 'ALL';
-    const HOT_POPULARITY = 100000;
-    const HOT_SCORE = 85;
-    const SUPER_HOT_POPULARITY = 300000;
-    const SUPER_HOT_SCORE = 90;
+    const HOT_POPULARITY = 50000;
+    const HOT_SCORE = 80;
+    const SUPER_HOT_POPULARITY = 200000;
+    const SUPER_HOT_SCORE = 88;
 
     let state = {
         year: new Date().getFullYear(),
         season: getCurrentSeason(),
-        genre: 'ALL',
-        sort: 'HOT'
+        genre: 'ALL'
     };
 
     const SEASONS = [
@@ -36,26 +38,12 @@ const HotAnime = (() => {
         { value: 'Thriller', label: '😱 Thriller' }
     ];
 
-    const SORTS = [
-        { value: 'HOT', label: '🔥 HOT' },
-        { value: 'SCORE', label: '⭐ Điểm cao' },
-        { value: 'NEWEST', label: '🆕 Mới nhất' },
-        { value: 'AZ', label: '🔤 A-Z' }
-    ];
-
     function getCurrentSeason() {
         const m = new Date().getMonth() + 1;
         if (m >= 1 && m <= 3) return 'WINTER';
         if (m >= 4 && m <= 6) return 'SPRING';
         if (m >= 7 && m <= 9) return 'SUMMER';
         return 'FALL';
-    }
-
-    function isHot(anime) {
-        if (!anime) return false;
-        const pop = anime.popularity || 0;
-        const score = anime.averageScore || 0;
-        return pop >= HOT_POPULARITY || score >= HOT_SCORE;
     }
 
     function isSuperHot(anime) {
@@ -65,27 +53,28 @@ const HotAnime = (() => {
         return pop >= SUPER_HOT_POPULARITY || score >= SUPER_HOT_SCORE;
     }
 
-    function init() {
-        console.log('[HotAnime] init');
-        initHotSection();
+    // ===== LẤY FORMAT CHO API =====
+    function getApiFormat() {
+        if (currentFormatFilter === 'ALL') return 'TV';
+        return currentFormatFilter;
     }
 
-    function initHotSection() {
-        const section = document.querySelector('.hot-section');
-        if (!section) {
-            console.log('[HotAnime] Không có hot section');
-            return;
-        }
+    // ===== KHỞI TẠO =====
+    function init() {
+        console.log('[HotAnime] init');
+        initLiveSection();
+        loadClassicSection();
+    }
 
+    // ===== KHUNG 1: ĐANG HOT =====
+    function initLiveSection() {
         const btnYear = document.getElementById('hotFilterYear');
         const btnSeason = document.getElementById('hotFilterSeason');
         const btnGenre = document.getElementById('hotFilterGenre');
-        const btnSort = document.getElementById('hotFilterSort');
 
         if (btnYear) btnYear.addEventListener('click', (e) => { e.stopPropagation(); openDropdown('year'); });
         if (btnSeason) btnSeason.addEventListener('click', (e) => { e.stopPropagation(); openDropdown('season'); });
         if (btnGenre) btnGenre.addEventListener('click', (e) => { e.stopPropagation(); openDropdown('genre'); });
-        if (btnSort) btnSort.addEventListener('click', (e) => { e.stopPropagation(); openDropdown('sort'); });
 
         document.addEventListener('click', (e) => {
             if (!e.target.closest('.hot-filter-bar') && !e.target.closest('.hot-dropdown')) {
@@ -94,14 +83,13 @@ const HotAnime = (() => {
         });
 
         updateLabels();
-        loadHotSection();
+        loadLiveSection();
     }
 
     function updateLabels() {
         const yearLabel = document.getElementById('hotYearLabel');
         const seasonLabel = document.getElementById('hotSeasonLabel');
         const genreLabel = document.getElementById('hotGenreLabel');
-        const sortLabel = document.getElementById('hotSortLabel');
 
         if (yearLabel) yearLabel.textContent = state.year;
         if (seasonLabel) {
@@ -116,13 +104,8 @@ const HotAnime = (() => {
                 genreLabel.textContent = g ? g.label : state.genre;
             }
         }
-        if (sortLabel) {
-            const s = SORTS.find(x => x.value === state.sort);
-            sortLabel.textContent = s ? s.label : state.sort;
-        }
 
         document.getElementById('hotFilterGenre')?.classList.toggle('active', state.genre !== 'ALL');
-        document.getElementById('hotFilterSort')?.classList.toggle('active', state.sort !== 'HOT');
     }
 
     function openDropdown(type) {
@@ -145,11 +128,9 @@ const HotAnime = (() => {
             items = SEASONS;
         } else if (type === 'genre') {
             items = GENRES;
-        } else if (type === 'sort') {
-            items = SORTS;
         }
 
-        const currentValue = state[type === 'year' ? 'year' : type === 'season' ? 'season' : type === 'genre' ? 'genre' : 'sort'];
+        const currentValue = state[type];
 
         dropdown.innerHTML = items.map(it => `
             <button class="hot-dropdown-item ${it.value == currentValue ? 'active' : ''}" data-value="${it.value}">
@@ -163,11 +144,10 @@ const HotAnime = (() => {
                 if (type === 'year') state.year = parseInt(val);
                 else if (type === 'season') state.season = val;
                 else if (type === 'genre') state.genre = val;
-                else if (type === 'sort') state.sort = val;
 
                 updateLabels();
                 closeDropdown();
-                loadHotSection();
+                loadLiveSection();
                 if (navigator.vibrate) navigator.vibrate(10);
             });
         });
@@ -178,93 +158,182 @@ const HotAnime = (() => {
         if (dropdown) dropdown.classList.remove('show');
     }
 
-    async function loadHotSection() {
-        const hotScroll = document.getElementById('hotScroll');
+    // ===== LOAD KHUNG ĐANG HOT =====
+    async function loadLiveSection() {
+        const hotScroll = document.getElementById('hotLiveScroll') || document.getElementById('hotScroll');
         if (!hotScroll) return;
 
         hotScroll.innerHTML = '<div class="hot-loading"><div class="spinner-small"></div></div>';
 
         try {
-            let data = await API.getSeasonal(state.season, state.year, 'TV');
+            const apiFormat = getApiFormat();
+            let data = await API.getSeasonal(state.season, state.year, apiFormat);
             data = data || [];
 
+            // LỌC: CHỈ ANIME ĐANG CHIẾU
+            data = data.filter(a => a.status === 'RELEASING');
+
+            // LỌC THEO GENRE
             if (state.genre !== 'ALL') {
                 data = data.filter(a => (a.genres || []).includes(state.genre));
             }
 
-            data = sortData(data, state.sort);
-            const list = data.slice(0, 12);
+            // SẮP XẾP THEO ĐỘ HOT
+            data.sort((a, b) => {
+                const scoreA = (a.popularity || 0) + (a.averageScore || 0) * 100;
+                const scoreB = (b.popularity || 0) + (b.averageScore || 0) * 100;
+                return scoreB - scoreA;
+            });
+
+            const list = data.slice(0, 15);
 
             if (!list.length) {
-                hotScroll.innerHTML = '<div class="hot-empty">📭 Không có anime nào</div>';
+                hotScroll.innerHTML = '<div class="hot-empty">📭 Chưa có anime nào đang chiếu</div>';
                 return;
             }
 
-            hotScroll.innerHTML = list.map((a, i) => renderCard(a, i + 1)).join('');
+            hotScroll.innerHTML = list.map((a, i) => renderLiveCard(a, i + 1)).join('');
 
-            hotScroll.querySelectorAll('.hot-card').forEach(card => {
+            hotScroll.querySelectorAll('.hot-live-card').forEach(card => {
                 card.addEventListener('click', () => {
                     const id = parseInt(card.dataset.id);
                     if (id && window.DetailView) DetailView.open(id);
                 });
             });
         } catch (err) {
-            console.error('[HotAnime] Lỗi:', err);
+            console.error('[HotAnime] Lỗi live:', err);
             hotScroll.innerHTML = '<div class="hot-empty">Lỗi tải dữ liệu</div>';
         }
     }
 
-    function sortData(data, sort) {
-        const arr = [...data];
-        if (sort === 'HOT') {
-            arr.sort((a, b) => {
+    // ===== LOAD KHUNG ĐÃ HOT =====
+    async function loadClassicSection() {
+        const classicScroll = document.getElementById('hotClassicScroll');
+        if (!classicScroll) return; // Nếu giao diện không có khung này thì bỏ qua an toàn
+
+        classicScroll.innerHTML = '<div class="hot-loading"><div class="spinner-small"></div></div>';
+
+        try {
+            const allData = [];
+            const seasons = ['FALL', 'SUMMER', 'SPRING', 'WINTER'];
+            const currentYear = new Date().getFullYear();
+            const apiFormat = getApiFormat();
+
+            for (const year of [currentYear, currentYear - 1]) {
+                for (const season of seasons) {
+                    try {
+                        const data = await API.getSeasonal(season, year, apiFormat);
+                        if (data) allData.push(...data);
+                        // Thêm độ trễ ngắn tránh bị API bên thứ ba chặn do gọi quá nhanh
+                        await new Promise(r => setTimeout(r, 200));
+                    } catch (e) {}
+                }
+            }
+
+            let data = allData.filter(a => a.status === 'FINISHED');
+
+            data = data.filter(a => {
+                const pop = a.popularity || 0;
+                const score = a.averageScore || 0;
+                return pop >= HOT_POPULARITY || score >= HOT_SCORE;
+            });
+
+            const seen = new Set();
+            data = data.filter(a => {
+                if (seen.has(a.id)) return false;
+                seen.add(a.id);
+                return true;
+            });
+
+            data.sort((a, b) => {
                 const scoreA = (a.popularity || 0) + (a.averageScore || 0) * 100;
                 const scoreB = (b.popularity || 0) + (b.averageScore || 0) * 100;
                 return scoreB - scoreA;
             });
-        } else if (sort === 'SCORE') {
-            arr.sort((a, b) => (b.averageScore || 0) - (a.averageScore || 0));
-        } else if (sort === 'NEWEST') {
-            arr.sort((a, b) => (b.id || 0) - (a.id || 0));
-        } else if (sort === 'AZ') {
-            arr.sort((a, b) => {
-                const ta = (a.title?.romaji || '').toLowerCase();
-                const tb = (b.title?.romaji || '').toLowerCase();
-                return ta.localeCompare(tb);
+
+            const list = data.slice(0, 15);
+
+            if (!list.length) {
+                classicScroll.innerHTML = '<div class="hot-empty">📭 Chưa có anime nào</div>';
+                return;
+            }
+
+            classicScroll.innerHTML = list.map((a, i) => renderClassicCard(a, i + 1)).join('');
+
+            classicScroll.querySelectorAll('.hot-classic-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    const id = parseInt(card.dataset.id);
+                    if (id && window.DetailView) DetailView.open(id);
+                });
             });
+        } catch (err) {
+            console.error('[HotAnime] Lỗi classic:', err);
+            classicScroll.innerHTML = '<div class="hot-empty">Lỗi tải dữ liệu</div>';
         }
-        return arr;
     }
 
-    function renderCard(a, rank) {
+    // ===== RENDER CARD ĐANG HOT =====
+    function renderLiveCard(a, rank) {
         const title = (typeof UI !== 'undefined' && UI.titleOf) ? UI.titleOf(a) : (a.title?.romaji || '');
         const cover = a.coverImage?.large || a.coverImage?.extraLarge || '';
         const score = a.averageScore ? (a.averageScore / 10).toFixed(1) : '?';
         const pop = a.popularity ? (a.popularity / 1000).toFixed(0) + 'K' : '?';
         const superHot = isSuperHot(a);
 
-        let rankClass = '';
-        if (rank === 1) rankClass = 'gold';
-        else if (rank === 2) rankClass = 'silver';
-        else if (rank === 3) rankClass = 'bronze';
-
         return `
-            <div class="hot-card ${superHot ? 'super-hot' : ''}" data-id="${a.id}">
-                <div class="hot-card-rank ${rankClass}">${rank}</div>
-                <div class="hot-card-img-wrap">
-                    <img class="hot-card-img" src="${cover}" loading="lazy" alt="" onerror="this.style.background='#2a2a2a'">
-                    ${superHot ? '<div class="hot-card-fire">🔥</div>' : ''}
+            <div class="hot-live-card ${superHot ? 'super-hot' : ''}" data-id="${a.id}">
+                <div class="hot-live-rank">${rank}</div>
+                <div class="hot-live-img-wrap">
+                    <img class="hot-live-img" src="${cover}" loading="lazy" alt="" onerror="this.style.background='#2a2a2a'">
+                    <div class="hot-live-badge-card">● LIVE</div>
+                    ${superHot ? '<div class="hot-live-fire">🔥</div>' : ''}
                 </div>
-                <div class="hot-card-title">${UI.escapeHtml(title)}</div>
-                <div class="hot-card-meta">
-                    <span class="hot-card-score">★ ${score}</span>
-                    <span class="hot-card-pop">${pop}</span>
+                <div class="hot-live-card-title">${UI.escapeHtml(title)}</div>
+                <div class="hot-live-card-meta">
+                    <span class="hot-live-score">★ ${score}</span>
+                    <span>${pop}</span>
                 </div>
             </div>
         `;
     }
 
-    return { init, loadHotSection, isHot, isSuperHot };
+    // ===== RENDER CARD ĐÃ HOT =====
+    function renderClassicCard(a, rank) {
+        const title = (typeof UI !== 'undefined' && UI.titleOf) ? UI.titleOf(a) : (a.title?.romaji || '');
+        const cover = a.coverImage?.large || a.coverImage?.extraLarge || '';
+        const score = a.averageScore ? (a.averageScore / 10).toFixed(1) : '?';
+        const eps = a.episodes || '?';
+        const superHot = isSuperHot(a);
+
+        return `
+            <div class="hot-classic-card ${superHot ? 'legend' : ''}" data-id="${a.id}">
+                <div class="hot-classic-crown-wrap">
+                    ${rank <= 3 ? '<span class="hot-classic-crown-icon">👑</span>' : ''}
+                </div>
+                <div class="hot-classic-rank">#${rank}</div>
+                <div class="hot-classic-img-wrap">
+                    <img class="hot-classic-img" src="${cover}" loading="lazy" alt="" onerror="this.style.background='#2a2a2a'">
+                    <div class="hot-classic-overlay"></div>
+                    <div class="hot-classic-badge">KINH ĐIỂN</div>
+                </div>
+                <div class="hot-classic-card-title">${UI.escapeHtml(title)}</div>
+                <div class="hot-classic-card-meta">
+                    <span class="hot-classic-score">★ ${score}</span>
+                    <span>📺 ${eps}</span>
+                </div>
+            </div>
+        `;
+    }
+
+    // ===== CẬP NHẬT FORMAT FILTER TỪ SCHEDULE =====
+    function updateFormatFilter(format) {
+        currentFormatFilter = format || 'ALL';
+        console.log('[HotAnime] Format filter:', currentFormatFilter);
+        loadLiveSection();
+        loadClassicSection();
+    }
+
+    return { init, updateFormatFilter };
 })();
 
 window.HotAnime = HotAnime;
