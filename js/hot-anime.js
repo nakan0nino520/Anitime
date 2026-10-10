@@ -53,9 +53,9 @@ const HotAnime = (() => {
         return pop >= SUPER_HOT_POPULARITY || score >= SUPER_HOT_SCORE;
     }
 
-    // ===== LẤY FORMAT CHO API =====
+    // ===== SỬA: TRẢ VỀ NULL KHI ALL ĐỂ LẤY TẤT CẢ FORMAT =====
     function getApiFormat() {
-        if (currentFormatFilter === 'ALL') return 'TV';
+        if (currentFormatFilter === 'ALL') return null;
         return currentFormatFilter;
     }
 
@@ -158,7 +158,7 @@ const HotAnime = (() => {
         if (dropdown) dropdown.classList.remove('show');
     }
 
-    // ===== LOAD KHUNG ĐANG HOT =====
+    // ===== SỬA: LOAD KHUNG ĐANG HOT VỚI FALLBACK =====
     async function loadLiveSection() {
         const hotScroll = document.getElementById('hotLiveScroll') || document.getElementById('hotScroll');
         if (!hotScroll) return;
@@ -167,25 +167,43 @@ const HotAnime = (() => {
 
         try {
             const apiFormat = getApiFormat();
+            
+            // Gọi API với format đã xử lý (null khi ALL)
             let data = await API.getSeasonal(state.season, state.year, apiFormat);
             data = data || [];
 
-            // LỌC: CHỈ ANIME ĐANG CHIẾU
-            data = data.filter(a => a.status === 'RELEASING');
+            // FALLBACK: Nếu không có dữ liệu cho năm tương lai, thử năm hiện tại
+            if (data.length === 0 && state.year > new Date().getFullYear()) {
+                console.warn('[HotAnime] Không có dữ liệu cho năm ' + state.year + ', thử năm hiện tại...');
+                data = await API.getSeasonal(state.season, new Date().getFullYear(), apiFormat);
+                data = data || [];
+            }
+
+            // LỌC STATUS LINH HOẠT
+            let releasingData = data.filter(a => {
+                const status = (a.status || '').toUpperCase();
+                return status === 'RELEASING' || status === 'ĐANG CHIẾU' || status === 'AIRING';
+            });
+
+            // NẾU KHÔNG CÓ ANIME ĐANG CHIẾU, HIỂN THỊ TẤT CẢ
+            if (releasingData.length === 0) {
+                console.warn('[HotAnime] Không có anime RELEASING, hiển thị tất cả anime của mùa');
+                releasingData = data;
+            }
 
             // LỌC THEO GENRE
             if (state.genre !== 'ALL') {
-                data = data.filter(a => (a.genres || []).includes(state.genre));
+                releasingData = releasingData.filter(a => (a.genres || []).includes(state.genre));
             }
 
             // SẮP XẾP THEO ĐỘ HOT
-            data.sort((a, b) => {
+            releasingData.sort((a, b) => {
                 const scoreA = (a.popularity || 0) + (a.averageScore || 0) * 100;
                 const scoreB = (b.popularity || 0) + (b.averageScore || 0) * 100;
                 return scoreB - scoreA;
             });
 
-            const list = data.slice(0, 15);
+            const list = releasingData.slice(0, 15);
 
             if (!list.length) {
                 hotScroll.innerHTML = '<div class="hot-empty">📭 Chưa có anime nào đang chiếu</div>';
@@ -209,7 +227,7 @@ const HotAnime = (() => {
     // ===== LOAD KHUNG ĐÃ HOT =====
     async function loadClassicSection() {
         const classicScroll = document.getElementById('hotClassicScroll');
-        if (!classicScroll) return; // Nếu giao diện không có khung này thì bỏ qua an toàn
+        if (!classicScroll) return;
 
         classicScroll.innerHTML = '<div class="hot-loading"><div class="spinner-small"></div></div>';
 
@@ -224,13 +242,15 @@ const HotAnime = (() => {
                     try {
                         const data = await API.getSeasonal(season, year, apiFormat);
                         if (data) allData.push(...data);
-                        // Thêm độ trễ ngắn tránh bị API bên thứ ba chặn do gọi quá nhanh
                         await new Promise(r => setTimeout(r, 200));
                     } catch (e) {}
                 }
             }
 
-            let data = allData.filter(a => a.status === 'FINISHED');
+            let data = allData.filter(a => {
+                const status = (a.status || '').toUpperCase();
+                return status === 'FINISHED' || status === 'ĐÃ KẾT THÚC' || status === 'COMPLETED';
+            });
 
             data = data.filter(a => {
                 const pop = a.popularity || 0;
@@ -334,6 +354,6 @@ const HotAnime = (() => {
     }
 
     return { init, updateFormatFilter, loadHotSection, isHot, isSuperHot };
-    })();
+})();
 
 window.HotAnime = HotAnime;
